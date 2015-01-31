@@ -2,6 +2,10 @@ from django.db import models
 from datetime import datetime
 from inventory.models import BatchItem
 
+
+
+
+
 class PostDatedCheque(models.Model):
 
     cheque_date = models.DateField('Cheque Date', null=True, blank=True)
