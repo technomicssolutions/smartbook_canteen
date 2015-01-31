@@ -1,0 +1,7 @@
+
+<ul class="side_menu" ng-controller="MenuStaffPermissions" ng-init="init('{{csrf_token}}')">
+	
+	<li ng-show="!is_staff || staff.inventory_permission"> <a href="{% url 'items' %}" class="inventory_menu">Inventory </a></li>
+	
+	<li ng-show="!is_staff || staff.reports_permission"> <a href="" class="reports_menu">Reports </a></li>
+</ul>

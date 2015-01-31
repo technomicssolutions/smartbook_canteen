@@ -1,0 +1,53 @@
+<!-- Header Div -->
+
+<header>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-1 col-sm-1 aqua_bg">
+				<a href="{% url 'dashboard' %}" class="home_icon"></a>
+			</div>
+			<div class="col-md-11 col-sm-11 header_margin">
+				<div class="col-md-5 col-sm-5 ">
+					<div class="">
+						<img src="/static/images/smartbook_logo.svg" width="295" height="88" />
+					</div>
+				</div>
+				<div class="col-md-7 col-sm-7">
+					<div class="col-md-12 col-sm-12 no-padding">	
+						<ul class="header_menus">
+							<li>
+								<a href="{% url 'logout' %}" class="logout"><img src="/static/images/top_lock.svg" width="25" height="25" /></a>
+							</li>
+							<li>
+								<a href="" class="help" width="25" height="25"></a>
+							</li>
+							<li>
+								<a href="" class="settings" id="settings"><img src="/static/images/top_settings.svg" width="25" height="25" ></a>
+								<ul class="drop_down">
+									
+									<li><a href="{% url 'reset_password' %}">Reset Password</a></li>
+								</ul>
+							</li>
+							<li>
+								<a href="" class="user" width="25" height="25"></a>		
+							</li>
+						</ul>				
+						<!-- span class="header_icons">
+							<a href="{% url 'logout' %}" class="logout"><img src="/static/images/top_lock.svg" width="25" height="25" /></a>
+							<a href="" class="help"></a>
+							<a href="" class="settings" id="settings"><img src="/static/images/top_settings.svg" width="25" height="25" >
+							</a>
+							<a href="" class="user"></a>							
+						</span> -->
+						<span class="date">
+							{{date|date:"D d M Y "}}
+						</span>
+					</div>
+					
+					{% include 'stock_search.html' %}
+					
+				</div>
+			</div>
+		</div>
+	</div>
+</header>
