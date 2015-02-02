@@ -99,7 +99,8 @@ class SearchBatchItem(View):
 class BatchList(View):
     def get(self, request, *args, **kwargs):
         batch_list = []
-        batches = Batch.objects.all()
+        batches = Batch.objects.filter(canteen=request.session['canteen'])
+
         if request.is_ajax():
             for batch in batches:
                 batch_list.append(batch.get_json_data())
@@ -130,10 +131,15 @@ class AddBatch(View):
         batch = None
         if request.is_ajax():
             batch_details = ast.literal_eval(request.POST['batch_details'])
+
+            batch_details['canteen'] = request.session['canteen']
+            print batch_details
             if batch_details.get('id', ''):
                 batches = Batch.objects.filter(name=batch_details['name']).exclude(id=batch_details['id'])
                 if batches.count() == 0:
                     batch = Batch.objects.get(id=batch_details['id'])
+                    batch_details['canteen'] = request.session['canteen']
+
                     batch_obj = batch.set_attributes(batch_details)
                 else:
                     res = {
@@ -153,14 +159,19 @@ class AddBatch(View):
                     return HttpResponse(response, status=200, mimetype='application/json')
                 except Exception as ex:
                     batch = Batch()
+                    batch_details['canteen'] = request.session['canteen'];
+                    print batch_details
+                    print "hai"
                     batch_obj = batch.set_attributes(batch_details)
             res = {
                 'result': 'ok',
                 'id': batch.id,
                 'name': batch.name,
+
             }
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')
+       
 
 class EditBatch(View):
 
@@ -1242,5 +1253,18 @@ class ClosingStockView(View):
 
     def get(self, request, *args, **kwargs):
 
+        batch_id = request.GET.get('batch_id', '')
+        item_details = []
+        if batch_id:
+            batch = Batch.objects.get(id=batch_id)
+            items = Item.objects.filter(batch=batch)
+            for item in items:
+                item_details.append(item.get_json_data())
+            if request.is_ajax():
+                res = {
+                    'result': 'ok',
+                    'item_details': item_details,
+                }
+                response = simplejson.dumps(res)
+                return HttpResponse(response, status=200, mimetype='application/json')
         return render(request, 'closing_stock.html', {})
-    
