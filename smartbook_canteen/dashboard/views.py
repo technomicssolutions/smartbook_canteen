@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 # from purchases.models import Purchase, PurchaseReturn
 # from accounts.models import Ledger, LedgerEntry
 from inventory.models import Category
-from dashboard.models import PostDatedCheque,Canteen
+from dashboard.models import Canteen
 
 style = [
     ('FONTNAME',(0,0),(-1,-1),'Helvetica') 

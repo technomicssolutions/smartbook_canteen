@@ -281,7 +281,7 @@ class ItemList(View):
     def get(self, request, *args, **kwargs):       
         if request.is_ajax():
             items_list = []
-            items = Item.objects.all()
+            items = Item.objects.filter(canteen=request.session['canteen'])
             for item in items:
                 item_data = item.get_json_data()                
                 items_list.append(item_data)
@@ -303,11 +303,13 @@ class AddItem(View):
 
         item_details = ast.literal_eval(request.POST['item'])
         if item_details.get('id', ''):
-
+         
             item = Item.objects.get(id=item_details['id'])
             item_obj = item.set_attributes(item_details)
         else:
             item = Item()
+            item_details['canteen']=request.session['canteen'];
+            print item_details;
             item_obj = item.set_attributes(item_details)
         # item_data = item_obj.get_json_data()
         res = {
