@@ -303,34 +303,34 @@ class AddItem(View):
 
         item_details = ast.literal_eval(request.POST['item'])
         if item_details.get('id', ''):
+
             item = Item.objects.get(id=item_details['id'])
             item_obj = item.set_attributes(item_details)
         else:
             item = Item()
             item_obj = item.set_attributes(item_details)
-        item_data = item_obj.get_json_data()
+        # item_data = item_obj.get_json_data()
         res = {
             'result': 'ok',
-            'item': item_data,
+            'item': item_obj.get_json_data()
         }
         response = simplejson.dumps(res)
-        return HttpResponse(response, status=200, mimetype='application/json')
-
+        return HttpResponse(response, status=200, mimetype='application/json')       
+                    
 class DeleteItem(View):
 
     def get(self, request, *args, **kwargs):
-        item_id = request.GET.get('item_id', '')
+        
+        item_id = request.GET.get('item_id','')
         msg = ''
         item = Item.objects.get(id=item_id)
-        sales_items = []
-        if item.item_type !='Stockable':
-            sales_items = SalesItem.objects.filter(item=item)
-        if item.batchitem_set.all().count() == 0 and sales_items.count() == 0:
-            item.delete()  
+        if item.batchitem_set.all().count() == 0:
+            item.delete()
         else:
-            msg = "Item can't be deleted"
-            return render(request, 'item_list.html', {'msg':msg})   
+            msg = "Item cannot be deleted"
+            return render(request, 'item_list.html', {'msg':msg})
         return HttpResponseRedirect(reverse('items'))
+        
 
 class SearchItem(View):
 

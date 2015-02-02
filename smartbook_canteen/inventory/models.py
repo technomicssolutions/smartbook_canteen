@@ -155,19 +155,28 @@ class Item(models.Model):
 
     def save(self, *args, **kwargs):
         super(Item, self).save() # for getting pk
-        if self.product and self.brand and self.name:
-            self.code = self.product.name[:3] + self.brand.name[:3] + self.name[:3]
-        elif self.brand:
-            self.code = self.name[:3] + self.brand.name[:3]
-        if self.product:
-            self.code = self.product.name[:3] + self.brand.name[:3] + self.name[:3] + (str(self.pk) if self.pk  else '')
-        elif self.brand: 
-            self.code =  self.brand.name[:3] + self.name[:3] + (str(self.pk) if self.pk  else '')
-        if self.item_type == 'Services':
-            self.code =  'SER' + self.name[:3] + (str(self.pk) if self.pk  else '')
-        if self.item_type == 'Non Stockable':
-            self.code =  'NS' + self.name[:3] + (str(self.pk) if self.pk  else '')
+        if self.name:
+            self.code = self.name[:3] + str(self.id ) 
         super(Item, self).save()
+       
+
+        # elif self.item:
+        #     self.code = self.name[:3] + self.item.name[:3]
+        # if self.item:
+        #     self.code = self.item.name[:3] + self.name[:3] + (str(self.pk) if self.pk  else '')
+        # if self.product and self.brand and self.name:
+        #     self.code = self.product.name[:3] + self.brand.name[:3] + self.name[:3]
+        # elif self.brand:
+        #     self.code = self.name[:3] + self.brand.name[:3]
+        # if self.product:
+        #     self.code = self.product.name[:3] + self.brand.name[:3] + self.name[:3] + (str(self.pk) if self.pk  else '')
+        # elif self.brand: 
+        #     self.code =  self.brand.name[:3] + self.name[:3] + (str(self.pk) if self.pk  else '')
+        # if self.item_type == 'Services':
+        #     self.code =  'SER' + self.name[:3] + (str(self.pk) if self.pk  else '')
+        # if self.item_type == 'Non Stockable':
+        #     self.code =  'NS' + self.name[:3] + (str(self.pk) if self.pk  else '')
+        
     def __unicode__(self):
         return str(self.code) + ' - ' + self.name
 
@@ -185,7 +194,8 @@ class Item(models.Model):
             'id': self.id,
             'item_id':self.id,
             'item_name': self.name,
-            'name': str(self.name)+ ' - ' + (str(self.product.category.name) if self.product else '') + ' - ' + (str(self.product.name) if self.product else '') + ' - ' +(str(self.brand.name) if self.brand else '')  + (str(' - ') + str(self.size) if self.size else ''),
+            'name': str(self.name),
+            # + ' - ' + (str(self.product.category.name) if self.product else '') + ' - ' + (str(self.product.name) if self.product else '') + ' - ' +(str(self.brand.name) if self.brand else '')  + (str(' - ') + str(self.size) if self.size else ''),
             'type': self.item_type,
             'code': self.code,
             'product_name': self.product.name if self.product else '',

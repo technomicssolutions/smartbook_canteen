@@ -623,20 +623,20 @@ function validate_item($scope) {
     // } else if($scope.item.product == '' || $scope.item.product == undefined){
     //     $scope.validate_item_error_msg = 'Please enter a product';
     //     return false;
-    } else if($scope.item.type == '' || $scope.item.type == undefined){
-        $scope.validate_item_error_msg = 'Please choose a type';
-        return false;
-        } else if($scope.item.type == 'Stockable'){ 
-        if($scope.item.brand == '' || $scope.item.brand == undefined){
-            $scope.validate_item_error_msg = 'Please choose a brand';
-            return false;
-        } else if ($scope.item.cess && ($scope.item.cess != Number($scope.item.cess))) {
-            $scope.validate_item_error_msg = 'Please enter valid cess';
-            return false;
-        } else if($scope.item.uom == '' || $scope.item.uom == undefined){
-            $scope.validate_item_error_msg = 'Please enter a uom';
-            return false;
-        }
+    // } else if($scope.item.type == '' || $scope.item.type == undefined){
+    //     $scope.validate_item_error_msg = 'Please choose a type';
+    //     return false;
+    //     } else if($scope.item.type == 'Stockable'){ 
+    //     if($scope.item.brand == '' || $scope.item.brand == undefined){
+    //         $scope.validate_item_error_msg = 'Please choose a brand';
+    //         return false;
+    //     } else if ($scope.item.cess && ($scope.item.cess != Number($scope.item.cess))) {
+    //         $scope.validate_item_error_msg = 'Please enter valid cess';
+    //         return false;
+    //     } else if($scope.item.uom == '' || $scope.item.uom == undefined){
+    //         $scope.validate_item_error_msg = 'Please enter a uom';
+    //         return false;
+    //     }
     }return true;
 }
 function initialize_item($scope){
@@ -669,28 +669,28 @@ function save_item($scope, $http, from){
     if ($scope.item.description == null) {
         $scope.item.description = '';
     }
-    if ($scope.item.barcode == null) {
-        $scope.item.barcode = '';
-    }
-    if ($scope.item.size == null) {
-        $scope.item.size = '';
-    }
+    // if ($scope.item.barcode == null) {
+    //     $scope.item.barcode = '';
+    // }
+    // if ($scope.item.size == null) {
+    //     $scope.item.size = '';
+    // }
     // if($scope.item.batch_item_exists == true)
     //     $scope.item.batch_item_exists = "true";
     // else
     //     $scope.item.batch_item_exists = "false";
-    if($scope.item.unit_per_packet == '' && $scope.item.unit_per_piece == '' && $scope.item.unit_per_box == ''){
-        $scope.item.smallest_uom = $scope.item.uom;
-    } else if($scope.item.unit_per_packet == '' && $scope.item.unit_per_piece == ''){
-        $scope.item.smallest_uom = $scope.item.box_uom;
-        $scope.item.smallest_unit_per_uom = $scope.item.unit_per_box;
-    } else if($scope.item.unit_per_piece == '') {
-        $scope.item.smallest_uom = $scope.item.packet_uom;
-        $scope.item.smallest_unit_per_uom = $scope.item.unit_per_packet;
-    }else {
-        $scope.item.smallest_uom = $scope.item.piece_uom;
-        $scope.item.smallest_unit_per_uom = $scope.item.unit_per_piece;
-    }
+    // if($scope.item.unit_per_packet == '' && $scope.item.unit_per_piece == '' && $scope.item.unit_per_box == ''){
+    //     $scope.item.smallest_uom = $scope.item.uom;
+    // } else if($scope.item.unit_per_packet == '' && $scope.item.unit_per_piece == ''){
+    //     $scope.item.smallest_uom = $scope.item.box_uom;
+    //     $scope.item.smallest_unit_per_uom = $scope.item.unit_per_box;
+    // } else if($scope.item.unit_per_piece == '') {
+    //     $scope.item.smallest_uom = $scope.item.packet_uom;
+    //     $scope.item.smallest_unit_per_uom = $scope.item.unit_per_packet;
+    // }else {
+    //     $scope.item.smallest_uom = $scope.item.piece_uom;
+    //     $scope.item.smallest_unit_per_uom = $scope.item.unit_per_piece;
+    // }
     params = {
         'item': angular.toJson($scope.item),
         'csrfmiddlewaretoken': $scope.csrf_token,

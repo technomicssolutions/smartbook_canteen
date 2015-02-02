@@ -170,7 +170,7 @@ LOGGING = {
         },
     }
 }
-UOM = ['Kg', 'gm', 'mg', 'Metre', 'cm', 'mm', 'inches', 'feet', 'sqrfeet', 'sqrmetre', 'litre', 'ml', 'packet', 'box', 'piece', 'tonne']
+UOM = ['Kg', 'gm', 'mg','packet', 'box', 'piece']
 try:
     from local_settings import *
 except:
