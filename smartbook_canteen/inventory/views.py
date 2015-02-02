@@ -1600,3 +1600,9 @@ class CategoryWiseProfitReport(View):
                 p.build(elements)  
                 return response 
         return render(request, 'category_wise_profit_report.html', {})
+
+class ClosingStockView(View):
+
+    def get(self, request, *args, **kwargs):
+
+        return render(request, 'closing_stock.html', {})

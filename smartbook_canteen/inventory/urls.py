@@ -7,7 +7,7 @@ from inventory.views import SearchBatch, SearchBatchItem, BatchList, AddBatch, D
 	AddVat, DeleteVat, OpeningStockView, BatchItemDetailsView, EditVat, EditBrand, EditProduct, \
 	EditBatch, CategorySubcategoryList, SearchItemStock, BatchItemsView, IsCategoryNameExists, StockReport, \
 	StockAgingReport, CategoryWiseStockReport, CategoryWiseStockAgingReport, CategoryWiseVendorReport, CategoryWisePurchaseReport, \
-	AddMultipleProducts, AddMultipleBrand, AddMultipleVat, CategoryWiseProfitReport
+	AddMultipleProducts, AddMultipleBrand, AddMultipleVat, CategoryWiseProfitReport, ClosingStockView
 
 
 urlpatterns = patterns('',
@@ -66,5 +66,6 @@ urlpatterns = patterns('',
 	url(r'^category_purchase_report/$', login_required(CategoryWisePurchaseReport.as_view(), login_url='/login/'), name='category_purchase_report'),
 	url(r'^category_vendor_report/$', login_required(CategoryWiseVendorReport.as_view(), login_url='/login/'), name='category_vendor_report'),
 	url(r'^category_profit_report/$', login_required(CategoryWiseProfitReport.as_view(), login_url='/login/'), name='category_profit_report'),
+	url(r'^closing_stock/$', login_required(ClosingStockView.as_view(), login_url='/login/'), name='closing_stock'),
 
 )
