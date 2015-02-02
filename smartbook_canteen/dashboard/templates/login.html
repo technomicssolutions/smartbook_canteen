@@ -39,6 +39,17 @@
 									<input type="PASSWORD" name="password">
 								</td>
 							</tr>
+							<tr>
+								<td>
+									<label>Canteen</label>
+								</td>
+								<td ><select name="canteen">
+									{% for canteen in canteens %}
+									<option value="{{ canteen.id }}">{{ canteen.name }}</option>
+									{% endfor %}
+								</select>
+								</td>
+							</tr>	
 						</table>
 						<div class="clear"></div>
 					</div>

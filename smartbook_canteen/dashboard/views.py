@@ -16,7 +16,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-
 # from sales.models import Sale, SalesItem
 # from purchases.models import Purchase, PurchaseReturn
 # from accounts.models import Ledger, LedgerEntry
@@ -54,11 +53,24 @@ def get_expense_amount(expense, month, year, amount):
 
 class Login(View):
     def get(self, request, *args, **kwargs):
-        return render(request, 'login.html', {})
+        canteen_list = []
+        canteens = Canteen.objects.all()
+        print (canteens);
+        print("sss")
+        for canteen in canteens:
+            print (canteen);
+            canteen_list.append(canteen.get_json_data())
+        res = {
+            'result': 'ok',
+            'canteens': canteen_list,
+         }
+        return render(request, 'login.html', res)
 
     def post(self, request, *args, **kwargs):
 
         user = authenticate(username=request.POST['username'], password=request.POST['password'])
+        request.session['canteen'] = request.POST['canteen']
+        print request.session['canteen']
         if user and user.is_active:
             login(request, user)
             return HttpResponseRedirect(reverse('dashboard'))

@@ -468,12 +468,18 @@ function get_product_search_list($scope, $http, category_wise) {
 
 function get_item_search_list($scope, $http, item, batch, from) {
     var url = ''
+    console.log(item);
+    console.log(batch);
     if($scope.item_name){
+        console.log($scope.item_name);
         url = '/inventory/search_item/?'+'item_name'+'='+$scope.item_name;
     } else{
-        url = '/inventory/search_item/?'+'item_name'+'='+item+'&batch='+batch;
+        console.log("sss")
+        //url = '/inventory/search_item/?'+'item_name'+'='+item+'&batch='+batch;
+        url = '/inventory/search_item/?'+'item_name'+'='+item;
     }
     if($scope.search_item_name){
+        //console.log($scope.search_item_name)
         url = '/inventory/search_item/?'+'item_name'+'='+$scope.search_item_name;
     }
     if (url) {
@@ -1225,9 +1231,10 @@ function AddVatController($scope, $http){
         save_vat($scope, $http);
     }
 }
+
 function OpeningStockController($scope, $http){
    
-    $scope.product_name = "";
+    //$scope.product_name = "";
     $scope.opening_stock_items = [];
     for (var i=0; i<5; i++) {
         $scope.opening_stock_items.push(
@@ -1258,14 +1265,6 @@ function OpeningStockController($scope, $http){
             }
         } else if ($scope.current_item_details.items != undefined && $scope.current_item_details.items.length > 0) {
             if($scope.focusIndex < $scope.current_item_details.items.length-1){
-                $scope.focusIndex++; 
-            }
-        }else if ($scope.brands != undefined && $scope.brands.length > 0) {
-            if($scope.focusIndex < $scope.brands.length-1){
-                $scope.focusIndex++; 
-            }
-        }else if ($scope.products != undefined && $scope.products.length > 0) {
-            if($scope.focusIndex < $scope.products.length-1){
                 $scope.focusIndex++; 
             }
         }else if ($scope.categories_list != undefined && $scope.categories_list.length > 0) {
@@ -1354,6 +1353,7 @@ function OpeningStockController($scope, $http){
         item.batch_search = false; 
         $scope.current_item_details = [];
         $scope.current_item_details = item;
+        console.log($scope.current_item_details);
         get_item_search_list($scope, $http, $scope.current_item_details.name, item.batch, 'opening_stock');
     }
     $scope.get_items = function() {

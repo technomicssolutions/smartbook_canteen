@@ -13,7 +13,6 @@ class Canteen(models.Model):
         verbose_name_plural = 'Canteen'
 
     def get_json_data(self):
-
         canteen_data = {
             'id': self.id,
             'name': self.name,
