@@ -129,6 +129,7 @@ class AddBatch(View):
         batch = None
         if request.is_ajax():
             batch_details = ast.literal_eval(request.POST['batch_details'])
+            print batch_details;
             if batch_details.get('id', ''):
                 batches = Batch.objects.filter(name=batch_details['name']).exclude(id=batch_details['id'])
                 if batches.count() == 0:
