@@ -224,19 +224,19 @@ function MenuStaffPermissions($scope, $http) {
         $scope.new_password = '';
         $scope.confirm_password = '';
         $scope.csrf_token = csrf_token;
-        $scope.get_staff_permissions();
+        //$scope.get_staff_permissions();
     } 
-    $scope.get_staff_permissions = function(){
-        params = {
-            'new_password': $scope.new_password,
-            'confirm_password': $scope.confirm_password,
-            "csrfmiddlewaretoken": $scope.csrf_token,
-        }
-        $http.get('/administration/get_staff_permissions/').success(function(data){
-            $scope.is_staff = data.is_staff;
-            $scope.staff = data.staff;
-        }).error(function(data){
+    // $scope.get_staff_permissions = function(){
+    //     params = {
+    //         'new_password': $scope.new_password,
+    //         'confirm_password': $scope.confirm_password,
+    //         "csrfmiddlewaretoken": $scope.csrf_token,
+    //     }
+    //     $http.get('/administration/get_staff_permissions/').success(function(data){
+    //         $scope.is_staff = data.is_staff;
+    //         $scope.staff = data.staff;
+    //     }).error(function(data){
 
-        })
-    } 
+    //     })
+    // } 
 }

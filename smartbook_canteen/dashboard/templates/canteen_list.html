@@ -1,0 +1,43 @@
+
+{% extends 'base.html' %}
+{% block title %} Canteen List {% endblock title%}
+{% block body_id %}dashboard{% endblock %}
+{% block controller %} 
+	ng-controller="CanteenController" ng-init="init('{{ csrf_token }}')"
+{% endblock %}
+{% block dialogue_popup %}
+	{% include 'view_canteen.html' %}	
+{% endblock %}
+{% block horizontal_menu_container %}{% endblock %}
+{% block submenu_container%}{% endblock %}
+{% block content %}
+
+<h2>Canteen</h2>
+	<button class="create_button" ng-click="create_new()">Create Canteen</button>
+	<div class="col-md-8 col-sm-8">
+	<div class="search">
+		<label>Search Canteen</label>
+		<input type="text" name="canteen_name" ng-model="canteen_name" ng-change="get_canteen_list()" >
+		<p class="error_msg">[[no_batch_msg]]</p>
+	</div>
+</div>
+	<table ng-show="canteens.length > 0" class="table list_table">
+		<tr>
+			<th>Name</th>
+			<!-- <th>Created date</th>
+			<th>Expiry date</th> -->
+			<th>View</th>
+			<th>Edit</th>
+			<th>Delete</th>
+		</tr>
+		<tr ng-repeat="canteen in canteens">
+			<td>[[canteen.name]]</td>
+			<!-- <td>[[batch.created_date]]</td>
+			<td>[[batch.expiry_date]]</td> -->
+			<td><a href="" ng-click="view_canteen(canteen)">View</a></td>
+			<td><a href="" ng-click="edit_canteen_details(canteen)">Edit</a></td>
+			<td><a href="" ng-click="delete_canteen(canteen)">Delete</a></td>
+			<p class="error_msg">{{msg}}</p>
+		</tr>
+	</table>
+{% endblock content %}

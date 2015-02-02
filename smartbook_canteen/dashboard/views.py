@@ -21,7 +21,7 @@ from django.contrib.auth.models import User
 # from purchases.models import Purchase, PurchaseReturn
 # from accounts.models import Ledger, LedgerEntry
 from inventory.models import Category
-from dashboard.models import PostDatedCheque
+from dashboard.models import PostDatedCheque,Canteen
 
 style = [
     ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
@@ -81,6 +81,128 @@ class Logout(View):
         logout(request)
         return HttpResponseRedirect(reverse('login'))
 
+class CanteenList(View):
+
+    def get(self, request, *args, **kwargs):
+        canteen_list = []
+        canteens = Canteen.objects.all()
+        print (canteens);
+        print("sss")
+        for canteen in canteens:
+            print (canteen);
+            canteen_list.append(canteen.get_json_data())
+        res = {
+            'result': 'ok',
+            'canteens': canteen_list,
+         }
+        response = simplejson.dumps(res)
+        if request.is_ajax():
+            print("ajax");
+            res = {
+            'result': 'ok',
+            'canteens': canteen_list,
+            }
+            response = simplejson.dumps(res)
+            return HttpResponse(response, status=200, mimetype='application/json')
+        # return HttpResponse(response, status=200, mimetype='application/json')    
+        return render(request, 'canteen_list.html', {})
+
+
+
+class AddCanteen(View):
+
+    def get(self, request, *args, **kwargs):
+        canteen_id = request.GET.get('canteen_id', '')
+        if request.is_ajax()and request.GET.get('canteen_id', ''):
+            canteen = Canteen.objects.get(id=canteen_id)
+            res = {
+                'result': 'ok',
+                'canteens': canteen.get_json_data(),
+            }
+            response = simplejson.dumps(res)
+            return HttpResponse(response, status=200, mimetype='application/json')
+        return render(request, 'add_canteen.html', {'canteen_id' : canteen_id})
+
+    def post(self, request, *args, **kwargs):
+        
+        canteen = None
+        if request.is_ajax():
+            canteen_details = ast.literal_eval(request.POST['canteen_details'])
+            if canteen_details.get('id', ''):
+                canteens = Canteen.objects.filter(name=canteen_details['name']).exclude(id=canteen_details['id'])
+                if canteens.count() == 0:
+                    canteen = Canteen.objects.get(id=canteen_details['id'])
+                    canteen_obj = canteen.set_attributes(canteen_details)
+                else:
+                    res = {
+                        'result': 'error',
+                        'message': 'canteen with this name already exists',
+                    }
+                    response = simplejson.dumps(res)
+                    return HttpResponse(response, status=200, mimetype='application/json')
+            else:
+                try:
+                    canteen = Canteen.objects.get(name=canteen_details['name'])  
+                    res = {
+                        'result': 'error',
+                        'message': 'Canteen with this name already exists',
+                    }
+                    response = simplejson.dumps(res)
+                    return HttpResponse(response, status=200, mimetype='application/json')
+                except Exception as ex:
+                    canteen = Canteen()
+                    canteen_obj = canteen.set_attributes(canteen_details)
+            res = {
+                'result': 'ok',
+                'id': canteen.id,
+                'name': canteen.name,
+            }
+            response = simplejson.dumps(res)
+            return HttpResponse(response, status=200, mimetype='application/json')
+
+class EditCanteen(View):
+
+    def get(self, request, *args, **kwargs):
+        canteen_id = request.GET.get('canteen_id', '')
+        print (canteen_id);
+        if request.GET.get('canteen_id', ''):
+            print("hii");
+            canteen = Canteen.objects.get(id=canteen_id)
+            res = {
+                'result': 'ok',
+                'canteen': canteen.get_json_data(),
+            }
+            response = simplejson.dumps(res)
+            return HttpResponse(response, status=200, mimetype='application/json')
+        return render(request, 'add_canteen.html', {'canteen_id' : canteen_id})
+
+class DeleteCanteen(View):
+
+    def get(self, request, *args, **kwargs):
+        msg = ''
+        canteen_id = request.GET.get('canteen_id', '')
+        print (canteen_id);
+        canteen = Canteen.objects.get(id=canteen_id)
+        canteen.delete()
+        return HttpResponseRedirect(reverse('canteen'))         
+
+class SearchCanteen(View):
+
+    def get(self, request, *args, **kwargs):
+
+        canteen_name = request.GET.get('canteen_name', '')
+        print (canteen_name);
+        canteens = Canteen.objects.filter(name__istartswith=canteen_name)
+        canteen_list = []
+        for canteen in canteens:
+            canteen_data = canteen.get_json_data()
+            canteen_list.append(canteen_data)
+        res = {
+            'result': 'ok',
+            'canteens': canteen_list,
+        }
+        response = simplejson.dumps(res)
+        return HttpResponse(response, status=200, mimetype='application/json')
 class HelpView(View):
 
     def get(self, request, *args, **kwargs):
@@ -93,140 +215,140 @@ class SettingsView(View):
 
         return render(request, 'settings.html', {})
 
-class MonthlySalesView(View):
+# class MonthlySalesView(View):
 
-    def get(self, request, *args, **kwargs):
+#     def get(self, request, *args, **kwargs):
 
-        if request.is_ajax():
-            monthly_sales = []
-            current_year = datetime.now().year
-            for i in range(1,13):
-                sales = Sale.objects.filter(sales_invoice_date__month=i, sales_invoice_date__year=current_year)
-                monthly_total_amount = 0
-                for sale in sales:
-                    monthly_total_amount = float(monthly_total_amount) + float(sale.grant_total)
-                monthly_sales.append(monthly_total_amount)
-            res = {
-                'result': 'ok',
-                'monthly_sales': monthly_sales,
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
+#         if request.is_ajax():
+#             monthly_sales = []
+#             current_year = datetime.now().year
+#             for i in range(1,13):
+#                 sales = Sale.objects.filter(sales_invoice_date__month=i, sales_invoice_date__year=current_year)
+#                 monthly_total_amount = 0
+#                 for sale in sales:
+#                     monthly_total_amount = float(monthly_total_amount) + float(sale.grant_total)
+#                 monthly_sales.append(monthly_total_amount)
+#             res = {
+#                 'result': 'ok',
+#                 'monthly_sales': monthly_sales,
+#             }
+#             response = simplejson.dumps(res)
+#             return HttpResponse(response, status=200, mimetype='application/json')
 
-class YearWiseSalesView(View):
+# class YearWiseSalesView(View):
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            yearly_sales = []
-            current_year = datetime.now().year
-            years = []
-            for year in range((current_year - 4), current_year + 1):
-                years.append(year)
-                sales = Sale.objects.filter(sales_invoice_date__year=year)
-                yearly_total_amount = 0
-                for sale in sales:
-                    yearly_total_amount = float(yearly_total_amount) + float(sale.grant_total)
-                yearly_sales.append(yearly_total_amount)
-            res = {
-                'result': 'ok',
-                'yearly_sales': yearly_sales,
-                'years': years,
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
+#     def get(self, request, *args, **kwargs):
+#         if request.is_ajax():
+#             yearly_sales = []
+#             current_year = datetime.now().year
+#             years = []
+#             for year in range((current_year - 4), current_year + 1):
+#                 years.append(year)
+#                 sales = Sale.objects.filter(sales_invoice_date__year=year)
+#                 yearly_total_amount = 0
+#                 for sale in sales:
+#                     yearly_total_amount = float(yearly_total_amount) + float(sale.grant_total)
+#                 yearly_sales.append(yearly_total_amount)
+#             res = {
+#                 'result': 'ok',
+#                 'yearly_sales': yearly_sales,
+#                 'years': years,
+#             }
+#             response = simplejson.dumps(res)
+#             return HttpResponse(response, status=200, mimetype='application/json')
 
-class MonthlyStatisticsView(View):
+# class MonthlyStatisticsView(View):
 
-    def get(self, request, *args, **kwargs):
+#     def get(self, request, *args, **kwargs):
 
-        if request.is_ajax():
-            monthly_sales = []
-            monthly_purchase = []
-            monthly_expense = []
-            monthly_profit = []
-            current_year = datetime.now().year
-            for i in range(1,13):
-                sales = Sale.objects.filter(sales_invoice_date__month=i, sales_invoice_date__year=current_year)
-                purchases = Purchase.objects.filter(purchase_invoice_date__month=i, purchase_invoice_date__year=current_year)
-                purchase_returns = PurchaseReturn.objects.filter(invoice_date__month=i, invoice_date__year=current_year)
-                monthly_total_sale_amount = 0
-                monthly_total_purchase_amount = 0
-                monthly_expense_amount = 0
-                monthly_profit_amount = 0
-                monthly_total_purchase_return_amount = 0
-                for sale in sales:
-                    monthly_total_sale_amount = float(monthly_total_sale_amount) + float(sale.grant_total)
-                monthly_sales.append(monthly_total_sale_amount)
-                for purchase in purchases:
-                    monthly_total_purchase_amount = float(monthly_total_purchase_amount) + float(purchase.grant_total)
-                for purchase_return in purchase_returns:
-                    monthly_total_purchase_return_amount = float(monthly_total_purchase_return_amount) + float(purchase_return.grant_total)
-                monthly_total_purchase_amount = float(monthly_total_purchase_amount) - float(monthly_total_purchase_return_amount)
-                monthly_purchase.append(monthly_total_purchase_amount)
-                consumable = Ledger.objects.get(account_code=6000)
-                indirect_expense_amount = get_expense_amount(consumable, i, current_year, 0)
-                inward_freight_ledger = Ledger.objects.get(account_code=4001)
-                monthly_expense_amount = get_expense_amount(inward_freight_ledger, i, current_year, indirect_expense_amount)
-                monthly_expense.append(monthly_expense_amount)
-                monthly_profit_amount = float(monthly_total_sale_amount) - (float(monthly_total_purchase_amount) + float(monthly_expense_amount))
-                monthly_profit.append(monthly_profit_amount)
-            res = {
-                'result': 'ok',
-                'monthly_sales': monthly_sales,
-                'monthly_purchase': monthly_purchase,
-                'monthly_expense': monthly_expense,
-                'monthly_profit': monthly_profit,
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
+#         if request.is_ajax():
+#             monthly_sales = []
+#             monthly_purchase = []
+#             monthly_expense = []
+#             monthly_profit = []
+#             current_year = datetime.now().year
+#             for i in range(1,13):
+#                 sales = Sale.objects.filter(sales_invoice_date__month=i, sales_invoice_date__year=current_year)
+#                 purchases = Purchase.objects.filter(purchase_invoice_date__month=i, purchase_invoice_date__year=current_year)
+#                 purchase_returns = PurchaseReturn.objects.filter(invoice_date__month=i, invoice_date__year=current_year)
+#                 monthly_total_sale_amount = 0
+#                 monthly_total_purchase_amount = 0
+#                 monthly_expense_amount = 0
+#                 monthly_profit_amount = 0
+#                 monthly_total_purchase_return_amount = 0
+#                 for sale in sales:
+#                     monthly_total_sale_amount = float(monthly_total_sale_amount) + float(sale.grant_total)
+#                 monthly_sales.append(monthly_total_sale_amount)
+#                 for purchase in purchases:
+#                     monthly_total_purchase_amount = float(monthly_total_purchase_amount) + float(purchase.grant_total)
+#                 for purchase_return in purchase_returns:
+#                     monthly_total_purchase_return_amount = float(monthly_total_purchase_return_amount) + float(purchase_return.grant_total)
+#                 monthly_total_purchase_amount = float(monthly_total_purchase_amount) - float(monthly_total_purchase_return_amount)
+#                 monthly_purchase.append(monthly_total_purchase_amount)
+#                 consumable = Ledger.objects.get(account_code=6000)
+#                 indirect_expense_amount = get_expense_amount(consumable, i, current_year, 0)
+#                 inward_freight_ledger = Ledger.objects.get(account_code=4001)
+#                 monthly_expense_amount = get_expense_amount(inward_freight_ledger, i, current_year, indirect_expense_amount)
+#                 monthly_expense.append(monthly_expense_amount)
+#                 monthly_profit_amount = float(monthly_total_sale_amount) - (float(monthly_total_purchase_amount) + float(monthly_expense_amount))
+#                 monthly_profit.append(monthly_profit_amount)
+#             res = {
+#                 'result': 'ok',
+#                 'monthly_sales': monthly_sales,
+#                 'monthly_purchase': monthly_purchase,
+#                 'monthly_expense': monthly_expense,
+#                 'monthly_profit': monthly_profit,
+#             }
+#             response = simplejson.dumps(res)
+#             return HttpResponse(response, status=200, mimetype='application/json')
 
-class RevenueSplitup(View):
+# class RevenueSplitup(View):
 
-    def get(self, request, *args, **kwargs):
-        categories = Category.objects.all()
-        category_details = []
-        category_data = []
-        current_year = datetime.now().year
-        sales = Sale.objects.filter(sales_invoice_date__year=current_year)
-        sales_total = 0
-        for sale in sales:
-            grant_total = 0
-            grant_total = float(sale.grant_total) + float(sale.discount)
-            sales_total = float(grant_total) + float(sales_total)
+#     def get(self, request, *args, **kwargs):
+#         categories = Category.objects.all()
+#         category_details = []
+#         category_data = []
+#         current_year = datetime.now().year
+#         sales = Sale.objects.filter(sales_invoice_date__year=current_year)
+#         sales_total = 0
+#         for sale in sales:
+#             grant_total = 0
+#             grant_total = float(sale.grant_total) + float(sale.discount)
+#             sales_total = float(grant_total) + float(sales_total)
 
-        for category in categories:
-            percentage = 0
-            sales_items = SalesItem.objects.filter(batch_item__item__product__category=category, sales__sales_invoice_date__year=current_year)
-            grant_total = 0
-            for sales_item in sales_items:
-                grant_total = grant_total + sales_item.net_amount
-            if sales_total > 0:
-                percentage = float(grant_total) / float(sales_total) * 100
-            category_details.append({
-                'total': grant_total,
-                'name': category.name,
-                'percentage': percentage
-            })
-        category_data = sorted(category_details, key=itemgetter('percentage'), reverse=True) 
-        pie_data = []
-        if len(category_data) > 5:
-            pie_data = category_data[:5]
-            percentage = 0
-            for cat_data in range(5, len(category_data)):
-                percentage = float(category_data[cat_data]['percentage']) + float(percentage)
-            pie_data.append({
-                'name': 'Others',
-                'percentage': percentage   
-            })
-        else:
-            pie_data = category_data
-        res = {
-            'result': 'ok',
-            'category_data': pie_data,
-            'current_year': current_year,
-        }
-        response = simplejson.dumps(res)
-        return HttpResponse(response, status=200, mimetype='application/json')
+#         for category in categories:
+#             percentage = 0
+#             sales_items = SalesItem.objects.filter(batch_item__item__product__category=category, sales__sales_invoice_date__year=current_year)
+#             grant_total = 0
+#             for sales_item in sales_items:
+#                 grant_total = grant_total + sales_item.net_amount
+#             if sales_total > 0:
+#                 percentage = float(grant_total) / float(sales_total) * 100
+#             category_details.append({
+#                 'total': grant_total,
+#                 'name': category.name,
+#                 'percentage': percentage
+#             })
+#         category_data = sorted(category_details, key=itemgetter('percentage'), reverse=True) 
+#         pie_data = []
+#         if len(category_data) > 5:
+#             pie_data = category_data[:5]
+#             percentage = 0
+#             for cat_data in range(5, len(category_data)):
+#                 percentage = float(category_data[cat_data]['percentage']) + float(percentage)
+#             pie_data.append({
+#                 'name': 'Others',
+#                 'percentage': percentage   
+#             })
+#         else:
+#             pie_data = category_data
+#         res = {
+#             'result': 'ok',
+#             'category_data': pie_data,
+#             'current_year': current_year,
+#         }
+#         response = simplejson.dumps(res)
+#         return HttpResponse(response, status=200, mimetype='application/json')
         
 class ResetPassword(View):
 
