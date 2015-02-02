@@ -3,6 +3,7 @@ from datetime import datetime
 from jsonfield import JSONField
 
 from django.db import models
+from dashboard.models import Canteen
 # from administration.models import BonusPoint
 from utils import calculate_actual_quantity
 
@@ -130,6 +131,7 @@ class VatType(models.Model):
 
 class Item(models.Model):
 
+    canteen = models.ForeignKey(Canteen, null=True, blank=True)
     vat_type = models.ForeignKey(VatType, null=True, blank=True)
     product = models.ForeignKey(Product, null=True, blank=True)
     brand = models.ForeignKey(Brand, null=True, blank=True)
@@ -183,42 +185,42 @@ class Item(models.Model):
     class Meta:
         verbose_name_plural = 'Item'
 
-    def get_json_data(self):
-        batch_item_exists = False
-        batch_items = BatchItem.objects.filter(item__id=self.id)
-        if batch_items:
-            batch_item_exists = True
-        else:
-            batch_item_exists = False
-        item_data = {
-            'id': self.id,
-            'item_id':self.id,
-            'item_name': self.name,
-            'name': str(self.name),
-            # + ' - ' + (str(self.product.category.name) if self.product else '') + ' - ' + (str(self.product.name) if self.product else '') + ' - ' +(str(self.brand.name) if self.brand else '')  + (str(' - ') + str(self.size) if self.size else ''),
-            'type': self.item_type,
-            'code': self.code,
-            'product_name': self.product.name if self.product else '',
-            'brand_name': self.brand.name if self.brand else '',
-            'product': self.product.id if self.product else '',
-            'brand': self.brand.id if self.brand else '',
-            'vat_name': self.vat_type.vat_type + str(' - ') + str(self.vat_type.tax_percentage) if self.vat_type else '',
-            'vat': self.vat_type.id if self.vat_type else '',
-            'tax': self.vat_type.tax_percentage if self.vat_type and self.vat_type.tax_percentage else '',
-            'barcode': self.barcode,
-            'description': self.description,
-            'cess': self.cess,
-            'size': self.size,
-            'uom':self.uom,
-            'packets_per_box': self.packets_per_box if self.packets_per_box else '',
-            'pieces_per_box': self.pieces_per_box if self.pieces_per_box else '',
-            'pieces_per_packet': self.pieces_per_packet if self.pieces_per_packet else '',
-            'unit_per_piece': self.unit_per_piece if self.unit_per_piece else '',
-            'smallest_unit': self.smallest_unit if self.smallest_unit else '',
-            'unit_per_packet': self.unit_per_packet if self.unit_per_packet else '',
-            # 'batch_item_exists': batch_item_exists
-        }
-        return item_data        
+    # def get_json_data(self):
+    #     batch_item_exists = False
+    #     batch_items = BatchItem.objects.filter(item__id=self.id)
+    #     if batch_items:
+    #         batch_item_exists = True
+    #     else:
+    #         batch_item_exists = False
+    #     item_data = {
+    #         'id': self.id,
+    #         'item_id':self.id,
+    #         'item_name': self.name,
+    #         'name': str(self.name),
+    #         # + ' - ' + (str(self.product.category.name) if self.product else '') + ' - ' + (str(self.product.name) if self.product else '') + ' - ' +(str(self.brand.name) if self.brand else '')  + (str(' - ') + str(self.size) if self.size else ''),
+    #         'type': self.item_type,
+    #         'code': self.code,
+    #         'product_name': self.product.name if self.product else '',
+    #         'brand_name': self.brand.name if self.brand else '',
+    #         'product': self.product.id if self.product else '',
+    #         'brand': self.brand.id if self.brand else '',
+    #         'vat_name': self.vat_type.vat_type + str(' - ') + str(self.vat_type.tax_percentage) if self.vat_type else '',
+    #         'vat': self.vat_type.id if self.vat_type else '',
+    #         'tax': self.vat_type.tax_percentage if self.vat_type and self.vat_type.tax_percentage else '',
+    #         'barcode': self.barcode,
+    #         'description': self.description,
+    #         'cess': self.cess,
+    #         'size': self.size,
+    #         'uom':self.uom,
+    #         'packets_per_box': self.packets_per_box if self.packets_per_box else '',
+    #         'pieces_per_box': self.pieces_per_box if self.pieces_per_box else '',
+    #         'pieces_per_packet': self.pieces_per_packet if self.pieces_per_packet else '',
+    #         'unit_per_piece': self.unit_per_piece if self.unit_per_piece else '',
+    #         'smallest_unit': self.smallest_unit if self.smallest_unit else '',
+    #         'unit_per_packet': self.unit_per_packet if self.unit_per_packet else '',
+    #         # 'batch_item_exists': batch_item_exists
+    #     }
+    #     return item_data        
     
     def set_attributes(self, item_details):
         print item_details
