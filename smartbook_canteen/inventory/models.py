@@ -3,6 +3,7 @@ from datetime import datetime
 from jsonfield import JSONField
 
 from django.db import models
+from dashboard.models import Canteen
 # from administration.models import BonusPoint
 from utils import calculate_actual_quantity
 
@@ -321,7 +322,7 @@ class Item(models.Model):
         
 
 class Batch(models.Model):
-
+    # canteen = models.ForeignKey(Canteen, related_name="batch_canteen")
     name = models.CharField('Batch name', max_length=200)
     created_date = models.DateField('Created', null=True, blank=True)
     expiry_date = models.DateField('Expiry date', null=True, blank=True)
