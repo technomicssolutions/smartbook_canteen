@@ -292,7 +292,7 @@ header .container, header .row{
 .user {
 	width: 25px;
 	height: 25px;
-	background: url('../images/top_user.svg') no-repeat;
+	/*background: url('../images/top_user.svg') no-repeat;*/
 }
 
 .header_search {

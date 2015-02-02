@@ -28,17 +28,21 @@
 									<li><a href="{% url 'reset_password' %}">Reset Password</a></li>
 								</ul>
 							</li>
-							<li>
-								<a href="" class="user" width="25" height="25">User</a>		
+
+                            <li>
+								<a href="" class="user" id="user"><img src="/static/images/top_user.svg" width="20" height="25" ></a>
+								<ul class="drop_down">
+									
+									<li><a href="{% url 'canteen' %}">User</a></li>
+								</ul>
+							</li>
+								
+									
+									<!-- <li><a class="user" href="">User</a></li> -->
+								</ul>
 							</li>
 						</ul>				
-						<!-- span class="header_icons">
-							<a href="{% url 'logout' %}" class="logout"><img src="/static/images/top_lock.svg" width="25" height="25" /></a>
-							<a href="" class="help"></a>
-							<a href="" class="settings" id="settings"><img src="/static/images/top_settings.svg" width="25" height="25" >
-							</a>
-							<a href="" class="user"></a>							
-						</span> -->
+						
 						<span class="date">
 							{{date|date:"D d M Y "}}
 						</span>
