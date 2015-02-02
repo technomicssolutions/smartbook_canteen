@@ -154,6 +154,12 @@ function save_brand($scope, $http, from){
                     $('#add_item').css('display', 'block');
                     create_popup();
                     $scope.brand_name = data.brand.name;
+                // } else if (from == 'closing_stock_item_add') { 
+                //     $scope.new_inventory_item.brand = data.brand.id;
+                //     hide_closing_stock_popup_divs();
+                //     $('#add_item').css('display', 'block');
+                //     create_popup();
+                //     $scope.brand_name = data.brand.name;
                 } else
                     document.location.href = '/inventory/brands/';
             }
@@ -218,6 +224,12 @@ function save_product($scope, $http, from){
                     $('#add_item').css('display', 'block');
                     create_popup();
                     $scope.product_name = data.product.name;
+                // } else if (from == 'closing_stock_item_add') {
+                //     $scope.new_inventory_item.product = data.product.id;
+                //     hide_closing_stock_popup_divs();
+                //     $('#add_item').css('display', 'block');
+                //     create_popup();
+                //     $scope.product_name = data.product.name;
                 } else  
                     document.location.href = '/inventory/products/';
             }
@@ -493,6 +505,9 @@ function get_item_search_list($scope, $http, item, batch, from) {
                 if (from == 'opening_stock') {
                     $scope.current_item_details.items = [];
                     $scope.current_item_details.no_item_msg = "No such item";
+                // }else if(from == 'closing_stock'){
+                //     $scope.current_item_details.items = [];
+                //     $scope.current_item_details.no_item_msg = "No such item";
                 }
             } else {
                 $scope.items = data.items;
@@ -500,7 +515,9 @@ function get_item_search_list($scope, $http, item, batch, from) {
                 if (from == 'purchase') {
                     $scope.current_purchase_item.items = data.items; 
                 }else if (from == 'opening_stock'){
-                    $scope.current_item_details.items = data.items; 
+                    $scope.current_item_details.items = data.items;
+                // }else if (from == 'closing_stock'){
+                //     $scope.current_item_details.items = data.items; 
                 } else if(from == 'sales'){
                     $scope.current_sales_item.items = data.items;
                     $scope.no_item_msg = '';
@@ -569,6 +586,11 @@ function save_batch($scope, $http, from) {
                     $scope.current_item_details.batch_name = data.name;
                     $scope.get_batch($scope.current_item_details);
                     hide_popup();
+                // } else if(from == 'closing_stock'){
+                //     $scope.current_item_details.batch = data.id;
+                //     $scope.current_item_details.batch_name = data.name;
+                //     $scope.get_batch($scope.current_item_details);
+                //     hide_popup();
                 }else
                     document.location.href = '/inventory/batches/';
             } else {
@@ -595,6 +617,8 @@ function get_batch_search_details($scope, $http, from) {
                     $scope.current_purchase_item.batches = [];
                 else if(from == 'opening_stock')
                     $scope.current_item_details.batches = [];
+                // else if(from == 'closing_stock')
+                //     $scope.current_item_details.batches = [];
             } else {
                 if (from == 'purchase')
                     $scope.current_purchase_item.batches = data.batches;
@@ -602,6 +626,8 @@ function get_batch_search_details($scope, $http, from) {
                     $scope.current_sales_item.batches = data.batches;
                 else if(from == 'opening_stock')
                     $scope.current_item_details.batches = data.batches;
+                // else if(from == 'closing_stock')
+                //     $scope.current_item_details.batches = data.batches;
                 else if(from == 'estimate')
                     $scope.current_estimate_item.batches = data.batches;
                 else if(from == 'delivery')
@@ -728,6 +754,13 @@ function save_item($scope, $http, from){
                     $scope.get_batch($scope.current_item_details);
                     get_item_uoms($scope, $http);
                     hide_popup();
+                // } else if(from == 'closing_stock'){
+                //     $scope.current_item_details.name = data.item.name;
+                //     $scope.current_item_details.id = data.item.id;
+                //     $scope.current_item_details.code = data.item.code;
+                //     $scope.get_batch($scope.current_item_details);
+                //     get_item_uoms($scope, $http);
+                //     hide_popup();
                 }else {
                     document.location.href = '/inventory/items/';
                 }
@@ -2704,3 +2737,464 @@ function CategoryProfitReportController($scope, $http){
         }
     }
 }
+// function ClosingStockController($scope, $http){
+   
+//     $scope.product_name = "";
+//     $scope.closing_stock_items = [];
+//     for (var i=0; i<5; i++) {
+//         $scope.closing_stock_items.push(
+//         {
+//             'item_name': '',
+//             'code': '',
+//             'batch': '',
+//             'quantity': '',
+//         });
+//     }
+//     $scope.current_item_details = [];
+//     $scope.focusIndex = 0;
+//     $scope.keys = [];
+//     $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
+//     $scope.keys.push({ code: 38, action: function() { 
+//         if($scope.focusIndex > 0){
+//             $scope.focusIndex--; 
+//         }
+//     }});
+//     $scope.keys.push({ code: 40, action: function() { 
+//         if ($scope.vat_list != undefined && $scope.vat_list.length > 0) {
+//             if($scope.focusIndex < $scope.vat_list.length-1){
+//                 $scope.focusIndex++; 
+//             }
+//         } else if ($scope.current_item_details.batches != undefined && $scope.current_item_details.batches.length > 0) {
+//             if($scope.focusIndex < $scope.current_item_details.batches.length-1){
+//                 $scope.focusIndex++; 
+//             }
+//         } else if ($scope.current_item_details.items != undefined && $scope.current_item_details.items.length > 0) {
+//             if($scope.focusIndex < $scope.current_item_details.items.length-1){
+//                 $scope.focusIndex++; 
+//             }
+//         }else if ($scope.brands != undefined && $scope.brands.length > 0) {
+//             if($scope.focusIndex < $scope.brands.length-1){
+//                 $scope.focusIndex++; 
+//             }
+//         }else if ($scope.products != undefined && $scope.products.length > 0) {
+//             if($scope.focusIndex < $scope.products.length-1){
+//                 $scope.focusIndex++; 
+//             }
+//         }else if ($scope.categories_list != undefined && $scope.categories_list.length > 0) {
+//             if($scope.focusIndex < $scope.categories_list.length-1){
+//                 $scope.focusIndex++; 
+//             }
+//         }
+//     }});
+//     $scope.$on('keydown', function( msg, code ) {
+//         $scope.keys.forEach(function(o) {
+//           if ( o.code !== code ) { return; }
+//           o.action();
+//           $scope.$apply();
+//         });
+//     });
+//     $scope.init = function(csrf_token) {
+//         $scope.csrf_token = csrf_token;
+//         get_conversions($scope, $http);
+//     }
+//     $scope.add_bulk_items = function(){
+//         for (var i=0; i<5; i++) {
+//             $scope.closing_stock_items.push(
+//             {
+//                 'item_name': '',
+//                 'code': '',
+//                 'batch': '',
+//                 'quantity': '',
+//             });
+//         }
+//     }
+//     $scope.add_new_closing_stock_item = function() {
+//         $scope.closing_stock_items.push(
+//         {
+//             'item_name': '',
+//             'code': '',
+//             'batch': '',
+//             'quantity': '',
+//             'purchase_unit': '',
+//             'purchase_price': '',
+//         });
+//     }
+//     $scope.hide_popup = function() {
+//         hide_popup();
+//     }
+//     $scope.search_batch = function(item) {
+//         item.batch_search = true;
+//         item.item_search = false;
+//         $scope.current_item_details = item;
+//         $scope.batch_name = item.batch_name;
+//         get_batch_search_details($scope, $http, 'closing_stock');
+//     }
+//     $scope.select_batch = function(batch) {
+//         $scope.focusIndex = 0;
+//         $scope.current_item_details.batch_name = batch.name;
+//         $scope.current_item_details.batch = batch.id;
+//         $scope.current_item_details.stock = batch.quantity_in_purchase_unit;
+//         if ($scope.current_item_details.id) {
+//             $scope.get_batch($scope.current_item_details);
+//         } 
+//         $scope.current_item_details.batches = [];
+//         $scope.current_item_details.batch_search = false;
+//     }
+//     $scope.get_batch = function(item){
+//         $http.get('/inventory/batch_item_details/?batch_id='+item.batch+'&item_id='+item.id).success(function(data){
+//             if (data.result == 'ok') {
+//                 item.stock = data.batch_item.quantity_in_purchase_unit;
+//                 if (data.batch_item.uom.length > 0)
+//                     $scope.current_item_details.uom_exists = true;
+//                 else
+//                     $scope.current_item_details.uom_exists = false;
+//                 item.purchase_unit = data.batch_item.uom;
+//                 item.purchase_price = data.batch_item.purchase_price;
+//             } else {
+//                 item.stock = 0;
+//                 $scope.current_item_details.uom_exists = false;
+//                 item.purchase_unit = '';
+//                 item.purchase_price = 0.00;
+//             }
+//         }).error(function(data, status) {
+//             console.log('Request failed' || data);
+//         });
+//     }
+//     $scope.search_items = function(item) { 
+//         item.item_search = true; 
+//         item.batch_search = false; 
+//         $scope.current_item_details = [];
+//         $scope.current_item_details = item;
+//         get_item_search_list($scope, $http, $scope.current_item_details.name, item.batch, 'closing_stock');
+//     }
+//     $scope.get_items = function() {
+//         get_item_search_list($scope, $http,$scope.item_name);
+//     }
+//     $scope.select_item_details = function(item) {
+//         $scope.current_item_details.name = item.name;
+//         $scope.current_item_details.code = item.code;
+//         $scope.current_item_details.id = item.id;
+//         $scope.current_item_details.items = [];
+//         if ($scope.current_item_details.batch) {
+//             $scope.select_batch($scope.current_item_details.batch);
+//         }
+//         $scope.current_item_details.item_search = false;    
+//         $scope.current_item_details.batch_search = false;        
+//         hide_popup();
+//         $scope.items = [];
+//         $scope.focusIndex = 0;
+//         get_item_uoms($scope, $http);
+//     }
+//     $scope.select_list_item = function(index) {
+//         if ($scope.vat_list!=undefined && $scope.vat_list.length>0){
+//             vat = $scope.vat_list[index];
+//             $scope.select_vat_details(vat);
+//         }
+//         if ($scope.brands!=undefined && $scope.brands.length>0){
+//             brand = $scope.brands[index];
+//             $scope.select_brand_details(brand);
+//         }
+//         if ($scope.products!=undefined && $scope.products.length>0){
+//             product = $scope.products[index];
+//             $scope.select_product_details(product);
+//         }
+//         if ($scope.categories_list!=undefined && $scope.categories_list.length>0){
+//             category = $scope.categories_list[index];
+//             $scope.select_category_details(category);
+//         }
+//         if ($scope.current_item_details.items!=undefined && $scope.current_item_details.items.length>0){
+//             item = $scope.current_item_details.items[index];
+//             $scope.select_item_details(item);
+//         }
+//         if ($scope.current_item_details.batches!=undefined && $scope.current_item_details.batches.length>0){
+//             batch = $scope.current_item_details.batches[index];
+//             $scope.select_batch(batch);
+//         }
+//     }
+//     $scope.get_conversion_units = function(item) {
+//         $scope.current_item_details = item;
+//         get_conversions($scope, $http, item.purchase_unit, 'purchase_unit');
+//     }
+//     $scope.save_quantity = function(item) {
+//         item.quantity_entered = item.quantity;
+//     }
+//     $scope.calculate_net_amount = function(item) {
+//         if (item.purchase_price != Number(item.purchase_price)) {
+//             item.purchase_price = 0.00;
+//         } 
+//         if (item.quantity != Number(item.quantity)) {
+//             item.quantity = 0.00;
+//         } 
+//         item.net_amount = item.quantity*item.purchase_price;
+//     }
+//     $scope.validate_closing_stock = function(){
+//         if ($scope.closing_stock_items.length == 0) {
+//             $scope.validate_closing_stock_msg = 'Please choose Items';
+//             return false;
+//         } else if ($scope.closing_stock_items.length > 0) {
+//             for (var i =0; i<$scope.closing_stock_items.length; i++) {
+//                 if ($scope.closing_stock_items[i].code == '') {
+//                     $scope.validate_closing_stock_msg = 'Item  cannot be null in row'+ (i+1);
+//                     return false;
+//                 } else if ($scope.closing_stock_items[i].batch == '') {
+//                     $scope.validate_closing_stock_msg = 'Please choose batch in row '+ (i+1);
+//                     return false;
+//                 } else if ($scope.closing_stock_items[i].quantity == '' || !Number($scope.closing_stock_items[i].quantity ) || $scope.closing_stock_items[i].quantity == 0){
+//                     $scope.validate_closing_stock_msg = 'Please enter quantity in row '+ (i+1);
+//                     return false;
+//                 } else if ($scope.closing_stock_items[i].purchase_price == '' || $scope.closing_stock_items[i].purchase_price == undefined) {
+//                     $scope.validate_closing_stock_msg = 'Please enter purchase price in row '+ (i+1);
+//                     return false;
+//                 } else if ($scope.closing_stock_items[i].purchase_unit == '' || $scope.closing_stock_items[i].purchase_unit == undefined) {
+//                     $scope.validate_closing_stock_msg = 'Please choose uom in row '+ (i+1);
+//                     return false;
+//                 } 
+//             }
+//         } return true;
+//     }
+//     $scope.remove_closing_stock_item = function(item) {
+//         var index = $scope.closing_stock_items.indexOf(item);
+//         $scope.closing_stock_items.splice(index, 1);
+//     }
+//     $scope.hide_popup_transaction_details = function() {
+//         document.location.href = '/inventory/closing_stock/';
+//     }
+//     $scope.save_closing_stock = function(){
+//         for (var i=0; i<$scope.closing_stock_items.length; i++) {
+//             if ($scope.closing_stock_items[i].uom_exists == true) {
+//                 $scope.closing_stock_items[i].uom_exists = 'true';
+//             } else {
+//                 $scope.closing_stock_items[i].uom_exists = 'false';
+//             }
+//             if ($scope.closing_stock_items[i].item_search == true) {
+//                 $scope.closing_stock_items[i].item_search = 'true';
+//             } else {
+//                 $scope.closing_stock_items[i].item_search = 'false';
+//             }
+//             if ($scope.closing_stock_items[i].batch_search == true) {
+//                 $scope.closing_stock_items[i].batch_search = 'true';
+//             } else {
+//                 $scope.closing_stock_items[i].batch_search = 'false';
+//             }
+//         }
+//         if ($scope.validate_closing_stock()) {
+//             params = {
+//                 'closing_stock_items': angular.toJson($scope.closing_stock_items),
+//                 'csrfmiddlewaretoken': $scope.csrf_token,
+//                 }
+//             show_loader();
+//             $http({
+//                 method: 'post',
+//                 url: '/inventory/closing_stock/',
+//                 data : $.param(params),
+//                 headers : {
+//                     'Content-Type' : 'application/x-www-form-urlencoded'
+//                 }
+//             }).success(function(data){
+//                 hide_loader();
+//                 if (data.result == 'ok') {
+//                     hide_closing_stock_popup_divs()
+//                     $scope.transaction_reference_no = data.transaction_reference_no;
+//                     $scope.transaction_name = ' closing Stock ';
+//                     $('#transaction_reference_no_details').css('display', 'block');
+//                     create_popup();
+//                 } 
+//             }).error(function(data, status){
+//                 console.log('Request failed'||data);
+//             });
+//         }
+//     }
+//     $scope.hide_item = function(item){
+//         $scope.focusIndex = 0;
+//         item.batch_search = false;
+//         if (item.item_search == true){
+//             item.item_search = false;
+//         } else {
+//             item.item_search = true;
+//         }
+//     }
+//     $scope.hide_batch = function(item){
+//         $scope.focusIndex = 0;
+//         item.item_search = false;
+//         if (item.batch_search == true){
+//             item.batch_search = false;
+//         } else {
+//             item.batch_search = true;
+//         }
+//     }
+//     $scope.add_new_item = function(item) {
+//         $scope.current_item_details = item;
+//         initialize_item($scope);
+       
+//         hide_closing_stock_popup_divs();        
+//         $('#add_item').css('display', 'block');
+//         $scope.no_product_msg = '';
+//         $scope.no_brand_msg = '';
+//         $scope.no_vat_msg = '';
+//         $scope.validate_item_error_msg = '';
+//         create_popup();
+//     }
+//     $scope.save_item = function() {
+//         save_item($scope, $http, 'closing_stock');
+//     }
+//     $scope.get_brands = function() {
+//         get_brand_search_list($scope, $http);
+//     }
+//     $scope.select_brand_details = function(brand) {
+//         $scope.item.brand = brand.id;
+//         $scope.brand_name = brand.name;
+//         $scope.brands = [];
+//     }
+//     $scope.get_products = function() {
+//         if($scope.product_name){
+//             get_product_search_list($scope, $http);
+//         }
+//     }
+//     $scope.select_product_details = function(product) {
+//         $scope.item.product = product.id;
+//         $scope.product_name = product.name + '-' + product.category_name;
+//         $scope.products = [];
+//     }
+//     $scope.get_vat_list = function() {
+//         get_vat_search_details($scope, $http);
+//     }
+//     $scope.select_vat_details = function(vat) {
+//         $scope.item.vat = vat.id;
+//         $scope.vat_type = vat.vat_name;
+//         $scope.vat_list = [];
+//     }
+//     $scope.show_per_box = function(item){
+//         item.unit_per_box = '';
+//         item.piece_per_packet = '';
+//         $scope.piece_per_packet = '';
+//         item.unit_per_piece = '';
+//         $scope.unit_per_piece = '';
+//         $scope.unit_per_box = '';
+//         if(item.uom == 'box' || item.uom == 'packet' || item.uom =='piece'){
+//             if(item.uom == 'piece'){
+//                 index = $scope.uom_boxes.indexOf('packet');
+//                 $scope.uom_boxes.splice(index,1);
+//                 index = $scope.uom_boxes.indexOf('box');
+//                 $scope.uom_boxes.splice(index,1);
+//             }
+//             $scope.per_box = true;
+//             $scope.per_packet = false;
+//             $scope.per_piece = false;
+//         } else{
+//             $scope.per_packet = false;
+//             $scope.per_piece = false;
+//             $scope.per_box = false;
+//         }
+//     }
+//     $scope.show_per_packet = function(item){
+//         item.piece_per_packet = '';
+//         $scope.piece_per_packet = '';
+//         item.unit_per_piece = '';
+//         $scope.unit_per_piece = '';      
+//         if($scope.unit_per_box == 'packet'){
+//             $scope.per_packet = true;
+//             $scope.per_piece = false;
+//         }
+//         else if($scope.unit_per_box == 'piece'){
+//             index = $scope.uom_pieces.indexOf('packet');
+//             $scope.uom_pieces.splice(index,1);
+//             index = $scope.uom_pieces.indexOf('box');
+//             $scope.uom_pieces.splice(index,1);
+//             $scope.per_piece = true;
+//             $scope.per_packet = false;
+//         } else{
+//             $scope.per_packet = false;
+//             $scope.per_piece = false;
+//         }
+//     }
+//     $scope.show_per_piece = function(item){
+//         if($scope.piece_per_packet == 'piece'){
+//             $scope.per_piece = true;
+//         } else{
+//             $scope.per_piece = false;
+//         }
+//     }
+//     $scope.new_batch = function(item) {
+//         $scope.validate_batch_error_msg = '';
+//         $scope.batch = {
+//             'id': '',
+//             'name': '',
+//             'created_date':'',
+//             'expiry_date': '',
+//         }
+//         $scope.current_item_details = item;
+//         hide_closinging_stock_popup_divs();
+//         $('#new_batch').css('display', 'block');
+//         create_popup();
+//     }
+//     $scope.save_batch = function() {
+//         save_batch($scope, $http, 'closing_stock');
+//     }
+//     $scope.new_product = function(){
+//         $scope.new_inventory_item = $scope.item;
+//         $scope.product = {
+//             'name': '',
+//             'category_id': '',
+//             'id': '',
+//         }
+//         hide_closing_stock_popup_divs();
+//         $('#add_product').css('display', 'block');
+//         create_popup();
+//     }
+//     $scope.get_category_list = function() {
+//         if ($scope.category_name.length>0)
+//             search_category($scope, $http, $scope.category_name);
+//     }
+//     $scope.select_category_details = function(category){
+//         $scope.product.category_id = category.id;
+//         $scope.category_name = category.name;
+//         $scope.categories = [];
+//     }
+//     $scope.save_product = function(){
+
+//         save_product($scope, $http, 'closing_stock_item_add');
+//     }
+//     $scope.new_brand = function(){
+//         $scope.new_inventory_item = $scope.item;
+//         hide_closing_stock_popup_divs();
+//         $scope.brand = {
+//             'name': '',
+//         }
+//         $('#add_brand').css('display', 'block');
+//         create_popup();
+//     }
+//     $scope.hide_popups = function(){
+//         hide_closing_stock_popup_divs();
+//         $('#add_item').css('display', 'block');
+//         create_popup();
+//     }
+//     $scope.save_brand = function(){
+//         save_brand($scope, $http, 'closing_stock_item_add');
+//     }
+//     $scope.new_vat = function(){
+//         $scope.new_inventory_item = $scope.item;
+//         hide_closing_stock_popup_divs();
+//         $scope.vat={
+//             'id': '',
+//             'name': '',
+//             'percentage':0,
+//         }
+//         $('#add_vat').css('display', 'block');
+//         create_popup();
+//     }
+//     $scope.save_vat = function() {
+//         save_vat($scope, $http, 'closing_stock_item_add');
+//     }
+//     $scope.new_category = function() {
+//         $scope.is_new_category = true;
+//         $scope.no_categories_msg = '';
+//         $scope.categories = [];
+//     }
+//     $scope.is_category_name_exists = function(){
+//         is_category_name_exists($scope, $http, $scope.product.new_category_name, 'closing_stock_item_add');
+//     }
+//     $scope.search_category = function(){
+//         $scope.no_categories_msg = '';
+//         $scope.is_new_category = false;
+//     }
+// }
