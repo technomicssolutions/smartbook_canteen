@@ -471,7 +471,6 @@ function get_product_search_list($scope, $http, category_wise) {
 function get_item_search_list($scope, $http, item, batch, from) {
     var url = ''
     console.log(item);
-    console.log(batch);
     if($scope.item_name){
         console.log($scope.item_name);
         url = '/inventory/search_item/?'+'item_name'+'='+$scope.item_name;
@@ -1361,7 +1360,8 @@ function OpeningStockController($scope, $http){
         item.batch_search = false; 
         $scope.current_item_details = [];
         $scope.current_item_details = item;
-        console.log($scope.current_item_details);
+        console.log("hiii");
+        //console.log($scope.current_item_details);
         get_item_search_list($scope, $http, $scope.current_item_details.name, item.batch, 'opening_stock');
     }
     $scope.get_items = function() {
