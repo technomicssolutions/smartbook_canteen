@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 # from purchases.models import Purchase, PurchaseReturn
 # from accounts.models import Ledger, LedgerEntry
 from inventory.models import Category
-from dashboard.models import PostDatedCheque,Canteen
+from dashboard.models import Canteen
 
 style = [
     ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
@@ -32,12 +32,12 @@ para_style = ParagraphStyle('fancy')
 para_style.fontSize = 10.5
 para_style.fontName = 'Helvetica'
 
-def delete_post_dated_cheque_entries():
-    current_date = datetime.now().date()
-    predated_cheques = PostDatedCheque.objects.filter(cheque_date__lt=current_date)
-    for predated_cheque in predated_cheques:
-        predated_cheque.delete()
-    return True
+# def delete_post_dated_cheque_entries():
+#     current_date = datetime.now().date()
+#     predated_cheques = PostDatedCheque.objects.filter(cheque_date__lt=current_date)
+#     for predated_cheque in predated_cheques:
+#         predated_cheque.delete()
+#     return True
 
 def get_expense_amount(expense, month, year, amount):
 
@@ -410,43 +410,43 @@ class ForgotPassword(View):
             return HttpResponse(response, status=200, mimetype='application/json')
         return render(request, 'reset_password.html', {})
 
-class PDCReport(View):
+# class PDCReport(View):
 
-    def get(self, request, *args, **kwargs):
-        current_date = datetime.now()
-        post_dated_cheques = PostDatedCheque.objects.filter(cheque_date__gt=current_date)
-        response = HttpResponse(content_type='application/pdf')
-        p = SimpleDocTemplate(response, pagesize=A4)
-        elements = []
-        data = []
+#     def get(self, request, *args, **kwargs):
+#         current_date = datetime.now()
+#         post_dated_cheques = PostDatedCheque.objects.filter(cheque_date__gt=current_date)
+#         response = HttpResponse(content_type='application/pdf')
+#         p = SimpleDocTemplate(response, pagesize=A4)
+#         elements = []
+#         data = []
         
-        heading = 'PDC  Report - '+str(current_date.strftime('%d/%m/%Y'))
-        d = [[heading]]
-        t = Table(d, colWidths=(450), rowHeights=25, style=style)
-        t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-                    ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                    ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                    ('FONTSIZE', (0,0), (-1,-1), 10),
-                    ])   
-        elements.append(t)
-        elements.append(Spacer(2,20 ))
-        data = []
-        if post_dated_cheques:
-            data.append([ 'Cheque Date', 'Transaction Ref No','Narration'])
-            table = Table(data, colWidths=(100, 100, 100), style=style)
-            table.setStyle([
-                        ('FONTSIZE', (0,0), (-1,-1), 10),
-                        ])   
-            elements.append(table)
-            data = []
-            total = 0
-            for post_dated_cheque in post_dated_cheques:
-                data.append([post_dated_cheque.cheque_date.strftime('%d/%m/%Y'),post_dated_cheque.transaction_ref,Paragraph(post_dated_cheque.narration,para_style)])
-            table = Table(data, colWidths=(100, 100, 100), style=style)
-            table.setStyle([
-                        ('FONTSIZE', (0,0), (-1,-1), 10),
-                        ])   
-            elements.append(table)
-        p.build(elements)  
-        return response
+#         heading = 'PDC  Report - '+str(current_date.strftime('%d/%m/%Y'))
+#         d = [[heading]]
+#         t = Table(d, colWidths=(450), rowHeights=25, style=style)
+#         t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
+#                     ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+#                     ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+#                     ('FONTSIZE', (0,0), (-1,-1), 10),
+#                     ])   
+#         elements.append(t)
+#         elements.append(Spacer(2,20 ))
+#         data = []
+#         if post_dated_cheques:
+#             data.append([ 'Cheque Date', 'Transaction Ref No','Narration'])
+#             table = Table(data, colWidths=(100, 100, 100), style=style)
+#             table.setStyle([
+#                         ('FONTSIZE', (0,0), (-1,-1), 10),
+#                         ])   
+#             elements.append(table)
+#             data = []
+#             total = 0
+#             for post_dated_cheque in post_dated_cheques:
+#                 data.append([post_dated_cheque.cheque_date.strftime('%d/%m/%Y'),post_dated_cheque.transaction_ref,Paragraph(post_dated_cheque.narration,para_style)])
+#             table = Table(data, colWidths=(100, 100, 100), style=style)
+#             table.setStyle([
+#                         ('FONTSIZE', (0,0), (-1,-1), 10),
+#                         ])   
+#             elements.append(table)
+#         p.build(elements)  
+#         return response
         
