@@ -331,6 +331,12 @@ class Batch(models.Model):
     created_date = models.DateField('Created', null=True, blank=True)
     expiry_date = models.DateField('Expiry date', null=True, blank=True)
 
+    def save(self, *args, **kwargs):
+        super(Batch, self).save() # for getting pk
+        if self.created_date and self.expiry_date:
+            self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) 
+        super(Batch, self).save()
+
     def __unicode__(self):
         return self.name
 
@@ -348,7 +354,8 @@ class Batch(models.Model):
         return batch_data
 
     def set_attributes(self, batch_details):
-
+        canteen_obj = Canteen.objects.get(id=batch_details['canteen'])
+        self.canteen = canteen_obj;
         self.name = batch_details['name']
         self.created_date = datetime.strptime(batch_details['created_date'], '%d/%m/%Y')
         if batch_details['expiry_date']:

@@ -98,7 +98,8 @@ class SearchBatchItem(View):
 class BatchList(View):
     def get(self, request, *args, **kwargs):
         batch_list = []
-        batches = Batch.objects.all()
+        batches = Batch.objects.filter(canteen=request.session['canteen'])
+
         if request.is_ajax():
             for batch in batches:
                 batch_list.append(batch.get_json_data())
@@ -136,6 +137,8 @@ class AddBatch(View):
                 batches = Batch.objects.filter(name=batch_details['name']).exclude(id=batch_details['id'])
                 if batches.count() == 0:
                     batch = Batch.objects.get(id=batch_details['id'])
+                    batch_details['canteen'] = request.session['canteen']
+
                     batch_obj = batch.set_attributes(batch_details)
                 else:
                     res = {
@@ -155,14 +158,19 @@ class AddBatch(View):
                     return HttpResponse(response, status=200, mimetype='application/json')
                 except Exception as ex:
                     batch = Batch()
+                    batch_details['canteen'] = request.session['canteen'];
+                    print batch_details
+                    print "hai"
                     batch_obj = batch.set_attributes(batch_details)
             res = {
                 'result': 'ok',
                 'id': batch.id,
                 'name': batch.name,
+
             }
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')
+       
 
 class EditBatch(View):
 
@@ -1610,108 +1618,18 @@ class ClosingStockView(View):
 
     def get(self, request, *args, **kwargs):
 
+        batch_id = request.GET.get('batch_id', '')
+        item_details = []
+        if batch_id:
+            batch = Batch.objects.get(id=batch_id)
+            items = Item.objects.filter(batch=batch)
+            for item in items:
+                item_details.append(item.get_json_data())
+            if request.is_ajax():
+                res = {
+                    'result': 'ok',
+                    'item_details': item_details,
+                }
+                response = simplejson.dumps(res)
+                return HttpResponse(response, status=200, mimetype='application/json')
         return render(request, 'closing_stock.html', {})
-    # def post(self, request, *args, **kwargs):
-
-    #     total_purchase_price = 0
-    #     if request.is_ajax():
-    #         opening_stock_items = ast.literal_eval(request.POST['closing_stock_items'])
-    #         if closing_stock_items:
-    #             cash_ledger = Ledger.objects.get(account_code='1005')
-    #             stock_ledger = Ledger.objects.get(account_code='1006')
-    #             transaction = Transaction()
-    #             try:
-    #                 transaction_ref = Transaction.objects.latest('id').id + 1
-    #             except:
-    #                 transaction_ref = '1'
-              
-    #             transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
-                
-    #             try:
-    #                 closing_stock = ClosingStock.objects.create(transaction_reference_no=transaction.transaction_ref, date=datetime.now() )
-    #                 for item_detail in closing_stock_items:
-    #                     try:
-    #                         uom =  item_detail['purchase_unit']
-    #                         purchase_unit = uom['uom']
-    #                     except:
-    #                         purchase_unit = item_detail['purchase_unit']
-    #                     item = Item.objects.get(id=item_detail['id'])
-    #                     batch = Batch.objects.get(id=item_detail['batch'])
-    #                     batch_item, batch_item_created = BatchItem.objects.get_or_create(item=item,batch=batch)
-    #                     try:
-    #                         closing_stock_item = ClosingStockItem.objects.get(closing_stock=closing_stock,batch_item=batch_item)
-    #                     except:
-    #                         closing_stock_item = closingStockItem.objects.create(closing_stock=closing_stock,batch_item=batch_item)
-    #                     closing_stock_item.quantity = item_detail['quantity']
-    #                     closing_stock_item.purchase_price = item_detail['purchase_price']
-    #                     closing_stock_item.net_amount = item_detail['net_amount']
-    #                     closing_stock_item.uom = purchase_unit
-    #                     closing_stock_item.save()
-    #                     quantity = 0
-    #                     selling_price = 0
-    #                     purchase_price = 0                       
-    #                     if item.smallest_unit == purchase_unit:
-    #                         quantity = item_detail['quantity']
-    #                     else:
-    #                         quantity = float(item_detail['quantity'])
-    #                     batch_item.set_quantity(item_detail['quantity'], purchase_unit)
-    #                     batch_item.cost_price = item_detail['purchase_price']
-
-    #                     if batch_item_created:
-    #                         batch_item.purchase_price = item_detail['purchase_price']
-    #                         batch_item.uom = purchase_unit
-    #                     total_purchase_price = float(total_purchase_price) + float(item_detail['net_amount'])
-    #                     batch_item.save()
-    #             except Exception as ex:
-    #                 res = {
-    #                     'result': 'error',
-    #                     'error_message': str(ex),
-    #                 }
-    #             ledger_entry_cash_ledger = LedgerEntry()
-    #             ledger_entry_cash_ledger.ledger = cash_ledger
-    #             ledger_entry_cash_ledger.credit_amount = total_purchase_price
-    #             ledger_entry_cash_ledger.date = datetime.now()
-    #             ledger_entry_cash_ledger.transaction_reference_number = transaction.transaction_ref
-    #             ledger_entry_cash_ledger.save()
-    #             ledger_entry_stock_ledger = LedgerEntry()
-    #             ledger_entry_stock_ledger.ledger = stock_ledger
-    #             ledger_entry_stock_ledger.debit_amount = total_purchase_price
-    #             ledger_entry_stock_ledger.date = datetime.now()
-    #             ledger_entry_stock_ledger.transaction_reference_number = transaction.transaction_ref 
-    #             ledger_entry_stock_ledger.save()
-    #             try:
-    #                 stock_value = StockValue.objects.latest('id')
-    #             except Exception as ex:
-    #                 stock_value = StockValue()
-    #             if stock_value.stock_by_value is not None:
-    #                 stock_value.stock_by_value = float(stock_value.stock_by_value) + float(total_purchase_price)
-    #             else:
-    #                 stock_value.stock_by_value = float(total_purchase_price)
-    #             stock_value.save()
-    #             try:
-    #                 closing_stock_value = ClosingStockValue.objects.latest('id')
-    #             except Exception as ex:
-    #                 closing_stock_value = closingStockValue()
-    #             if closing_stock_value.stock_by_value is not None:
-    #                 closing_stock_value.stock_by_value = float(closing_stock_value.stock_by_value) + float(total_purchase_price)
-    #             else:
-    #                 closing_stock_value.stock_by_value = float(total_purchase_price)
-    #             closing_stock_value.save()
-    #             transaction.narration = 'By Closing Stock - '+ str(transaction.transaction_ref )
-    #             transaction.debit_amount = total_purchase_price
-    #             transaction.credit_amount = total_purchase_price
-    #             transaction.credit_ledger = ledger_entry_cash_ledger
-    #             transaction.debit_ledger = ledger_entry_stock_ledger
-    #             transaction.transaction_date = datetime.now()
-    #             transaction.amount = total_purchase_price
-    #             cash_ledger.balance = float(cash_ledger.balance) - float(total_purchase_price)
-    #             stock_ledger.balance = float(stock_ledger.balance) + float(total_purchase_price)
-    #             cash_ledger.save()
-    #             stock_ledger.save()
-    #             transaction.save()
-    #         res = {
-    #             'result': 'ok',
-    #             'transaction_reference_no': transaction.transaction_ref
-    #         }
-    #         response = simplejson.dumps(res)
-    #         return HttpResponse(response, status=200, mimetype='application/json')
