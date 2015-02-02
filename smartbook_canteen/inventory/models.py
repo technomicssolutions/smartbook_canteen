@@ -721,3 +721,12 @@ class ClosingStockItem(models.Model):
 
     class Meta:
         verbose_name_plural = 'closing Stock Item'
+        
+class closingStockValue(models.Model):
+
+    stock_by_value = models.DecimalField('Balance', max_digits=20, null=True, blank=True, decimal_places=5)
+
+    def __unicode__(self):
+        return str(self.stock_by_value)
+    class Meta:
+        verbose_name_plural = 'closing Stock Value'
