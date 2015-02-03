@@ -599,7 +599,7 @@ function save_batch($scope, $http, from) {
 function get_batch_search_details($scope, $http, from) {
     $scope.batches = [];
     $scope.no_batch_msg = '';
-    
+    console.log('hai');
     if ($scope.batch_name != '' && $scope.batch_name != undefined && $scope.batch_name.length > 0) {
         var batch_name = $scope.batch_name;
        
@@ -2792,15 +2792,20 @@ function ClosingStockController($scope, $http){
             search_batch($scope, $http);
     }
     
-    $scope.generate_list = function(type_name){
+    $scope.generate_list = function(){
         $scope.report_mesg = '';
-        if ($scope.batch == '' || $scope.batch == undefined) {
+        console.log ($scope.batch_name);
+        
+
+        if ($scope.batch_name == '' || $scope.batch_name == undefined) {
             $scope.no_batch_msg = 'Please Choose batch';
+
         } else {
-            if (type_name == 'view') { 
+             
                 show_loader();
-                $http.get('/inventory/closing_stock/?batch_id='+$scope.batch).success(function(data){
-                    $scope.batch_items = data.batch_item_details;
+                $http.get('/inventory/closing_stock/?batch_id='+$scope.batch_name).success(function(data){
+                    $scope.batch_items = data.batch_items;
+                    print ($scope.batch_items);
                     if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
                     else {
@@ -2810,9 +2815,9 @@ function ClosingStockController($scope, $http){
                 }).error(function(data, status){
                     console.log(data);
                 });
-            } else
-                document.location.href = '/inventory/closing_stock/?batch_id='+$scope.batch;
-        }
+        //     } else
+        //         document.location.href = '/inventory/closing_stock/?batch_id='+$scope.batch;
+         }
     }
     $scope.select_page = function(page){
         select_page(page, $scope.purchases, $scope, 15);

@@ -35,11 +35,11 @@
 	<div class="col-md-12 col-sm-12">
 		<div class="button_control" >
 			<p class="error_msg">[[no_batch_msg]]</p>
-			<input type="submit" value="submit" ng-click="generate_list('view')">
+			<input type="submit" value="submit" ng-click="generate_list()">
 		</div>
 	</div>
 </div>
-	<table  class="table list_table" >
+	<table  class="table list_table" ng-show="batch_items.length > 0">
 		<tr>
 			<th>Item Name</th>
 			<th>Item Code</th>
@@ -47,10 +47,10 @@
 			<th>Consumed Quantity</th>
 			
 		</tr>
-		<tr >
-			<td>[[item.name]]</td>
-			<td>[[item.code]]</td>
-			<td></td>
+		<tr ng-repeat="batch_item in visible_list">
+			<td>[[batch_item.item_name]]</td>
+			<td>[[batch_item.code]]</td>
+			<td>[[batch_item.stock]]</td>
 			<td>
 				<div class="control">
 				
@@ -60,7 +60,7 @@
 			<p class="error_msg">{{msg}}</p>
 		</tr>
 	</table>
-	<div ng-show="items.length > 0">
+	<div ng-show="batch_items.length > 0">
 			{% include 'pagination_div.html' %}
 	</div>
 	

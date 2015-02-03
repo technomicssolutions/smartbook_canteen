@@ -620,7 +620,7 @@ class BatchItem(models.Model):
        
         batch_item_details = {
             'batch_item_id': self.item.id,
-            'item_name': self.item.name+ '-' + self.item.brand.name,
+            'item_name': self.item.name,
             'code': self.item.code,                                                                                                      
             'batch_name': self.batch.name,
             'batch_id': self.id,
