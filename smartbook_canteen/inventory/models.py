@@ -668,13 +668,13 @@ class BatchItem(models.Model):
 class OpeningStock(models.Model):
 
     date = models.DateField('Date',null=True, blank=True)
-    transaction_reference_no = models.CharField('Transaction Reference Number', null=True, blank=True, max_length=200)
+    # transaction_reference_no = models.CharField('Transaction Reference Number', null=True, blank=True, max_length=200)
+    canteen = models.ForeignKey(Canteen, null=True, blank=True)
+    # def __unicode__(self):
+    #     # return str(self.date)+ ' - ' + self.canteen.id
 
-    def __unicode__(self):
-        return str(self.date)+ ' - ' + self.transaction_reference_no
-
-    class Meta:
-        verbose_name_plural = 'Opening Stock'
+    # class Meta:
+    #     verbose_name_plural = 'Opening Stock'
 
 
 class OpeningStockItem(models.Model):
@@ -682,7 +682,7 @@ class OpeningStockItem(models.Model):
     canteen = models.ForeignKey(Canteen, null=True, blank=True)
     opening_stock = models.ForeignKey(OpeningStock, null=True, blank=True)
     batch_item = models.ForeignKey(BatchItem, null=True, blank=True)
-
+    date = models.DateField('Date',null=True, blank=True)
     quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
     uom = models.CharField('Uom', max_length=200, null=True, blank=True)
     purchase_price = models.DecimalField('Purchase Price', max_digits=20, decimal_places=5, default=0)
@@ -690,7 +690,7 @@ class OpeningStockItem(models.Model):
     net_amount = models.DecimalField('Net Amount', max_digits=20, decimal_places=5, default=0)
     
     def __unicode__(self):
-        return str(self.opening_stock.date) + ' - ' + self.opening_stock.transaction_reference_no
+        return  self.batch_item.item.name
 
     class Meta:
         verbose_name_plural = 'Opening Stock Item'
