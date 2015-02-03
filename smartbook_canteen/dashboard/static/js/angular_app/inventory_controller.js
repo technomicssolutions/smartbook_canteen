@@ -2800,11 +2800,11 @@ function ClosingStockController($scope, $http){
             if (type_name == 'view') { 
                 show_loader();
                 $http.get('/inventory/closing_stock/?batch_id='+$scope.batch).success(function(data){
-                    $scope.items = data.item_details;
-                    if ($scope.items.length == 0)
+                    $scope.batch_items = data.batch_item_details;
+                    if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
                     else {
-                        paginate($scope.purchases, $scope, 15);
+                        paginate($scope.batch_items, $scope, 15);
                     }
                     hide_loader();
                 }).error(function(data, status){

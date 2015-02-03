@@ -1199,13 +1199,13 @@ class ClosingStockView(View):
         item_details = []
         if batch_id:
             batch = Batch.objects.get(id=batch_id)
-            items = Item.objects.filter(batch=batch)
-            for item in items:
-                item_details.append(item.get_json_data())
+            batch_items = BatchItem.objects.filter(batch=batch)
+            for batch_item in batch_items:
+                batch_item_details.append(batch_item.get_json_data())
             if request.is_ajax():
                 res = {
                     'result': 'ok',
-                    'item_details': item_details,
+                    'batch_item_details': batch_item_details,
                 }
                 response = simplejson.dumps(res)
                 return HttpResponse(response, status=200, mimetype='application/json')
