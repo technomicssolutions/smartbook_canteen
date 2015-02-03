@@ -38,10 +38,12 @@ def get_category_details(request, categories):
 class SearchBatch(View):
 
     def get(self, request, *args, **kwargs):
-
+  
         batch_name = request.GET.get('batch_name', '')
-        batches = Batch.objects.filter(name__istartswith=batch_name)
+        print batch_name;
+        batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen'])
         batch_list = []
+        # batches = Batch.objects.filter(canteen=request.session['canteen'])
         for batch in batches:
             batch_data = batch.get_json_data()
             batch_list.append(batch_data)
@@ -1214,16 +1216,21 @@ class ClosingStockView(View):
     def get(self, request, *args, **kwargs):
 
         batch_id = request.GET.get('batch_id', '')
-        item_details = []
+        # print batch_id;
+        batch_item_details = []
         if batch_id:
-            batch = Batch.objects.get(id=batch_id)
-            items = Item.objects.filter(batch=batch)
-            for item in items:
-                item_details.append(item.get_json_data())
+            batch = Batch.objects.get(name=batch_id)
+            # print batch;
+            batch_items = BatchItem.objects.filter(batch=batch)
+            # print batch_items;
+            for batch_item in batch_items:
+
+                batch_item_details.append(batch_item.get_json_data())
+
             if request.is_ajax():
                 res = {
                     'result': 'ok',
-                    'item_details': item_details,
+                    'batch_items': batch_item_details,
                 }
                 response = simplejson.dumps(res)
                 return HttpResponse(response, status=200, mimetype='application/json')
