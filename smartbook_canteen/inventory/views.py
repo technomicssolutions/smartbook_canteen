@@ -365,21 +365,12 @@ class SearchItem(View):
         try:
             item_code = request.GET.get('item_code', '')
             item_name = request.GET.get('item_name', '')
-            brand = request.GET.get('brand', '')
-            batch = request.GET.get('batch', '')
-            product = request.GET.get('product', '')
-            if brand == 'undefined':
-                brand = ''
-            if product == 'undefined':
-                product = ''
+            print (item_name);
             items = []
             if item_code:
-                items = Item.objects.filter(code__istartswith=item_code, brand__id=brand, product__id=product)
+                items = Item.objects.filter(code__istartswith=item_code)
             elif item_name:
-                if brand and product:
-                    items = Item.objects.filter(name__istartswith=item_name, brand__id=brand, product__id=product)
-                else:
-                    items = Item.objects.filter(name__istartswith=item_name)
+                items = Item.objects.filter(name__istartswith=item_name)
 
             for item in items:
                 purchase_price = 0
@@ -404,80 +395,29 @@ class SearchItem(View):
                 is_branch_price = 'false'
                 is_customer_card_price = 'false'
                 is_permissible_discount = 'false'
-                try:
-                    if batch and batch != 'undefined':
-                        batch_item = BatchItem.objects.get(item=item, batch__id=batch)
-
-                        purchase_price = batch_item.purchase_price
-                        quantity_in_purchase_unit = batch_item.quantity_in_actual_unit
-                       
-                        cost_price = batch_item.cost_price
-                        uom = batch_item.uom
-                        item_name = batch_item.item.name 
-                        batch_name = batch_item.batch.name
-                        wholesale_profit = batch_item.whole_sale_profit_percentage
-                        retail_profit = batch_item.retail_profit_percentage
-                        wholesale_price = batch_item.whole_sale_price
-                        retail_price = batch_item.retail_price
-                        branch_price = batch_item.branch_price
-                        customer_card_price = batch_item.customer_card_price
-                        permissible_discount = batch_item.permissible_discount_percentage
-                        is_cost_price_existing = 'true' if batch_item.cost_price else 'false',
-                        is_wholesale_profit = 'true' if batch_item.whole_sale_profit_percentage else 'false',
-                        is_retail_profit = 'true' if batch_item.retail_profit_percentage else 'false',
-                        is_branch_price = 'true' if batch_item.branch_price else 'false',
-                        is_customer_card_price =  'true' if batch_item.customer_card_price else 'false',
-                        is_permissible_discount =  'true' if batch_item.permissible_discount_percentage else 'false',
-                        
-                    else:
-                        purchase_price = 0
-                        selling_price = 0
-                        stock = 0
-                except Exception as ex:
-                    purchase_price = 0
-                    quantity_in_purchase_unit = 0
-                    quantity_in_smallest_unit = 0
-                    purchase_price = 0
-                    cost_price = 0
-                    uom = ''
-                    item_name = ''
-                    batch_name = ''
-                    wholesale_profit = 0
-                    retail_profit = 0
-                    wholesale_price = 0
-                    retail_price = 0
-                    branch_price = 0
-                    customer_card_price = 0
-                    permissible_discount = 0
-                    stock = 0
-                    is_cost_price_existing = 'false'
-                    is_wholesale_profit = 'false'
-                    is_retail_profit = 'false'
-                    is_branch_price = 'false'
-                    is_customer_card_price = 'false'
-                    is_permissible_discount = 'false'
-                item_data = item.get_json_data()
-                item_data['purchase_price'] = purchase_price
-                item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
-                item_data['purchase_price'] = purchase_price
-                item_data['cost_price'] = cost_price
-                item_data['uom'] = uom
-                item_data['item_name'] = item_name
-                item_data['batch_name'] = batch_name
-                item_data['wholesale_profit'] = wholesale_profit
-                item_data['retail_profit'] = retail_profit
-                item_data['wholesale_price'] = wholesale_price
-                item_data['retail_price'] = retail_price
-                item_data['branch_price'] = branch_price
-                item_data['customer_card_price'] = customer_card_price
-                item_data['permissible_discount'] = permissible_discount
-                item_data['is_cost_price_existing'] = is_cost_price_existing
-                item_data['is_wholesale_profit'] = is_wholesale_profit
-                item_data['is_retail_profit'] = is_retail_profit
-                item_data['is_branch_price'] = is_branch_price
-                item_data['is_customer_card_price'] = is_customer_card_price
-                item_data['is_permissible_discount'] = is_permissible_discount
-                items_list.append(item_data)                           
+                
+            item_data = item.get_json_data()
+            item_data['purchase_price'] = purchase_price
+            item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
+            item_data['purchase_price'] = purchase_price
+            item_data['cost_price'] = cost_price
+            item_data['uom'] = uom
+            item_data['item_name'] = item_name
+            item_data['batch_name'] = batch_name
+            item_data['wholesale_profit'] = wholesale_profit
+            item_data['retail_profit'] = retail_profit
+            item_data['wholesale_price'] = wholesale_price
+            item_data['retail_price'] = retail_price
+            item_data['branch_price'] = branch_price
+            item_data['customer_card_price'] = customer_card_price
+            item_data['permissible_discount'] = permissible_discount
+            item_data['is_cost_price_existing'] = is_cost_price_existing
+            item_data['is_wholesale_profit'] = is_wholesale_profit
+            item_data['is_retail_profit'] = is_retail_profit
+            item_data['is_branch_price'] = is_branch_price
+            item_data['is_customer_card_price'] = is_customer_card_price
+            item_data['is_permissible_discount'] = is_permissible_discount
+            items_list.append(item_data)                           
             res = {
                 'result': 'ok',
                 'items': items_list,
@@ -573,15 +513,15 @@ class OpeningStockView(View):
         if request.is_ajax():
             opening_stock_items = ast.literal_eval(request.POST['opening_stock_items'])
             if opening_stock_items:
-                cash_ledger = Ledger.objects.get(account_code='1005')
-                stock_ledger = Ledger.objects.get(account_code='1006')
-                transaction = Transaction()
-                try:
-                    transaction_ref = Transaction.objects.latest('id').id + 1
-                except:
-                    transaction_ref = '1'
+                # cash_ledger = Ledger.objects.get(account_code='1005')
+                # stock_ledger = Ledger.objects.get(account_code='1006')
+                # transaction = Transaction()
+                # try:
+                #     transaction_ref = Transaction.objects.latest('id').id + 1
+                # except:
+                #     transaction_ref = '1'
               
-                transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
+                # transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
                 
                 try:
                     opening_stock = OpeningStock.objects.create(transaction_reference_no=transaction.transaction_ref, date=datetime.now() )
@@ -600,6 +540,7 @@ class OpeningStockView(View):
                             opening_stock_item = OpeningStockItem.objects.create(opening_stock=opening_stock,batch_item=batch_item)
                         opening_stock_item.quantity = item_detail['quantity']
                         opening_stock_item.purchase_price = item_detail['purchase_price']
+                        opening_stock_item.selling_price = item_detail['selling_price']
                         opening_stock_item.net_amount = item_detail['net_amount']
                         opening_stock_item.uom = purchase_unit
                         opening_stock_item.save()
@@ -623,18 +564,18 @@ class OpeningStockView(View):
                         'result': 'error',
                         'error_message': str(ex),
                     }
-                ledger_entry_cash_ledger = LedgerEntry()
-                ledger_entry_cash_ledger.ledger = cash_ledger
-                ledger_entry_cash_ledger.credit_amount = total_purchase_price
-                ledger_entry_cash_ledger.date = datetime.now()
-                ledger_entry_cash_ledger.transaction_reference_number = transaction.transaction_ref
-                ledger_entry_cash_ledger.save()
-                ledger_entry_stock_ledger = LedgerEntry()
-                ledger_entry_stock_ledger.ledger = stock_ledger
-                ledger_entry_stock_ledger.debit_amount = total_purchase_price
-                ledger_entry_stock_ledger.date = datetime.now()
-                ledger_entry_stock_ledger.transaction_reference_number = transaction.transaction_ref 
-                ledger_entry_stock_ledger.save()
+                # ledger_entry_cash_ledger = LedgerEntry()
+                # ledger_entry_cash_ledger.ledger = cash_ledger
+                # ledger_entry_cash_ledger.credit_amount = total_purchase_price
+                # ledger_entry_cash_ledger.date = datetime.now()
+                # ledger_entry_cash_ledger.transaction_reference_number = transaction.transaction_ref
+                # ledger_entry_cash_ledger.save()
+                # ledger_entry_stock_ledger = LedgerEntry()
+                # ledger_entry_stock_ledger.ledger = stock_ledger
+                # ledger_entry_stock_ledger.debit_amount = total_purchase_price
+                # ledger_entry_stock_ledger.date = datetime.now()
+                # ledger_entry_stock_ledger.transaction_reference_number = transaction.transaction_ref 
+                # ledger_entry_stock_ledger.save()
                 try:
                     stock_value = StockValue.objects.latest('id')
                 except Exception as ex:
@@ -653,21 +594,21 @@ class OpeningStockView(View):
                 else:
                     opening_stock_value.stock_by_value = float(total_purchase_price)
                 opening_stock_value.save()
-                transaction.narration = 'By Opening Stock - '+ str(transaction.transaction_ref )
-                transaction.debit_amount = total_purchase_price
-                transaction.credit_amount = total_purchase_price
-                transaction.credit_ledger = ledger_entry_cash_ledger
-                transaction.debit_ledger = ledger_entry_stock_ledger
-                transaction.transaction_date = datetime.now()
-                transaction.amount = total_purchase_price
-                cash_ledger.balance = float(cash_ledger.balance) - float(total_purchase_price)
-                stock_ledger.balance = float(stock_ledger.balance) + float(total_purchase_price)
-                cash_ledger.save()
-                stock_ledger.save()
-                transaction.save()
+                # transaction.narration = 'By Opening Stock - '+ str(transaction.transaction_ref )
+                # transaction.debit_amount = total_purchase_price
+                # transaction.credit_amount = total_purchase_price
+                # transaction.credit_ledger = ledger_entry_cash_ledger
+                # transaction.debit_ledger = ledger_entry_stock_ledger
+                # transaction.transaction_date = datetime.now()
+                # transaction.amount = total_purchase_price
+                # cash_ledger.balance = float(cash_ledger.balance) - float(total_purchase_price)
+                # stock_ledger.balance = float(stock_ledger.balance) + float(total_purchase_price)
+                # cash_ledger.save()
+                # stock_ledger.save()
+                # transaction.save()
             res = {
                 'result': 'ok',
-                'transaction_reference_no': transaction.transaction_ref
+                'transaction_reference_no':'',
             }
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')

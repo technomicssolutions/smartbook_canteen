@@ -1311,6 +1311,7 @@ function OpeningStockController($scope, $http){
             'quantity': '',
             'purchase_unit': '',
             'purchase_price': '',
+            'selling_price': '',
         });
     }
     $scope.hide_popup = function() {
@@ -1441,6 +1442,9 @@ function OpeningStockController($scope, $http){
                     return false;
                 } else if ($scope.opening_stock_items[i].purchase_price == '' || $scope.opening_stock_items[i].purchase_price == undefined) {
                     $scope.validate_opening_stock_msg = 'Please enter purchase price in row '+ (i+1);
+                    return false;
+                } else if ($scope.opening_stock_items[i].selling_price == '' || $scope.opening_stock_items[i].selling_price == undefined) {
+                    $scope.validate_opening_stock_msg = 'Please enter selling price in row '+ (i+1);
                     return false;
                 } else if ($scope.opening_stock_items[i].purchase_unit == '' || $scope.opening_stock_items[i].purchase_unit == undefined) {
                     $scope.validate_opening_stock_msg = 'Please choose uom in row '+ (i+1);

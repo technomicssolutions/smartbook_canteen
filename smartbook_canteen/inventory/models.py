@@ -679,12 +679,14 @@ class OpeningStock(models.Model):
 
 class OpeningStockItem(models.Model):
 
+    canteen = models.ForeignKey(Canteen, null=True, blank=True)
     opening_stock = models.ForeignKey(OpeningStock, null=True, blank=True)
     batch_item = models.ForeignKey(BatchItem, null=True, blank=True)
 
     quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
     uom = models.CharField('Uom', max_length=200, null=True, blank=True)
     purchase_price = models.DecimalField('Purchase Price', max_digits=20, decimal_places=5, default=0)
+    selling_price = models.DecimalField('Selling Price', max_digits=20, decimal_places=5, default=0)
     net_amount = models.DecimalField('Net Amount', max_digits=20, decimal_places=5, default=0)
     
     def __unicode__(self):
