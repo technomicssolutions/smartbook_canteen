@@ -17,7 +17,7 @@ from reportlab.platypus import Paragraph, Table, TableStyle, SimpleDocTemplate, 
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import cm
-
+from dashboard.models import Canteen
 from inventory.models import Item, Batch, BatchItem, Category, Product, Brand, VatType, \
 OpeningStockItem, OpeningStock, StockValue, OpeningStockValue
 # from accounts.models import Ledger, Transaction, LedgerEntry
@@ -370,9 +370,10 @@ class SearchItem(View):
             if item_code:
                 items = Item.objects.filter(code__istartswith=item_code)
             elif item_name:
-                items = Item.objects.filter(name__istartswith=item_name)
+                items = Item.objects.filter(Q(name__istartswith=item_name) &Q(canteen=request.session['canteen']));
 
             for item in items:
+                print item;
                 purchase_price = 0
                 quantity_in_purchase_unit = 0
                 quantity_in_smallest_unit = 0
@@ -417,7 +418,8 @@ class SearchItem(View):
             item_data['is_branch_price'] = is_branch_price
             item_data['is_customer_card_price'] = is_customer_card_price
             item_data['is_permissible_discount'] = is_permissible_discount
-            items_list.append(item_data)                           
+            items_list.append(item_data)
+            print items_list;                           
             res = {
                 'result': 'ok',
                 'items': items_list,
@@ -512,7 +514,9 @@ class OpeningStockView(View):
         total_purchase_price = 0
         if request.is_ajax():
             opening_stock_items = ast.literal_eval(request.POST['opening_stock_items'])
+            print(opening_stock_items);
             if opening_stock_items:
+
                 # cash_ledger = Ledger.objects.get(account_code='1005')
                 # stock_ledger = Ledger.objects.get(account_code='1006')
                 # transaction = Transaction()
@@ -524,8 +528,11 @@ class OpeningStockView(View):
                 # transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
                 
                 try:
-                    opening_stock = OpeningStock.objects.create(transaction_reference_no=transaction.transaction_ref, date=datetime.now() )
+                    print(request.session['canteen']);
+                    # opening_stock = OpeningStock.objects.create(date=datetime.now(),canteen=request.session['canteen'] )
+                    print("dsfdsf");
                     for item_detail in opening_stock_items:
+                        print (item_detail);
                         try:
                             uom =  item_detail['purchase_unit']
                             purchase_unit = uom['uom']
@@ -533,16 +540,23 @@ class OpeningStockView(View):
                             purchase_unit = item_detail['purchase_unit']
                         item = Item.objects.get(id=item_detail['id'])
                         batch = Batch.objects.get(id=item_detail['batch'])
+                        print(purchase_unit);
+                        print(item,batch);
                         batch_item, batch_item_created = BatchItem.objects.get_or_create(item=item,batch=batch)
+                        canteen=Canteen.objects.get(id=request.session['canteen']);
+                        print(batch_item,batch_item_created,canteen);
                         try:
-                            opening_stock_item = OpeningStockItem.objects.get(opening_stock=opening_stock,batch_item=batch_item)
+                            opening_stock_item = OpeningStockItem.objects.get(batch_item=batch_item)
                         except:
-                            opening_stock_item = OpeningStockItem.objects.create(opening_stock=opening_stock,batch_item=batch_item)
+                            opening_stock_item = OpeningStockItem.objects.create(batch_item=batch_item)
+                        opening_stock_item.canteen = canteen;    
                         opening_stock_item.quantity = item_detail['quantity']
                         opening_stock_item.purchase_price = item_detail['purchase_price']
                         opening_stock_item.selling_price = item_detail['selling_price']
                         opening_stock_item.net_amount = item_detail['net_amount']
+                        opening_stock_item.date = datetime.now()
                         opening_stock_item.uom = purchase_unit
+                        print (opening_stock_item); 
                         opening_stock_item.save()
                         quantity = 0
                         selling_price = 0

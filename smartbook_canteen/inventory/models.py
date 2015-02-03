@@ -690,7 +690,7 @@ class OpeningStockItem(models.Model):
     net_amount = models.DecimalField('Net Amount', max_digits=20, decimal_places=5, default=0)
     
     def __unicode__(self):
-        return  self.batch_item.item.name
+        return str(self.date)+ ' - ' + self.batch_item.item.name
 
     class Meta:
         verbose_name_plural = 'Opening Stock Item'
