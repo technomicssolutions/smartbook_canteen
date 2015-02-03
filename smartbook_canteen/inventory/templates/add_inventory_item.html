@@ -4,17 +4,13 @@
 {% block title %} Item {% endblock title%}
 {% block controller %} ng-controller="ItemController" ng-init="init('{{csrf_token}}')"{% endblock controller %}
 {% block dialogue_popup %}
-	{% include 'add_product_pop_up.html' %}
-	{% include 'add_brand_pop_up.html' %}    
-	{% include 'add_vat_pop_up.html' %} 
+
 	
 {% endblock %}
 {% block horizontal_menu %}
 	<ul>
 		<li> <a href="{% url 'categories' %}"> Categories </a></li>
-		<!-- <li> <a href="{% url 'products' %}"> Products </a></li>
-		<li> <a href="{% url 'brands' %}"> Brands </a></li>
-		<li> <a href="{% url 'vat' %}" class="no-border"> Vat Type </a></li> -->
+	
 		<li class="horizontal_menu_active"> <a href="{% url 'items' %}"> Items </a></li>
 		<li> <a href="{% url 'batches' %}"> Batches </a></li>
 		<li> <a href="{% url 'opening_stock' %}"> Opening Stock </a></li>

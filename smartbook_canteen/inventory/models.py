@@ -15,6 +15,7 @@ ITEM_TYPES = (
 
 class Category(models.Model):
 
+    canteen = models.ForeignKey(Canteen, null=True, blank=True) 
     parent = models.ForeignKey('self', null=True, blank=True)
     name = models.CharField('Name', max_length=200, null=True, blank=True, unique=False)
 
@@ -29,6 +30,7 @@ class Category(models.Model):
         category_data = {
             'id': self.id,
             'name': self.name,
+            'canteen':self.canteen.name if self.canteen else '',
             'parent_id': self.parent.id if self.parent else '',
             'parent_name': self.parent.name if self.parent else '',
             'subcategories': [],
@@ -39,6 +41,8 @@ class Category(models.Model):
     def set_attributes(self, category_details):
 
         self.name = category_details['name']
+        canteen_obj = Canteen.objects.get(id=category_details['canteen'])
+        self.canteen = canteen_obj;
         if category_details.get('parent_id', ''): 
             parent = Category.objects.get(id=category_details['parent_id'])
             self.parent = parent
@@ -675,12 +679,14 @@ class OpeningStock(models.Model):
 
 class OpeningStockItem(models.Model):
 
+    canteen = models.ForeignKey(Canteen, null=True, blank=True)
     opening_stock = models.ForeignKey(OpeningStock, null=True, blank=True)
     batch_item = models.ForeignKey(BatchItem, null=True, blank=True)
 
     quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
     uom = models.CharField('Uom', max_length=200, null=True, blank=True)
     purchase_price = models.DecimalField('Purchase Price', max_digits=20, decimal_places=5, default=0)
+    selling_price = models.DecimalField('Selling Price', max_digits=20, decimal_places=5, default=0)
     net_amount = models.DecimalField('Net Amount', max_digits=20, decimal_places=5, default=0)
     
     def __unicode__(self):

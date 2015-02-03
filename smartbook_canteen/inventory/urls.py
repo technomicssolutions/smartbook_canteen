@@ -2,12 +2,11 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
 
 from inventory.views import SearchBatch, SearchBatchItem, BatchList, AddBatch, DeleteBatch, Categories, AddCategory, \
-	ItemList, AddItem, DeleteItem, SearchItem, ItemUom, UOMConversionView, SearchProduct, SearchBrand,\
-	SearchVat, DeleteCategory, Products, AddProduct, DeleteProduct, Brands, AddBrand, DeleteBrand, VatList, \
-	AddVat, DeleteVat, OpeningStockView, BatchItemDetailsView, EditVat, EditBrand, EditProduct, \
+	ItemList, AddItem, DeleteItem, SearchItem, ItemUom, UOMConversionView,\
+	OpeningStockView, BatchItemDetailsView, DeleteCategory,\
 	EditBatch, CategorySubcategoryList, SearchItemStock, BatchItemsView, IsCategoryNameExists, StockReport, \
 	StockAgingReport, CategoryWiseStockReport, CategoryWiseStockAgingReport, CategoryWiseVendorReport, CategoryWisePurchaseReport, \
-	AddMultipleProducts, AddMultipleBrand, AddMultipleVat, CategoryWiseProfitReport, ClosingStockView
+	CategoryWiseProfitReport, ClosingStockView
 
 
 urlpatterns = patterns('',
@@ -27,10 +26,6 @@ urlpatterns = patterns('',
 	url(r'^search_item/$', login_required(SearchItem.as_view(), login_url='/login/'), name='search_item'),
 	url(r'^uom_conversion/$', login_required(UOMConversionView.as_view(), login_url="login"), name='uom_conversion'),
 
-	url(r'^search_product/$', login_required(SearchProduct.as_view(), login_url='/login/'), name='search_product'),
-	url(r'^search_brand/$', login_required(SearchBrand.as_view(), login_url='/login/'), name='search_brand'),
-	url(r'^search_vat/$', login_required(SearchVat.as_view(), login_url='/login/'), name='search_vat'),
-
 	url(r'^batches/$', login_required(BatchList.as_view(), login_url='/login/'),name='batches'),
 	url(r'^add_batch/$', login_required(AddBatch.as_view(), login_url='/login/'), name='add_batch'),
 	url(r'^edit_batch/$', login_required(EditBatch.as_view(), login_url='/login/'), name='edit_batch'),
@@ -38,24 +33,7 @@ urlpatterns = patterns('',
 	url(r'^batch_item_details/$', login_required(BatchItemDetailsView.as_view(), login_url='/login/'), name="batch_item_details"),
 	url(r'^batch_items/$', login_required(BatchItemsView.as_view(), login_url='/login/'), name="batch_items"),
 
-	url(r'^products/$', login_required(Products.as_view(), login_url='/login/'),name='products'),
-	url(r'^add_product/$', login_required(AddProduct.as_view(), login_url='/login/'),name='add_product'),
-	url(r'^edit_product/$', login_required(EditProduct.as_view(), login_url='/login/'),name='edit_product'),
-	url(r'^delete_product/$', login_required(DeleteProduct.as_view(), login_url='/login/'),name='delete_product'),
-	url(r'^add_multiple_product/$', login_required(AddMultipleProducts.as_view(), login_url='/login/'),name='add_multiple_product'),
-
-	url(r'^brands/$', login_required(Brands.as_view(), login_url='/login/'),name='brands'),
-	url(r'^add_brand/$', login_required(AddBrand.as_view(), login_url='/login/'),name='add_brand'),
-	url(r'^edit_brand/$', login_required(EditBrand.as_view(), login_url='/login/'),name='edit_brand'),
-	url(r'^delete_brand/$', login_required(DeleteBrand.as_view(), login_url='/login/'),name='delete_brand'),
-	url(r'^add_multiple_brand/$', login_required(AddMultipleBrand.as_view(), login_url='/login/'),name='add_multiple_brand'),
-
-	url(r'^vat/$', login_required(VatList.as_view(), login_url='/login/'),name='vat'),
-	url(r'^add_vat/$', login_required(AddVat.as_view(), login_url='/login/'),name='add_vat'),
-	url(r'^edit_vat/$', login_required(EditVat.as_view(), login_url='/login/'),name='edit_vat'),
-	url(r'^delete_vat/$', login_required(DeleteVat.as_view(), login_url='/login/'),name='delete_vat'),
-	url(r'^add_multiple_vat/$', login_required(AddMultipleVat.as_view(), login_url='/login/'),name='add_multiple_vat'),
-
+	
 	url(r'^opening_stock/$', login_required(OpeningStockView.as_view(), login_url='/login/'), name='opening_stock'),
 	url(r'^search_item_stock/$', login_required(SearchItemStock.as_view(), login_url='/login/'), name='search_item_stock'),
 

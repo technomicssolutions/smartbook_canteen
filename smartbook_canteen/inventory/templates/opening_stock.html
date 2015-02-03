@@ -5,10 +5,6 @@
 {% block dialogue_popup %}
 	{% include 'add_item.html' %}
 	{% include 'add_batch_popup.html' %}
-	  
-	{% include 'add_brand_pop_up.html' %}
-	{% include 'add_product_pop_up.html' %}
-	{% include 'add_vat_pop_up.html' %}
 {% endblock %}
 {% block extrahead %}
 	<script>
@@ -21,9 +17,7 @@
 {% block horizontal_menu %}
 	<ul>
 		<li> <a href="{% url 'categories' %}"> Categories </a></li>
-		<!-- <li> <a href="{% url 'products' %}"> Products </a></li>
-		<li> <a href="{% url 'brands' %}"> Brands </a></li>
-		<li> <a href="{% url 'vat' %}" class="no-border"> Vat Type </a></li> -->
+		
 		<li class="horizontal_menu_active"> <a href="{% url 'items' %}"> Items </a></li>
 		<li> <a href="{% url 'batches' %}"> Batches </a></li>
 		<li> <a href="{% url 'opening_stock' %}"> Opening Stock </a></li>
@@ -46,6 +40,7 @@
 					<th> Stock </th>
 					<th> Quantity </th>
 					<th> Purchase Price </th>
+					<th> Selling Price </th>
 					<th> UOM </th>
 					<th> Net Amount </th>
 					<th> Remove</th>
@@ -84,6 +79,8 @@
 					<td><input type="text" ng-model="item.quantity" ng-change="calculate_net_amount(item)"></td>
 					<td>
 						<input type="text" ng-model="item.purchase_price" ng-change="calculate_net_amount(item)"></td>
+					<td>
+						<input type="text" ng-model="item.selling_price"></td>	
 					<td>
 						<span ng-show="item.uom_exists">[[item.purchase_unit]]</span>
 						<select ng-model="item.purchase_unit" ng-options="uom.uom for uom in item.uoms" ng-hide="item.uom_exists">

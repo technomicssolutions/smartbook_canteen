@@ -10,6 +10,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.models import Q
 
 from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import Paragraph, Table, TableStyle, SimpleDocTemplate, Spacer
@@ -131,7 +132,7 @@ class AddBatch(View):
         batch = None
         if request.is_ajax():
             batch_details = ast.literal_eval(request.POST['batch_details'])
-            
+
             batch_details['canteen'] = request.session['canteen']
             print batch_details
             if batch_details.get('id', ''):
@@ -206,12 +207,16 @@ class Categories(View):
 
     def get(self, request, *args, **kwargs):
 
-        categories = Category.objects.all()
+        categories = Category.objects.filter(canteen=request.session['canteen'])
+        print (categories);
         if request.GET.get('category_name', ''):
-            categories = Category.objects.filter(name__istartswith=request.GET.get('category_name', ''))
+            categories = Category.objects.filter(Q(name__istartswith=request.GET.get('category_name', '')) & Q(canteen=request.session['canteen']));
+            # print (categories);
         if request.is_ajax():
             if request.GET.get('tree', '') == 'true':
-                categories = Category.objects.filter(parent=None).order_by('id') 
+                print ("ssss");
+                categories = Category.objects.filter(Q(parent=None) & Q(canteen=request.session['canteen'])).order_by('id') 
+                
             res = get_category_details(request, categories)
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')
@@ -220,7 +225,7 @@ class Categories(View):
 class AddCategory(View):
 
     def post(self, request, *args, **kwargs):
-
+        print(request.session['canteen']);
         if request.is_ajax(): 
             category_details = ast.literal_eval(request.POST['category'])
             if category_details.get('id', ''):
@@ -230,6 +235,8 @@ class AddCategory(View):
                 else:
                     category_obj = Category.objects.filter(name=category_details['name']).exclude(id=category_details.get('id', ''))
                 if category_obj.count() == 0:
+                    category_details['canteen']=request.session['canteen'];
+                    # print (category_details);
                     category_obj = category.set_attributes(category_details)
                     res = {
                         'result': 'ok',
@@ -257,6 +264,8 @@ class AddCategory(View):
                 except Exception as ex:
                     
                     category = Category()
+                    category_details['canteen']=request.session['canteen'];
+                    # print (category_details);
                     category_obj = category.set_attributes(category_details)
                     res = {
                         'result': 'ok',
@@ -269,15 +278,19 @@ class AddCategory(View):
 class CategorySubcategoryList(View):
 
     def get(self, request, *args, **kwargs):
-
+        print("hiii");
+        category_data={};
         category_id = kwargs['category_id']
-        category = Category.objects.get(id=category_id)
+        print (category_id)
+        category = Category.objects.filter(id=category_id)
+        print (category);
         ctx_category_details = []
         ctx_subcategory = []
-        subcategories = Category.objects.filter(parent=category)
+        subcategories = Category.objects.filter(Q(parent=category) & Q(canteen=request.session['canteen']))
+        print(subcategories);
         for subcatrgory in subcategories:
             ctx_subcategory.append(subcatrgory.get_json_data())
-        category_data = category.get_json_data()
+        # category_data = category.get_json_data()
         category_data['subcategories'] = ctx_subcategory
         ctx_category_details.append(category_data)
         res = {
@@ -293,7 +306,7 @@ class ItemList(View):
     def get(self, request, *args, **kwargs):       
         if request.is_ajax():
             items_list = []
-            items = Item.objects.filter(canteen=request.session['canteen'])
+            items = Item.objects.filter(canteen=request.session['canteen']).order_by('name')
             for item in items:
                 item_data = item.get_json_data()                
                 items_list.append(item_data)
@@ -353,21 +366,12 @@ class SearchItem(View):
         try:
             item_code = request.GET.get('item_code', '')
             item_name = request.GET.get('item_name', '')
-            brand = request.GET.get('brand', '')
-            batch = request.GET.get('batch', '')
-            product = request.GET.get('product', '')
-            if brand == 'undefined':
-                brand = ''
-            if product == 'undefined':
-                product = ''
+            print (item_name);
             items = []
             if item_code:
-                items = Item.objects.filter(code__istartswith=item_code, brand__id=brand, product__id=product)
+                items = Item.objects.filter(code__istartswith=item_code)
             elif item_name:
-                if brand and product:
-                    items = Item.objects.filter(name__istartswith=item_name, brand__id=brand, product__id=product)
-                else:
-                    items = Item.objects.filter(name__istartswith=item_name)
+                items = Item.objects.filter(name__istartswith=item_name)
 
             for item in items:
                 purchase_price = 0
@@ -392,80 +396,29 @@ class SearchItem(View):
                 is_branch_price = 'false'
                 is_customer_card_price = 'false'
                 is_permissible_discount = 'false'
-                try:
-                    if batch and batch != 'undefined':
-                        batch_item = BatchItem.objects.get(item=item, batch__id=batch)
-
-                        purchase_price = batch_item.purchase_price
-                        quantity_in_purchase_unit = batch_item.quantity_in_actual_unit
-                       
-                        cost_price = batch_item.cost_price
-                        uom = batch_item.uom
-                        item_name = batch_item.item.name 
-                        batch_name = batch_item.batch.name
-                        wholesale_profit = batch_item.whole_sale_profit_percentage
-                        retail_profit = batch_item.retail_profit_percentage
-                        wholesale_price = batch_item.whole_sale_price
-                        retail_price = batch_item.retail_price
-                        branch_price = batch_item.branch_price
-                        customer_card_price = batch_item.customer_card_price
-                        permissible_discount = batch_item.permissible_discount_percentage
-                        is_cost_price_existing = 'true' if batch_item.cost_price else 'false',
-                        is_wholesale_profit = 'true' if batch_item.whole_sale_profit_percentage else 'false',
-                        is_retail_profit = 'true' if batch_item.retail_profit_percentage else 'false',
-                        is_branch_price = 'true' if batch_item.branch_price else 'false',
-                        is_customer_card_price =  'true' if batch_item.customer_card_price else 'false',
-                        is_permissible_discount =  'true' if batch_item.permissible_discount_percentage else 'false',
-                        
-                    else:
-                        purchase_price = 0
-                        selling_price = 0
-                        stock = 0
-                except Exception as ex:
-                    purchase_price = 0
-                    quantity_in_purchase_unit = 0
-                    quantity_in_smallest_unit = 0
-                    purchase_price = 0
-                    cost_price = 0
-                    uom = ''
-                    item_name = ''
-                    batch_name = ''
-                    wholesale_profit = 0
-                    retail_profit = 0
-                    wholesale_price = 0
-                    retail_price = 0
-                    branch_price = 0
-                    customer_card_price = 0
-                    permissible_discount = 0
-                    stock = 0
-                    is_cost_price_existing = 'false'
-                    is_wholesale_profit = 'false'
-                    is_retail_profit = 'false'
-                    is_branch_price = 'false'
-                    is_customer_card_price = 'false'
-                    is_permissible_discount = 'false'
-                item_data = item.get_json_data()
-                item_data['purchase_price'] = purchase_price
-                item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
-                item_data['purchase_price'] = purchase_price
-                item_data['cost_price'] = cost_price
-                item_data['uom'] = uom
-                item_data['item_name'] = item_name
-                item_data['batch_name'] = batch_name
-                item_data['wholesale_profit'] = wholesale_profit
-                item_data['retail_profit'] = retail_profit
-                item_data['wholesale_price'] = wholesale_price
-                item_data['retail_price'] = retail_price
-                item_data['branch_price'] = branch_price
-                item_data['customer_card_price'] = customer_card_price
-                item_data['permissible_discount'] = permissible_discount
-                item_data['is_cost_price_existing'] = is_cost_price_existing
-                item_data['is_wholesale_profit'] = is_wholesale_profit
-                item_data['is_retail_profit'] = is_retail_profit
-                item_data['is_branch_price'] = is_branch_price
-                item_data['is_customer_card_price'] = is_customer_card_price
-                item_data['is_permissible_discount'] = is_permissible_discount
-                items_list.append(item_data)                           
+                
+            item_data = item.get_json_data()
+            item_data['purchase_price'] = purchase_price
+            item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
+            item_data['purchase_price'] = purchase_price
+            item_data['cost_price'] = cost_price
+            item_data['uom'] = uom
+            item_data['item_name'] = item_name
+            item_data['batch_name'] = batch_name
+            item_data['wholesale_profit'] = wholesale_profit
+            item_data['retail_profit'] = retail_profit
+            item_data['wholesale_price'] = wholesale_price
+            item_data['retail_price'] = retail_price
+            item_data['branch_price'] = branch_price
+            item_data['customer_card_price'] = customer_card_price
+            item_data['permissible_discount'] = permissible_discount
+            item_data['is_cost_price_existing'] = is_cost_price_existing
+            item_data['is_wholesale_profit'] = is_wholesale_profit
+            item_data['is_retail_profit'] = is_retail_profit
+            item_data['is_branch_price'] = is_branch_price
+            item_data['is_customer_card_price'] = is_customer_card_price
+            item_data['is_permissible_discount'] = is_permissible_discount
+            items_list.append(item_data)                           
             res = {
                 'result': 'ok',
                 'items': items_list,
@@ -538,75 +491,6 @@ class UOMConversionView(View):
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')
 
-
-class SearchProduct(View):
-
-    def get(self, request, *args, **kwargs):
-        name = request.GET.get('product_name', '')
-        product_list = []
-        category_id = request.GET.get('category_id', '')
-        try:
-            category = Category.objects.get(id=category_id)
-            products = Product.objects.filter(name__istartswith=name, category=category)
-        except:
-            products = Product.objects.filter(name__istartswith=name)
-        for product in products:
-            product_list.append({
-                'id': product.id,
-                'name': product.name,
-                'category_name': product.category.name,
-            })
-        res = {
-            'result': 'ok',
-            'products': product_list,
-        }
-        response = simplejson.dumps(res)
-        return HttpResponse(response, status=200, mimetype='application/json')
-
-
-class SearchBrand(View):
-
-    def get(self, request, *args, **kwargs):
-        name = request.GET.get('brand_name', '')
-        brand_list = []
-        brand_names = Brand.objects.filter(name__istartswith=name)
-        for brand in brand_names:
-            brand_list.append({
-                'id': brand.id,
-                'name': brand.name,
-            })
-        res = {
-            'result': 'ok',
-            'brand_list': brand_list,
-        }
-        response = simplejson.dumps(res)
-        return HttpResponse(response, status=200, mimetype='application/json')        
-
-
-class SearchVat(View):
-
-    def get(self, request, *args, **kwargs):
-
-        vat_type = request.GET.get('vat_type', '')
-        vats = VatType.objects.filter(vat_type__istartswith=vat_type)
-        vat_list = []
-        for vat in vats:
-            vat_list.append({
-                'id': vat.id,
-                'vat_type': vat.vat_type,
-                'vat_percentage': vat.tax_percentage,
-                'tax_percentage': vat.tax_percentage,
-                'name': vat.vat_type,
-                'vat_name': str(vat.vat_type)+ str(' - ') + str(vat.tax_percentage),
-            })
-        res = {
-            'result': 'ok',
-            'vat_list': vat_list,
-        }
-        response = simplejson.dumps(res)
-        return HttpResponse(response, status=200, mimetype='application/json')
-
-
 class DeleteCategory(View):
 
     def get(self, request, *args, **kwargs):
@@ -616,278 +500,6 @@ class DeleteCategory(View):
         if category.product_set.all().count() == 0:
             category.delete()
         return HttpResponseRedirect(reverse('categories'))
-
-
-class Products(View):
-
-    def get(self, request, *args, **kwargs):
-        products = Product.objects.all().order_by('name')
-        product_list = []
-        for product in products:
-            product_list.append(product.get_json_data())
-        if request.is_ajax():
-            res = {
-                'products': product_list,
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'products.html', {})
-
-class AddProduct(View):
-
-    def get(self, request, *args, **kwargs):
-
-        product_id = ''
-        if request.GET.get('product_id', ''):
-            product = Product.objects.get(id=request.GET.get('product_id', ''))
-            product_id = product.id
-        if request.is_ajax():
-            res = {
-                'product': product.get_json_data()
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'add_product.html', {'product_id': product_id})
-
-    def post(self, request, *args, **kwargs):
-
-        if request.is_ajax():
-            product_details = ast.literal_eval(request.POST['product'])
-            if product_details.get('id', ''):
-                products = Product.objects.filter(name=product_details['name'], category__id=product_details['category_id']).exclude(id=product_details.get('id', ''))
-                if products.count() > 0:
-                    res = {
-                        'result': 'error',
-                        'message': 'Product name already exists',
-                    }
-                else:
-                    product = Product.objects.get(id=product_details.get('id', ''))
-                    product_obj = product.set_attributes(product_details)
-                    res = {
-                        'result': 'ok',
-                    }
-            else:
-                try:
-                    if product_details.get('category_id', ''):
-                        product = Product.objects.get(name=product_details['name'], category__id=product_details['category_id'])
-                    else:
-                        category = Category.objects.get(name=product_details['new_category_name'])
-                        product = Product.objects.get(name=product_details['name'], category=category)
-                    res = {
-                        'result': 'error',
-                        'message': 'Product name already exists',
-                    }
-                except:
-                    product = Product()
-                    product_obj = product.set_attributes(product_details)
-                    res = {
-                        'result': 'ok',
-                        'product': product.get_json_data(),
-                    }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-
-class EditProduct(View):
-
-    def get(self, request, *args, **kwargs):
-        product_id = ''
-        if request.GET.get('product_id', ''):
-            product = Product.objects.get(id=request.GET.get('product_id', ''))
-            product_id = product.id
-        if request.is_ajax():
-            res = {
-                'product': product.get_json_data()
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'add_product.html', {'product_id': product_id})
-
-class DeleteProduct(View):
-
-    def get(self, request, *args, **kwargs):
-        product = Product.objects.get(id=request.GET.get('product_id', ''))
-        if product.item_set.all().count() == 0:
-            product.delete()
-        return HttpResponseRedirect(reverse('products'))
-
-class Brands(View):
-
-    def get(self, request, *args, **kwargs):
-        msg = ''
-        brands = Brand.objects.all()
-        if request.is_ajax():
-            brand_list = []
-            for brand in brands:
-                brand_list.append(brand.get_json_data())
-            res = {
-                'brands': brand_list,
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'brands.html', {})
-
-class AddBrand(View):
-
-    def get(self, request, *args, **kwargs):
-
-        brand_id = request.GET.get('brand_id', '')
-        
-        if request.GET.get('brand_id', '') and request.is_ajax():
-            brand = Brand.objects.get(id=request.GET.get('brand_id', ''))
-            res = {
-                'brand': brand.get_json_data(),
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'add_brand.html', {'brand_id': brand_id})
-
-    def post(self, request, *args, **kwargs):
-
-        if request.is_ajax():
-            brand_details = ast.literal_eval(request.POST['brand'])
-            if brand_details.get('id', ''):
-                brands = Brand.objects.filter(name=brand_details['name']).exclude(id=brand_details['id'])
-                if brands.count() == 0:
-                    brand = Brand.objects.get(id=brand_details['id'])
-                    brand_obj = brand.set_attributes(brand_details)
-                    res = {
-                        'result': 'ok',
-                    }
-                else:
-                    res = {
-                        'result': 'error',
-                        'message': 'Brand name already exists',
-                    }
-            else:
-                brands = Brand.objects.filter(name=brand_details['name'])
-                if brands.count() > 0:
-                    res = {
-                        'result': 'error',
-                        'message': 'Brand name already exists',
-                    }  
-                else:
-                    brand = Brand()
-                    brand_obj = brand.set_attributes(brand_details)
-                    res = {
-                        'result': 'ok',
-                        'brand': brand.get_json_data()
-                    }    
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'add_brand.html', {})
-
-class EditBrand(View):
-
-    def get(self, request, *args, **kwargs):
-
-        brand_id = request.GET.get('brand_id', '')
-        if request.GET.get('brand_id', '') and request.is_ajax():
-            brand = Brand.objects.get(id=request.GET.get('brand_id', ''))
-            res = {
-                'brand': brand.get_json_data(),
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'add_brand.html', {'brand_id': brand_id})
-
-class DeleteBrand(View):
-
-    def get(self, request, *args, **kwargs):
-        brand_id = request.GET.get('brand_id', '')
-        msg = ''
-        brand = Brand.objects.get(id=brand_id)
-        if brand.item_set.all().count() == 0:
-            brand.delete()
-        else:
-            msg = str(brand.name) + "can't be deleted"
-            return render(request, 'brands.html', {'msg': msg  })
-        return HttpResponseRedirect(reverse('brands'))
-
-class VatList(View):
-
-    def get(self, request, *args, **kwargs):
-
-        vat_list = VatType.objects.all()
-        if request.is_ajax():
-            vat_data = []
-            for vat in vat_list:
-                vat_data.append(vat.get_json_data())
-            res = {
-                'vat_list': vat_data
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'vat_list.html', {})
-
-class AddVat(View):
-
-    def get(self, request, *args, **kwargs):
-        vat_id = request.GET.get('vat_id', '')
-        if request.is_ajax():
-            vat = VatType.objects.get(id=vat_id)
-            res = {
-                'vat': vat.get_json_data()
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'add_vat.html', {'vat_id': vat_id})
-
-    def post(self, request, *args, **kwargs):
-
-        vat_details = ast.literal_eval(request.POST['vat'])
-        
-        if vat_details.get('id',''):
-            vats = VatType.objects.filter(vat_type=vat_details['name'] ,tax_percentage=vat_details['percentage']).exclude(id=vat_details['id'])
-            if vats.count() > 0:
-                res = {
-                    'result': 'error',
-                    'message': 'vat already exists',
-                } 
-            else:
-                vat = VatType.objects.get(id=vat_details['id'])
-                vat_obj = vat.set_attributes(vat_details)
-                res = {
-                    'result': 'ok',
-                }
-        else:
-            try:
-                vat = VatType.objects.get(vat_type=vat_details['name'] ,tax_percentage=vat_details['percentage'])
-                res = {
-                    'result': 'error',
-                    'message': 'vat already exists',
-                }   
-            except Exception as ex:
-                vat = VatType()
-                vat_obj = vat.set_attributes(vat_details)
-                res = {
-                    'result': 'ok',
-                    'vat': vat.get_json_data(),
-                }
-        response = simplejson.dumps(res)
-        return HttpResponse(response, status=200, mimetype='application/json')
-
-class EditVat(View):
-
-    def get(self, request, *args, **kwargs):
-        vat_id = request.GET.get('vat_id', '')
-        if request.is_ajax():
-            vat = VatType.objects.get(id=vat_id)
-            res = {
-                'vat': vat.get_json_data()
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        return render(request, 'add_vat.html', {'vat_id': vat_id})
-
-class DeleteVat(View):
-
-    def get(self, request, *args, **kwargs):
-
-        vat_id = request.GET.get('vat_id', '')
-        vat = VatType.objects.get(id=vat_id)
-        if vat.item_set.all().count() == 0:
-            vat.delete()
-        return HttpResponseRedirect(reverse('vat'))
 
 
 class OpeningStockView(View):
@@ -902,15 +514,15 @@ class OpeningStockView(View):
         if request.is_ajax():
             opening_stock_items = ast.literal_eval(request.POST['opening_stock_items'])
             if opening_stock_items:
-                cash_ledger = Ledger.objects.get(account_code='1005')
-                stock_ledger = Ledger.objects.get(account_code='1006')
-                transaction = Transaction()
-                try:
-                    transaction_ref = Transaction.objects.latest('id').id + 1
-                except:
-                    transaction_ref = '1'
+                # cash_ledger = Ledger.objects.get(account_code='1005')
+                # stock_ledger = Ledger.objects.get(account_code='1006')
+                # transaction = Transaction()
+                # try:
+                #     transaction_ref = Transaction.objects.latest('id').id + 1
+                # except:
+                #     transaction_ref = '1'
               
-                transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
+                # transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
                 
                 try:
                     opening_stock = OpeningStock.objects.create(transaction_reference_no=transaction.transaction_ref, date=datetime.now() )
@@ -929,6 +541,7 @@ class OpeningStockView(View):
                             opening_stock_item = OpeningStockItem.objects.create(opening_stock=opening_stock,batch_item=batch_item)
                         opening_stock_item.quantity = item_detail['quantity']
                         opening_stock_item.purchase_price = item_detail['purchase_price']
+                        opening_stock_item.selling_price = item_detail['selling_price']
                         opening_stock_item.net_amount = item_detail['net_amount']
                         opening_stock_item.uom = purchase_unit
                         opening_stock_item.save()
@@ -952,18 +565,18 @@ class OpeningStockView(View):
                         'result': 'error',
                         'error_message': str(ex),
                     }
-                ledger_entry_cash_ledger = LedgerEntry()
-                ledger_entry_cash_ledger.ledger = cash_ledger
-                ledger_entry_cash_ledger.credit_amount = total_purchase_price
-                ledger_entry_cash_ledger.date = datetime.now()
-                ledger_entry_cash_ledger.transaction_reference_number = transaction.transaction_ref
-                ledger_entry_cash_ledger.save()
-                ledger_entry_stock_ledger = LedgerEntry()
-                ledger_entry_stock_ledger.ledger = stock_ledger
-                ledger_entry_stock_ledger.debit_amount = total_purchase_price
-                ledger_entry_stock_ledger.date = datetime.now()
-                ledger_entry_stock_ledger.transaction_reference_number = transaction.transaction_ref 
-                ledger_entry_stock_ledger.save()
+                # ledger_entry_cash_ledger = LedgerEntry()
+                # ledger_entry_cash_ledger.ledger = cash_ledger
+                # ledger_entry_cash_ledger.credit_amount = total_purchase_price
+                # ledger_entry_cash_ledger.date = datetime.now()
+                # ledger_entry_cash_ledger.transaction_reference_number = transaction.transaction_ref
+                # ledger_entry_cash_ledger.save()
+                # ledger_entry_stock_ledger = LedgerEntry()
+                # ledger_entry_stock_ledger.ledger = stock_ledger
+                # ledger_entry_stock_ledger.debit_amount = total_purchase_price
+                # ledger_entry_stock_ledger.date = datetime.now()
+                # ledger_entry_stock_ledger.transaction_reference_number = transaction.transaction_ref 
+                # ledger_entry_stock_ledger.save()
                 try:
                     stock_value = StockValue.objects.latest('id')
                 except Exception as ex:
@@ -982,21 +595,21 @@ class OpeningStockView(View):
                 else:
                     opening_stock_value.stock_by_value = float(total_purchase_price)
                 opening_stock_value.save()
-                transaction.narration = 'By Opening Stock - '+ str(transaction.transaction_ref )
-                transaction.debit_amount = total_purchase_price
-                transaction.credit_amount = total_purchase_price
-                transaction.credit_ledger = ledger_entry_cash_ledger
-                transaction.debit_ledger = ledger_entry_stock_ledger
-                transaction.transaction_date = datetime.now()
-                transaction.amount = total_purchase_price
-                cash_ledger.balance = float(cash_ledger.balance) - float(total_purchase_price)
-                stock_ledger.balance = float(stock_ledger.balance) + float(total_purchase_price)
-                cash_ledger.save()
-                stock_ledger.save()
-                transaction.save()
+                # transaction.narration = 'By Opening Stock - '+ str(transaction.transaction_ref )
+                # transaction.debit_amount = total_purchase_price
+                # transaction.credit_amount = total_purchase_price
+                # transaction.credit_ledger = ledger_entry_cash_ledger
+                # transaction.debit_ledger = ledger_entry_stock_ledger
+                # transaction.transaction_date = datetime.now()
+                # transaction.amount = total_purchase_price
+                # cash_ledger.balance = float(cash_ledger.balance) - float(total_purchase_price)
+                # stock_ledger.balance = float(stock_ledger.balance) + float(total_purchase_price)
+                # cash_ledger.save()
+                # stock_ledger.save()
+                # transaction.save()
             res = {
                 'result': 'ok',
-                'transaction_reference_no': transaction.transaction_ref
+                'transaction_reference_no':'',
             }
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')
@@ -1495,43 +1108,6 @@ class AddMultipleProducts(View):
                 if product_detail['category_id']:
                     category =Category.objects.get(id=product_detail['category_id'])
                     product, created = Product.objects.get_or_create(name=product_detail['name'],category=category)
-            res = {
-                'result': 'ok', 
-            } 
-            response = simplejson.dumps(res) 
-            return HttpResponse(response, status=200, mimetype='application/json')
-
-class AddMultipleBrand(View):
-
-    def get(self, request, *args, **kwargs):
-
-        return render(request, 'add_bulk_brand.html', {})
-
-    def post(self, request, *args, **kwargs):
-
-        if request.is_ajax():
-            brand_data = ast.literal_eval(request.POST['brands'])
-            for brand_detail in brand_data:
-                brand, created = Brand.objects.get_or_create(name=brand_detail['name'])
-            res = {
-                'result': 'ok', 
-            } 
-            response = simplejson.dumps(res) 
-            return HttpResponse(response, status=200, mimetype='application/json')
-
-class AddMultipleVat(View):
-
-    def get(self, request, *args, **kwargs):
-
-        return render(request, 'add_bulk_vat.html', {})
-
-    def post(self, request, *args, **kwargs):
-
-        if request.is_ajax():
-            vat_data = ast.literal_eval(request.POST['vats'])
-            for vat_detail in vat_data:
-                if vat_detail['vat_type'] != '':
-                    vat, created = VatType.objects.get_or_create(vat_type=vat_detail['vat_type'],tax_percentage=vat_detail['tax_percentage'])
             res = {
                 'result': 'ok', 
             } 

@@ -484,7 +484,6 @@ function get_product_search_list($scope, $http, category_wise) {
 function get_item_search_list($scope, $http, item, batch, from) {
     var url = ''
     console.log(item);
-    console.log(batch);
     if($scope.item_name){
         console.log($scope.item_name);
         url = '/inventory/search_item/?'+'item_name'+'='+$scope.item_name;
@@ -1327,6 +1326,7 @@ function OpeningStockController($scope, $http){
             'quantity': '',
             'purchase_unit': '',
             'purchase_price': '',
+            'selling_price': '',
         });
     }
     $scope.hide_popup = function() {
@@ -1376,7 +1376,8 @@ function OpeningStockController($scope, $http){
         item.batch_search = false; 
         $scope.current_item_details = [];
         $scope.current_item_details = item;
-        console.log($scope.current_item_details);
+        console.log("hiii");
+        //console.log($scope.current_item_details);
         get_item_search_list($scope, $http, $scope.current_item_details.name, item.batch, 'opening_stock');
     }
     $scope.get_items = function() {
@@ -1456,6 +1457,9 @@ function OpeningStockController($scope, $http){
                     return false;
                 } else if ($scope.opening_stock_items[i].purchase_price == '' || $scope.opening_stock_items[i].purchase_price == undefined) {
                     $scope.validate_opening_stock_msg = 'Please enter purchase price in row '+ (i+1);
+                    return false;
+                } else if ($scope.opening_stock_items[i].selling_price == '' || $scope.opening_stock_items[i].selling_price == undefined) {
+                    $scope.validate_opening_stock_msg = 'Please enter selling price in row '+ (i+1);
                     return false;
                 } else if ($scope.opening_stock_items[i].purchase_unit == '' || $scope.opening_stock_items[i].purchase_unit == undefined) {
                     $scope.validate_opening_stock_msg = 'Please choose uom in row '+ (i+1);
