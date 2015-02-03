@@ -98,6 +98,19 @@ function get_batches($scope, $http){
         $scope.message = data.message;
     })
 }
+function search_batch($scope, $http){
+    $scope.no_batch_msg = '';
+    $scope.batches = [];
+    $http.get('/inventory/search_batch/?batch_name='+$scope.batch_name+'&ajax=true').success(function(data){
+        $scope.batches = data.batches;
+        if ($scope.batches.length == 0) {
+            $scope.no_batch_msg = 'No batch with this name';
+        }
+        paginate($scope.batches, $scope, 10);
+    }).error(function(data, status){
+        console.log('Request failed');
+    });
+}
 function get_products($scope, $http){
     $http.get('/inventory/products/?ajax=true').success(function(data){
         $scope.products = data.products;
@@ -600,7 +613,8 @@ function get_batch_search_details($scope, $http, from) {
                     $scope.current_purchase_item.batches = [];
                 else if(from == 'opening_stock')
                     $scope.current_item_details.batches = [];
-                
+                else if(from == 'closing_stock')
+                    $scope.current_item_details.batches = [];
             } else {
                 if (from == 'purchase')
                     $scope.current_purchase_item.batches = data.batches;
@@ -608,7 +622,8 @@ function get_batch_search_details($scope, $http, from) {
                     $scope.current_sales_item.batches = data.batches;
                 else if(from == 'opening_stock')
                     $scope.current_item_details.batches = data.batches;
-                
+                else if(from == 'closing_stock')
+                    $scope.current_item_details.batches = data.batches;
                 else if(from == 'estimate')
                     $scope.current_estimate_item.batches = data.batches;
                 else if(from == 'delivery')
@@ -2719,8 +2734,8 @@ function ClosingStockController($scope, $http){
         {
             'item_name': '',
             'code': '',
-            'batch': '',
-            'quantity': '',
+            'stock': '',
+            'consumed_quantity': '',
         });
     }
     $scope.current_item_details = [];
@@ -2764,12 +2779,16 @@ function ClosingStockController($scope, $http){
         $scope.batch_name = batch.name;
         $scope.focusIndex = 0;
     }
-    $scope.get_batch_details = function(){
+    // $scope.get_batch_list = function() {
+    //     get_batch_search_details($scope, $http);
+    // }
+    $scope.get_batch_list = function(){
         $scope.batch = '';
         if ($scope.batch_name.length > 0)
             search_batch($scope, $http);
     }
-    $scope.generate_item = function(type_name){
+    
+    $scope.generate_list = function(type_name){
         $scope.report_mesg = '';
         if ($scope.batch == '' || $scope.batch == undefined) {
             $scope.no_batch_msg = 'Please Choose batch';
@@ -2788,7 +2807,7 @@ function ClosingStockController($scope, $http){
                     console.log(data);
                 });
             } else
-                document.location.href = '/purchase/closing_stock/?batch_id='+$scope.batch;
+                document.location.href = '/inventory/closing_stock/?batch_id='+$scope.batch;
         }
     }
     $scope.select_page = function(page){
