@@ -1211,13 +1211,13 @@ class ClosingStockView(View):
     def get(self, request, *args, **kwargs):
 
         batch_id = request.GET.get('batch_id', '')
-        print batch_id;
+        # print batch_id;
         batch_item_details = []
         if batch_id:
             batch = Batch.objects.get(name=batch_id)
-            print batch;
+            # print batch;
             batch_items = BatchItem.objects.filter(batch=batch)
-            print batch_items;
+            # print batch_items;
             for batch_item in batch_items:
 
                 batch_item_details.append(batch_item.get_json_data())

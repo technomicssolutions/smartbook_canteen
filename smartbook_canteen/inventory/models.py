@@ -716,7 +716,7 @@ class OpeningStockValue(models.Model):
 class ClosingStock(models.Model):
 
     date = models.DateField('Date',null=True, blank=True)
-    transaction_reference_no = models.CharField('Transaction Reference Number', null=True, blank=True, max_length=200)
+    canteen = models.ForeignKey(Canteen, null=True, blank=True)
 
     def __unicode__(self):
         return str(self.date)+ ' - ' + self.transaction_reference_no
@@ -725,17 +725,16 @@ class ClosingStock(models.Model):
         verbose_name_plural = 'closing Stock'
 
 class ClosingStockItem(models.Model):
-
+    canteen = models.ForeignKey(Canteen, null=True, blank=True)
     closing_stock = models.ForeignKey(ClosingStock, null=True, blank=True)
     batch_item = models.ForeignKey(BatchItem, null=True, blank=True)
-
-    quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
-    uom = models.CharField('Uom', max_length=200, null=True, blank=True)
-    purchase_price = models.DecimalField('Purchase Price', max_digits=20, decimal_places=5, default=0)
-    net_amount = models.DecimalField('Net Amount', max_digits=20, decimal_places=5, default=0)
+    item = models.ForeignKey(Item, null=True, blank=True)
+    date = models.DateField('Date',null=True, blank=True)
+    consumed_quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
+    
     
     def __unicode__(self):
-        return str(self.closing_stock.date) + ' - ' + self.closing_stock.transaction_reference_no
+        return str(self.closing_stock.date) 
 
     class Meta:
         verbose_name_plural = 'closing Stock Item'
