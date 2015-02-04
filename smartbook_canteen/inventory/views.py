@@ -70,9 +70,17 @@ class SearchBatchItem(View):
             print(batch);
             batch_items = BatchItem.objects.filter(item=item, batch=batch)
             print(batch_items)
-            for batch_item in batch_items:
-                print(batch_item);
-                batch_item_data = batch_item.get_json_data();
+            if batch_items:
+                for batch_item in batch_items:
+                    print(batch_item);
+                    batch_item_data = batch_item.get_json_data();
+                    print(batch_item_data)
+            else :
+                batch_item_data = {
+                    'stock':0,
+                    'purchase_price':0,
+                    'selling_price':0,
+                }    
         # else:
         #     item_name = request.GET.get('item_name', '')
         #     batch_id = request.GET.get('batch_id', '')
@@ -102,6 +110,7 @@ class SearchBatchItem(View):
         #         'batch_item_id': batch_item.id,
         #         'stock':batch_item.quantity_in_actual_unit,
         #     })
+
         res = {
             'result': 'ok',
             'batch_items': batch_item_data,
@@ -446,53 +455,7 @@ class SearchItem(View):
         response = simplejson.dumps(res)
         return HttpResponse(response, status=200, mimetype='application/json')
 
-class ItemUom(View):
-
-    def get(self, request, *args, **kwargs):
-
-        if request.is_ajax():
-            item_id = request.GET.get('item')
-            item = Item.objects.get(id=item_id)
-            uom_list = []
-            uom_list.append({
-                'uom': item.uom,
-            })
-            if item.packets_per_box != None:
-                uom_list.append({
-                    'uom': 'packet',
-                })
-            if item.pieces_per_packet != None or item.pieces_per_box != None:
-                uom_list.append({
-                    'uom': 'piece',
-                })
-            if item.smallest_unit != item.uom and item.smallest_unit != 'packet' and item.smallest_unit != 'piece':
-                uom_list.append({
-                    'uom': item.smallest_unit if item.smallest_unit else '',
-                })
-            for uom in uom_list:
-                if uom['uom'] == 'Kg':
-                    uom_list.append({
-                        'uom': 'gm',
-                    })
-                    uom_list.append({
-                        'uom': 'mg',
-                    })
-                elif uom['uom'] == 'Metre':
-                    uom_list.append({
-                        'uom': 'cm',
-                    })
-                    uom_list.append({
-                        'uom': 'mm',
-                    })
-                elif uom['uom'] == 'litre':
-                    uom_list.append({
-                        'uom': 'ml',
-                    })
-            res = {
-                'uoms': uom_list,
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')        
+        
 
 class UOMConversionView(View):
 
@@ -530,20 +493,10 @@ class OpeningStockView(View):
             opening_stock_items = ast.literal_eval(request.POST['opening_stock_items'])
             print(opening_stock_items);
             if opening_stock_items:
-
-                # cash_ledger = Ledger.objects.get(account_code='1005')
-                # stock_ledger = Ledger.objects.get(account_code='1006')
-                # transaction = Transaction()
-                # try:
-                #     transaction_ref = Transaction.objects.latest('id').id + 1
-                # except:
-                #     transaction_ref = '1'
-              
-                # transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
                 
                 try:
                     print(request.session['canteen']);
-                    # opening_stock = OpeningStock.objects.create(date=datetime.now(),canteen=request.session['canteen'] )
+                    
                     print("dsfdsf");
                     for item_detail in opening_stock_items:
                         print (item_detail);

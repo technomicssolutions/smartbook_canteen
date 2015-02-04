@@ -1366,11 +1366,13 @@ function OpeningStockController($scope, $http){
                 //     $scope.current_item_details.uom_exists = false;
                 item.purchase_unit = data.batch_items.uom;
                 item.purchase_price = data.batch_items.purchase_price;
+                item.selling_price = data.batch_items.selling_price;
             } else {
                 item.stock = 0;
                 $scope.current_item_details.uom_exists = false;
                 item.purchase_unit = '';
                 item.purchase_price = 0.00;
+                item.selling_price = 0.00;
             }
         }).error(function(data, status) {
             console.log('Request failed' || data);
