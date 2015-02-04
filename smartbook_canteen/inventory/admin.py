@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from models import Item, Product, Category, Brand, Batch, BatchItem, VatType, OpeningStock, \
-OpeningStockItem, StockValue, OpeningStockValue, ClosingStockItem, ClosingStock
+OpeningStockItem, StockValue, OpeningStockValue
 
 admin.site.register(Category)
 admin.site.register(Product)
@@ -14,5 +14,3 @@ admin.site.register(OpeningStock)
 admin.site.register(OpeningStockItem)
 admin.site.register(OpeningStockValue)
 admin.site.register(StockValue)
-admin.site.register(ClosingStock)
-admin.site.register(ClosingStockItem)

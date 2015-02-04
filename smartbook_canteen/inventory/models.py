@@ -385,7 +385,7 @@ class BatchItem(models.Model):
     quantity_in_actual_unit = models.FloatField('Quantity in Actual Smallest Unit', default=0, max_length=100)
     purchase_price = models.DecimalField('Purchase Price', default=0, max_digits=50, decimal_places=5)    
     cost_price = models.DecimalField('Cost Price', default=0, max_digits=50, decimal_places=5)
-    
+    selling_price = models.DecimalField('Selling Price', default=0, max_digits=50, decimal_places=5)
     uom = models.CharField('UOM', max_length=200, null=True, blank=True)
     whole_sale_profit_percentage = models.DecimalField('Whole Sale Profit Percentage', max_digits=20, decimal_places=5, default=0)
     retail_profit_percentage = models.DecimalField('Retail Profit Percentage', max_digits=20, decimal_places=5, default=0)
@@ -623,7 +623,8 @@ class BatchItem(models.Model):
             'batch_item_id': self.item.id,
             'item_name': self.item.name,
             'code': self.item.code,                                                                                                      
-            
+            'purchase_price':self.purchase_price,
+            'selling_price':self.selling_price,
             'batch_id': self.id,
             'stock': round(float(stock),2),
             
