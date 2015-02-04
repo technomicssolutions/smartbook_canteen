@@ -18,8 +18,8 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import cm
 from dashboard.models import Canteen
-from inventory.models import Item, Batch, BatchItem, Category, Product, Brand, VatType, \
-OpeningStockItem, OpeningStock, StockValue, OpeningStockValue
+from inventory.models import Item, Batch, BatchItem, Category, \
+StockValue, OpeningStockValue
 # from accounts.models import Ledger, Transaction, LedgerEntry
 # from purchases.models import Purchase, PurchaseItem
 # from sales.models import Sale, SalesItem
@@ -75,7 +75,6 @@ class SearchBatchItem(View):
                 for batch_item in batch_items:
                     print(batch_item);
                     batch_item_data = batch_item.get_json_data();
-                    print(batch_item_data)
             else :
                 batch_item_data = {
                     'stock':0,
@@ -333,6 +332,7 @@ class ItemList(View):
             for item in items:
                 item_data = item.get_json_data()                
                 items_list.append(item_data)
+                print(ite)
             res = {
                 'result': 'ok',
                 'items': items_list,
@@ -456,7 +456,53 @@ class SearchItem(View):
         response = simplejson.dumps(res)
         return HttpResponse(response, status=200, mimetype='application/json')
 
-        
+class ItemUom(View):
+
+    def get(self, request, *args, **kwargs):
+
+        if request.is_ajax():
+            item_id = request.GET.get('item')
+            item = Item.objects.get(id=item_id)
+            uom_list = []
+            uom_list.append({
+                'uom': item.uom,
+            })
+            if item.packets_per_box != None:
+                uom_list.append({
+                    'uom': 'packet',
+                })
+            if item.pieces_per_packet != None or item.pieces_per_box != None:
+                uom_list.append({
+                    'uom': 'piece',
+                })
+            if item.smallest_unit != item.uom and item.smallest_unit != 'packet' and item.smallest_unit != 'piece':
+                uom_list.append({
+                    'uom': item.smallest_unit if item.smallest_unit else '',
+                })
+            for uom in uom_list:
+                if uom['uom'] == 'Kg':
+                    uom_list.append({
+                        'uom': 'gm',
+                    })
+                    uom_list.append({
+                        'uom': 'mg',
+                    })
+                elif uom['uom'] == 'Metre':
+                    uom_list.append({
+                        'uom': 'cm',
+                    })
+                    uom_list.append({
+                        'uom': 'mm',
+                    })
+                elif uom['uom'] == 'litre':
+                    uom_list.append({
+                        'uom': 'ml',
+                    })
+            res = {
+                'uoms': uom_list,
+            }
+            response = simplejson.dumps(res)
+            return HttpResponse(response, status=200, mimetype='application/json')        
 
 class UOMConversionView(View):
 
@@ -494,10 +540,20 @@ class OpeningStockView(View):
             opening_stock_items = ast.literal_eval(request.POST['opening_stock_items'])
             print(opening_stock_items);
             if opening_stock_items:
+
+                # cash_ledger = Ledger.objects.get(account_code='1005')
+                # stock_ledger = Ledger.objects.get(account_code='1006')
+                # transaction = Transaction()
+                # try:
+                #     transaction_ref = Transaction.objects.latest('id').id + 1
+                # except:
+                #     transaction_ref = '1'
+              
+                # transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
                 
                 try:
                     print(request.session['canteen']);
-                    
+                    # opening_stock = OpeningStock.objects.create(date=datetime.now(),canteen=request.session['canteen'] )
                     print("dsfdsf");
                     for item_detail in opening_stock_items:
                         print (item_detail);
@@ -1200,6 +1256,7 @@ class ClosingStockView(View):
         return render(request, 'closing_stock.html', {})
 
     def post(self, request, *args, **kwargs):
+
         closing_stock = 0
         print 'hello';
         if request.is_ajax():
@@ -1224,7 +1281,6 @@ class ClosingStockView(View):
                     new_batch_item.save()
         batch_item.batch.closed = True
         batch_item.batch.save()
-
         res = {
             'result': 'ok',
                 

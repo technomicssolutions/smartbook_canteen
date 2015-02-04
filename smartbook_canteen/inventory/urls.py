@@ -2,8 +2,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
 
 from inventory.views import SearchBatch, SearchBatchItem, BatchList, AddBatch, DeleteBatch, Categories, AddCategory, \
-	ItemList, AddItem, DeleteItem, SearchItem, UOMConversionView,\
-	OpeningStockView, BatchItemDetailsView, DeleteCategory,\
+	ItemList, AddItem, DeleteItem, SearchItem,\
+	OpeningStockView, BatchItemDetailsView, DeleteCategory,ItemUom,\
 	EditBatch, CategorySubcategoryList, SearchItemStock, BatchItemsView, IsCategoryNameExists, StockReport, \
 	StockAgingReport, CategoryWiseStockReport, CategoryWiseStockAgingReport, CategoryWiseVendorReport, CategoryWisePurchaseReport, \
 	CategoryWiseProfitReport, ClosingStockView
@@ -24,7 +24,7 @@ urlpatterns = patterns('',
 	url(r'^item_uoms/$', login_required(ItemUom.as_view(), login_url='/login/'), name='item_uoms'),
 	url(r'^delete_item/$', login_required(DeleteItem.as_view(), login_url='/login/'),name='delete_item'),
 	url(r'^search_item/$', login_required(SearchItem.as_view(), login_url='/login/'), name='search_item'),
-	url(r'^uom_conversion/$', login_required(UOMConversionView.as_view(), login_url="login"), name='uom_conversion'),
+	
 
 	url(r'^batches/$', login_required(BatchList.as_view(), login_url='/login/'),name='batches'),
 	url(r'^add_batch/$', login_required(AddBatch.as_view(), login_url='/login/'), name='add_batch'),

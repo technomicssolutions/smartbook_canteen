@@ -82,6 +82,7 @@ class Item(models.Model):
             'id': self.id,
             'item_id':self.id,
             'item_name': self.name,
+            'item_code':self.code,
             'name': str(self.name),
             'description': self.description,
             'uom':self.uom,
@@ -167,7 +168,7 @@ class BatchItem(models.Model):
     purchase_price = models.DecimalField('Purchase Price', default=0, max_digits=50, decimal_places=5)    
     selling_price = models.DecimalField('Selling Price', default=0, max_digits=50, decimal_places=5)
     uom = models.CharField('UOM', max_length=200, null=True, blank=True)
-    created_date = 
+    created_date =  models.DateField('Created Date', null="True", blank =True)
     
     def __unicode__(self):
         return self.batch.name + ' - ' + self.item.code+ ' - ' + self.item.name
