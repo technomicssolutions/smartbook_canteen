@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
 
 from inventory.views import SearchBatch, SearchBatchItem, BatchList, AddBatch, DeleteBatch, Categories, AddCategory, \
-	ItemList, AddItem, DeleteItem, SearchItem, ItemUom, UOMConversionView,\
+	ItemList, AddItem, DeleteItem, SearchItem, UOMConversionView,\
 	OpeningStockView, BatchItemDetailsView, DeleteCategory,\
 	EditBatch, CategorySubcategoryList, SearchItemStock, BatchItemsView, IsCategoryNameExists, StockReport, \
 	StockAgingReport, CategoryWiseStockReport, CategoryWiseStockAgingReport, CategoryWiseVendorReport, CategoryWisePurchaseReport, \
