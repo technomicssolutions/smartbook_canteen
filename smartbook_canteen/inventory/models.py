@@ -187,7 +187,7 @@ class BatchItem(models.Model):
             'batch_id': self.batch.id,
             'purchase_price':self.purchase_price,
             'selling_price':self.selling_price,
-            'stock': round(float(stock),2),
+            'stock': round(float(self.quantity_in_actual_unit),2),
             'uom' :self.uom,
 
         }
