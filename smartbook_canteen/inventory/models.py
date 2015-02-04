@@ -373,9 +373,9 @@ class Batch(models.Model):
         return self
 
     def set_name(self):
-        self.created_date = datetime.datetime.now().date
-        self.expiry_date = self.created_date + timedelta('days', 7)
-        self.name = self.created_date.strftime('%d/%m/%Y') + '-' + self.expiry_date.strftime('%d/%m/%Y') 
+        self.created_date = datetime.now().date()
+        self.expiry_date = self.created_date + timedelta(days=7)
+        self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) 
         self.save()
 
 UOM_STATUS_CHOICES = (
@@ -636,6 +636,8 @@ class BatchItem(models.Model):
             'batch_id': self.batch.id,
             'purchase_price':self.purchase_price,
             'selling_price':self.selling_price,
+            'consumed_quantity':self.consumed_quantity,
+            'closing_stock':self.closing_stock,
             'stock': round(float(stock),2),
         }
         return batch_item_details

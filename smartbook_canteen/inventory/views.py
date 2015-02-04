@@ -38,9 +38,10 @@ def get_category_details(request, categories):
 class SearchBatch(View):
 
     def get(self, request, *args, **kwargs):
-  
+        print 'hai';
         batch_name = request.GET.get('batch_name', '')
         print batch_name;
+
         batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen'])
         
         batch_list = []
@@ -1247,6 +1248,7 @@ class ClosingStockView(View):
 
     def post(self, request, *args, **kwargs):
         closing_stock = 0
+        print 'hello';
         if request.is_ajax():
             closing_stock_details = ast.literal_eval(request.POST['closing_stock_items'])
             print closing_stock_details;
@@ -1263,12 +1265,12 @@ class ClosingStockView(View):
                 batch_item.save()
                 if batch_item.closing_stock > 0:
                     new_batch_item = BatchItem()
-                    new_batch_item.batch = batch_item.batch
+                    new_batch_item.batch = new_batch
                     new_batch_item.item = batch_item.item
                     new_batch_item.quantity_in_actual_unit = batch_item.closing_stock
                     new_batch_item.save()
         batch_item.batch.closed = True
-        batch_item.batch.saved()
+        batch_item.batch.save()
 
         res = {
             'result': 'ok',
