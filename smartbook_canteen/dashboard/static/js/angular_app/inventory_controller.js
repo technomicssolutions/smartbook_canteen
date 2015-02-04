@@ -496,10 +496,12 @@ function get_item_search_list($scope, $http, item, batch, from) {
         //console.log($scope.search_item_name)
         url = '/inventory/search_item/?'+'item_name'+'='+$scope.search_item_name;
     }
+    console.log(url);
     if (url) {
         $http.get(url).success(function(data)
         {
             var item_name = $scope.item_name;
+            console.log(data.items);
             $scope.no_item_msg = '';
             if (data.items.length == 0) {
                 $scope.no_item_msg = 'No such item';
@@ -513,13 +515,12 @@ function get_item_search_list($scope, $http, item, batch, from) {
                 $scope.items = data.items;
 
                 if (from == 'purchase') {
+                    
                     $scope.current_purchase_item.items = data.items; 
                 }else if (from == 'opening_stock'){
                     $scope.current_item_details.items = data.items;
+                    console.log($scope.current_item_details.items)
                 
-                } else if(from == 'sales'){
-                    $scope.current_sales_item.items = data.items;
-                    $scope.no_item_msg = '';
                 }else if(from == 'stock_search'){
                     $scope.stock_items = data.items;
                     $scope.no_item_msg = '';
@@ -1381,7 +1382,6 @@ function OpeningStockController($scope, $http){
         item.batch_search = false; 
         $scope.current_item_details = [];
         $scope.current_item_details = item;
-        console.log("hiii");
         //console.log($scope.current_item_details);
         get_item_search_list($scope, $http, $scope.current_item_details.name, item.batch, 'opening_stock');
     }
@@ -2737,17 +2737,16 @@ function CategoryProfitReportController($scope, $http){
     }
 }
 function ClosingStockController($scope, $http){ 
-    // $scope.closing_stock_items = [];
-    // for (var i=0; i<5; i++) {
-        
-        $scope.batch_items = {
-        
+    $scope.closing_stock_items = [];
+    for (var i=0; i<5; i++) {
+        $scope.closing_stock_items.push(
+        {
             'item_name': '',
             'code': '',
             'stock': '',
             'consumed_quantity': '',
-        }
-    // }
+        });
+    }
     $scope.current_item_details = [];
     $scope.focusIndex = 0;
     $scope.keys = [];
@@ -2788,9 +2787,10 @@ function ClosingStockController($scope, $http){
         $scope.batches = [];
         $scope.batch_name = batch.name;
         $scope.focusIndex = 0;
-        $scope.generate_list();
     }
-    
+    // $scope.get_batch_list = function() {
+    //     get_batch_search_details($scope, $http);
+    // }
     $scope.get_batch_list = function(){
         $scope.batch = '';
         if ($scope.batch_name.length > 0)
@@ -2810,14 +2810,13 @@ function ClosingStockController($scope, $http){
         } else {
             // if (type_name == 'view') { 
                 show_loader();
-                $http.get('/inventory/closing_stock/?batch_id='+$scope.batch).success(function(data){
+                $http.get('/inventory/closing_stock/?batch_id='+$scope.batch_name).success(function(data){
                     $scope.batch_items = data.batch_items;
-                    console.log ($scope.batch_items);
+                    print ($scope.batch_items);
                     if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
                     else {
                         paginate($scope.batch_items, $scope, 15);
-
                     }
                     hide_loader();
                 }).error(function(data, status){
@@ -2825,49 +2824,6 @@ function ClosingStockController($scope, $http){
                 });
             // } else
             //     document.location.href = '/inventory/closing_stock/?batch_id='+$scope.batch;
-        }
-    }
-    $scope.validate_closing_stock = function(){
-
-        if ($scope.batch_items.length == 0) {
-            console.log("inside validate")
-            $scope.validate_closing_stock_msg = 'Please choose Batch';
-            return false;
-        }return true;
-    }
-    $scope.save_closing_stock = function(){
-        console.log("hai")
-        
-        console.log($scope.batch_items);
-        if ($scope.validate_closing_stock()) {
-            params = {
-                'closing_stock_items': angular.toJson($scope.batch_items),
-                'csrfmiddlewaretoken': $scope.csrf_token,
-                }
-
-            show_loader();
-            $http({
-                method: 'post',
-                url: '/inventory/closing_stock/',
-                data : $.param(params),
-                headers : {
-                    'Content-Type' : 'application/x-www-form-urlencoded'
-                }
-            }).success(function(data){
-                
-                if (data.result == 'error'){
-                    
-                    $scope.validate_closing_stock_error_msg = data.message;
-                }else{
-                    document.location.href = '/inventory/closing_stock/';
-
-                }
-                hide_loader();    
-                
-            }).error(function(data, status) {   
-                console.log('Request failed' || data);
-            });
-           
         }
     }
     $scope.select_page = function(page){

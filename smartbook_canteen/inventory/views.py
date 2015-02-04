@@ -42,11 +42,14 @@ class SearchBatch(View):
         batch_name = request.GET.get('batch_name', '')
         print batch_name;
         batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen'])
+        
         batch_list = []
         # batches = Batch.objects.filter(canteen=request.session['canteen'])
         for batch in batches:
+
             batch_data = batch.get_json_data()
             batch_list.append(batch_data)
+            print(batch_data)
         res = {
             'result': 'ok',
             'batches': batch_list,
@@ -56,48 +59,52 @@ class SearchBatch(View):
 
 class SearchBatchItem(View):
     def get(self, request, *args, **kwargs):
+        print("sss");
         batch_id = request.GET.get('batch_id', '')
         item_id = request.GET.get('item_id', '')
         print (batch_id,item_id);
-        type_name = ''
         if item_id and batch_id:
             item = Item.objects.get(id=item_id)
             batch = Batch.objects.get(id=batch_id)
             print(item);
             print(batch);
             batch_items = BatchItem.objects.filter(item=item, batch=batch)
-        else:
-            item_name = request.GET.get('item_name', '')
-            batch_id = request.GET.get('batch_id', '')
-            type_name = request.GET.get('type_name', '')
-            batch_items = BatchItem.objects.filter(item__name__istartswith=item_name, batch__id=batch_id)
-        batch_items_list = []
-        for batch_item in batch_items:
-            bonus_point = ''
-            bonus_quantity = ''
-            if type_name:
-                if type_name == 'Customer':
-                    bonus_point = batch_item.customer_bonus_points.id if batch_item.customer_bonus_points else ''
-                    bonus_quantity = batch_item.customer_bonus_quantity
-                else:
-                    bonus_point = batch_item.salesman_bonus_points.id if batch_item.salesman_bonus_points else ''
-                    bonus_quantity = batch_item.salesman_bonus_quantity
-            batch_items_list.append({
-                'batch_id': batch_item.batch.id,
-                'batch_name': batch_item.batch.name,
-                'item_name': str(batch_item.item.name) + (str(' - ') + str(batch_item.item.size) if batch_item.item.size else ''),
-                'name': batch_item.item.name,
-                'code': batch_item.item.code,
-                'item_id': batch_item.item.id,
-                'uom': batch_item.item.uom,
-                'bonus_point': bonus_point,
-                'bonus_quantity': bonus_quantity,
-                'batch_item_id': batch_item.id,
-                'stock':batch_item.quantity_in_actual_unit,
-            })
+            print(batch_items)
+            for batch_item in batch_items:
+                print(batch_item);
+                batch_item_data = batch_item.get_json_data();
+        # else:
+        #     item_name = request.GET.get('item_name', '')
+        #     batch_id = request.GET.get('batch_id', '')
+        #     type_name = request.GET.get('type_name', '')
+        #     batch_items = BatchItem.objects.filter(item__name__istartswith=item_name, batch__id=batch_id)
+        # batch_items_list = []
+        # for batch_item in batch_items:
+        #     bonus_point = ''
+        #     bonus_quantity = ''
+        #     if type_name:
+        #         if type_name == 'Customer':
+        #             bonus_point = batch_item.customer_bonus_points.id if batch_item.customer_bonus_points else ''
+        #             bonus_quantity = batch_item.customer_bonus_quantity
+        #         else:
+        #             bonus_point = batch_item.salesman_bonus_points.id if batch_item.salesman_bonus_points else ''
+        #             bonus_quantity = batch_item.salesman_bonus_quantity
+        #     batch_items_list.append({
+        #         'batch_id': batch_item.batch.id,
+        #         'batch_name': batch_item.batch.name,
+        #         'item_name': str(batch_item.item.name) + (str(' - ') + str(batch_item.item.size) if batch_item.item.size else ''),
+        #         'name': batch_item.item.name,
+        #         'code': batch_item.item.code,
+        #         'item_id': batch_item.item.id,
+        #         'uom': batch_item.item.uom,
+        #         'bonus_point': bonus_point,
+        #         'bonus_quantity': bonus_quantity,
+        #         'batch_item_id': batch_item.id,
+        #         'stock':batch_item.quantity_in_actual_unit,
+        #     })
         res = {
             'result': 'ok',
-            'batch_items': batch_items_list,
+            'batch_items': batch_item_data,
         }
         response = simplejson.dumps(res)
         return HttpResponse(response, status=200, mimetype='application/json')
@@ -372,17 +379,17 @@ class SearchItem(View):
         try:
             item_code = request.GET.get('item_code', '')
             item_name = request.GET.get('item_name', '')
-            print (item_name);
+            print ("hii");
+            print(item_name);
             items = []
             if item_code:
                 items = Item.objects.filter(code__istartswith=item_code)
             elif item_name:
                 items = Item.objects.filter(Q(name__istartswith=item_name) &Q(canteen=request.session['canteen']));
-
-            for item in items:
-                print item;
+                print (items);
+            for item in items: 
+                quantity_in_purchase_unit = 0;
                 purchase_price = 0
-                quantity_in_purchase_unit = 0
                 quantity_in_smallest_unit = 0
                 purchase_price = 0
                 cost_price = 0
@@ -404,29 +411,29 @@ class SearchItem(View):
                 is_customer_card_price = 'false'
                 is_permissible_discount = 'false'
                 
-            item_data = item.get_json_data()
-            item_data['purchase_price'] = purchase_price
-            item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
-            item_data['purchase_price'] = purchase_price
-            item_data['cost_price'] = cost_price
-            item_data['uom'] = uom
-            item_data['item_name'] = item_name
-            item_data['batch_name'] = batch_name
-            item_data['wholesale_profit'] = wholesale_profit
-            item_data['retail_profit'] = retail_profit
-            item_data['wholesale_price'] = wholesale_price
-            item_data['retail_price'] = retail_price
-            item_data['branch_price'] = branch_price
-            item_data['customer_card_price'] = customer_card_price
-            item_data['permissible_discount'] = permissible_discount
-            item_data['is_cost_price_existing'] = is_cost_price_existing
-            item_data['is_wholesale_profit'] = is_wholesale_profit
-            item_data['is_retail_profit'] = is_retail_profit
-            item_data['is_branch_price'] = is_branch_price
-            item_data['is_customer_card_price'] = is_customer_card_price
-            item_data['is_permissible_discount'] = is_permissible_discount
-            items_list.append(item_data)
-            print items_list;                           
+                item_data = item.get_json_data()
+                item_data['purchase_price'] = purchase_price
+                item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
+                item_data['purchase_price'] = purchase_price
+                item_data['cost_price'] = cost_price
+                item_data['uom'] = uom
+                item_data['item_name'] = item_name
+                item_data['batch_name'] = batch_name
+                item_data['wholesale_profit'] = wholesale_profit
+                item_data['retail_profit'] = retail_profit
+                item_data['wholesale_price'] = wholesale_price
+                item_data['retail_price'] = retail_price
+                item_data['branch_price'] = branch_price
+                item_data['customer_card_price'] = customer_card_price
+                item_data['permissible_discount'] = permissible_discount
+                item_data['is_cost_price_existing'] = is_cost_price_existing
+                item_data['is_wholesale_profit'] = is_wholesale_profit
+                item_data['is_retail_profit'] = is_retail_profit
+                item_data['is_branch_price'] = is_branch_price
+                item_data['is_customer_card_price'] = is_customer_card_price
+                item_data['is_permissible_discount'] = is_permissible_discount
+                items_list.append(item_data)
+                print items_list;                           
             res = {
                 'result': 'ok',
                 'items': items_list,
@@ -577,6 +584,7 @@ class OpeningStockView(View):
 
                         if batch_item_created:
                             batch_item.purchase_price = item_detail['purchase_price']
+                            batch_item.selling_price = item_detail['selling_price']
                             batch_item.uom = purchase_unit
                         total_purchase_price = float(total_purchase_price) + float(item_detail['net_amount'])
                         batch_item.save()
