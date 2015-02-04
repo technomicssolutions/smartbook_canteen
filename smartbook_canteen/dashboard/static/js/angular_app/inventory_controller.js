@@ -829,7 +829,7 @@ function OpeningStockController($scope, $http){
     }
     $scope.select_item_details = function(item) {
         $scope.current_item_details.name = item.name;
-        $scope.current_item_details.code = item.code;
+        $scope.current_item_details.code = item['item_code'];
         $scope.current_item_details.id = item.id;
         console.log(item['item_code']);
         $scope.current_item_details.items = [];
