@@ -352,11 +352,6 @@ function search_category($scope, $http, category_name, view_type) {
             if (data.categories.length == 0) {
                 $scope.no_categories_msg = 'No Category with this name';
             }
-        } else if (view_type == 'multiple_product') {
-            $scope.current_product.categories = data.categories;
-            if (data.categories.length == 0) {
-                $scope.no_categories_msg = 'No Category with this name';
-            }
         } else {
             $scope.categories = data.categories;
             paginate($scope.categories, $scope, 15);
@@ -496,10 +491,12 @@ function get_item_search_list($scope, $http, item, batch, from) {
         //console.log($scope.search_item_name)
         url = '/inventory/search_item/?'+'item_name'+'='+$scope.search_item_name;
     }
+    console.log(url);
     if (url) {
         $http.get(url).success(function(data)
         {
             var item_name = $scope.item_name;
+            console.log(data.items);
             $scope.no_item_msg = '';
             if (data.items.length == 0) {
                 $scope.no_item_msg = 'No such item';
@@ -513,13 +510,12 @@ function get_item_search_list($scope, $http, item, batch, from) {
                 $scope.items = data.items;
 
                 if (from == 'purchase') {
+                    
                     $scope.current_purchase_item.items = data.items; 
                 }else if (from == 'opening_stock'){
                     $scope.current_item_details.items = data.items;
+                    console.log($scope.current_item_details.items)
                 
-                } else if(from == 'sales'){
-                    $scope.current_sales_item.items = data.items;
-                    $scope.no_item_msg = '';
                 }else if(from == 'stock_search'){
                     $scope.stock_items = data.items;
                     $scope.no_item_msg = '';
@@ -1381,7 +1377,6 @@ function OpeningStockController($scope, $http){
         item.batch_search = false; 
         $scope.current_item_details = [];
         $scope.current_item_details = item;
-        console.log("hiii");
         //console.log($scope.current_item_details);
         get_item_search_list($scope, $http, $scope.current_item_details.name, item.batch, 'opening_stock');
     }

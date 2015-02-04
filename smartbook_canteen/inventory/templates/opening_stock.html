@@ -55,7 +55,7 @@
 									<span><a href="" ng-click="add_new_item(item)">Create New</a></span>
 								</div>
 								
-								<div ng-repeat="item_data in item.items" ng-class="{'highlight': $index == focusIndex}" ng-click="select_item_details(item_data);" ng-show="item_data.type=='Stockable'" class="search_list_item">
+								<div ng-repeat="item_data in item.items" ng-class="{'highlight': $index == focusIndex}" ng-click="select_item_details(item_data);"  class="search_list_item">
 									<span>[[item_data.name]]</span>
 								</div>
 							</div>
@@ -75,7 +75,7 @@
 							</div>
 						</div>
 					</td>
-					<td>[[item.stock]]</td>
+					<td>[[item.batch.stock]]</td>
 					<td><input type="text" ng-model="item.quantity" ng-change="calculate_net_amount(item)"></td>
 					<td>
 						<input type="text" ng-model="item.purchase_price" ng-change="calculate_net_amount(item)"></td>

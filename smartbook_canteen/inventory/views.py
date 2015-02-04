@@ -372,17 +372,24 @@ class SearchItem(View):
         try:
             item_code = request.GET.get('item_code', '')
             item_name = request.GET.get('item_name', '')
-            print (item_name);
+            print ("hii");
+            print(item_name);
             items = []
             if item_code:
                 items = Item.objects.filter(code__istartswith=item_code)
             elif item_name:
                 items = Item.objects.filter(Q(name__istartswith=item_name) &Q(canteen=request.session['canteen']));
-
+                print (items);
             for item in items:
                 print item;
+                batch_item = BatchItem.objects.filter(item = item);
+                print (batch_item);
+                if batch_item:
+                    quantity_in_purchase_unit = batch_item.quantity_in_actual_unit;
+                    print(quantity_in_purchase_unit);
+                else :    
+                    quantity_in_purchase_unit = 0;
                 purchase_price = 0
-                quantity_in_purchase_unit = 0
                 quantity_in_smallest_unit = 0
                 purchase_price = 0
                 cost_price = 0
@@ -404,29 +411,29 @@ class SearchItem(View):
                 is_customer_card_price = 'false'
                 is_permissible_discount = 'false'
                 
-            item_data = item.get_json_data()
-            item_data['purchase_price'] = purchase_price
-            item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
-            item_data['purchase_price'] = purchase_price
-            item_data['cost_price'] = cost_price
-            item_data['uom'] = uom
-            item_data['item_name'] = item_name
-            item_data['batch_name'] = batch_name
-            item_data['wholesale_profit'] = wholesale_profit
-            item_data['retail_profit'] = retail_profit
-            item_data['wholesale_price'] = wholesale_price
-            item_data['retail_price'] = retail_price
-            item_data['branch_price'] = branch_price
-            item_data['customer_card_price'] = customer_card_price
-            item_data['permissible_discount'] = permissible_discount
-            item_data['is_cost_price_existing'] = is_cost_price_existing
-            item_data['is_wholesale_profit'] = is_wholesale_profit
-            item_data['is_retail_profit'] = is_retail_profit
-            item_data['is_branch_price'] = is_branch_price
-            item_data['is_customer_card_price'] = is_customer_card_price
-            item_data['is_permissible_discount'] = is_permissible_discount
-            items_list.append(item_data)
-            print items_list;                           
+                item_data = item.get_json_data()
+                item_data['purchase_price'] = purchase_price
+                item_data['quantity_in_purchase_unit'] = quantity_in_purchase_unit
+                item_data['purchase_price'] = purchase_price
+                item_data['cost_price'] = cost_price
+                item_data['uom'] = uom
+                item_data['item_name'] = item_name
+                item_data['batch_name'] = batch_name
+                item_data['wholesale_profit'] = wholesale_profit
+                item_data['retail_profit'] = retail_profit
+                item_data['wholesale_price'] = wholesale_price
+                item_data['retail_price'] = retail_price
+                item_data['branch_price'] = branch_price
+                item_data['customer_card_price'] = customer_card_price
+                item_data['permissible_discount'] = permissible_discount
+                item_data['is_cost_price_existing'] = is_cost_price_existing
+                item_data['is_wholesale_profit'] = is_wholesale_profit
+                item_data['is_retail_profit'] = is_retail_profit
+                item_data['is_branch_price'] = is_branch_price
+                item_data['is_customer_card_price'] = is_customer_card_price
+                item_data['is_permissible_discount'] = is_permissible_discount
+                items_list.append(item_data)
+                print items_list;                           
             res = {
                 'result': 'ok',
                 'items': items_list,
