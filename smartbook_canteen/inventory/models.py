@@ -7,6 +7,8 @@ from dashboard.models import Canteen
 # from administration.models import BonusPoint
 from utils import calculate_actual_quantity
 
+from datetime import timedelta
+
 ITEM_TYPES = (
     ('Stockable', 'Stockable'),
     ('Non Stockable', 'Non Stockable'),
@@ -334,6 +336,7 @@ class Batch(models.Model):
     name = models.CharField('Batch name', max_length=200)
     created_date = models.DateField('Created', null=True, blank=True)
     expiry_date = models.DateField('Expiry date', null=True, blank=True)
+    closed = models.BooleanField('Batch Closed', default=False)
 
     def save(self, *args, **kwargs):
         super(Batch, self).save() # for getting pk
@@ -369,6 +372,11 @@ class Batch(models.Model):
         self.save()
         return self
 
+    def set_name(self):
+        self.created_date = datetime.datetime.now().date
+        self.expiry_date = self.created_date + timedelta('days', 7)
+        self.name = self.created_date.strftime('%d/%m/%Y') + '-' + self.expiry_date.strftime('%d/%m/%Y') 
+        self.save()
 
 UOM_STATUS_CHOICES = (
     ('used', 'used'),
@@ -417,6 +425,7 @@ class BatchItem(models.Model):
         wholesale_price = self.small_wholesale_price
         retail_price = self.small_retail_price
         branch_price = self.small_branch_price
+        consumed_quantity = self.consumed_quantity
         customer_card_price =  self.small_customer_card_price
         uoms.append({
             'uom': self.item.actual_smallest_uom, 
@@ -620,13 +629,12 @@ class BatchItem(models.Model):
                         })
        
         batch_item_details = {
-            'batch_item_id': self.item.id,
+            'item_id': self.item.id,
             'item_name': self.item.name,
             'code': self.item.code,                                                                                                      
-            
-            'batch_id': self.id,
+            'id': self.id,
+            'batch_id': self.batch.id,
             'stock': round(float(stock),2),
-            
         }
         return batch_item_details
 

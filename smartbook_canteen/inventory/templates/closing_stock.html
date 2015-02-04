@@ -40,18 +40,16 @@
 			<th>Item Code</th>
 			<th>Stock</th>
 			<th>Consumed Quantity</th>
-			
+			<th>Closing Stock</th>
 		</tr>
 		<tr ng-repeat="batch_item in batch_items">
 			<td>[[batch_item.item_name]]</td>
 			<td>[[batch_item.code]]</td>
 			<td>[[batch_item.stock]]</td>
 			<td>
-				<div class="control">
-				
-				<input type="text" ng-model="batch_item.consumed_quantity" style="width:50%"/>
-			</div>
+				<input type="text" ng-model="batch_item.consumed_quantity" style="width:50%" ng-change="calculate_closing_stock(batch_item)"/>
 			</td>
+			<td> [[batch_item.closing_stock]]</td>
 			<p class="error_msg">{{msg}}</p>
 		</tr>
 	</table>

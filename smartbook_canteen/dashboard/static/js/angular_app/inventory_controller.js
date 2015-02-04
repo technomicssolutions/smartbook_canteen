@@ -2796,7 +2796,9 @@ function ClosingStockController($scope, $http){
         if ($scope.batch_name.length > 0)
             search_batch($scope, $http);
     }
-    
+    $scope.calculate_closing_stock = function(item){
+        item.closing_stock = item.stock - item.consumed_quantity;
+    }
     $scope.generate_list = function(){
         $scope.no_batch_msg = '';
         console.log ($scope.batch_name);
