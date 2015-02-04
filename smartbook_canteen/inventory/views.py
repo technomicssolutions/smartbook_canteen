@@ -41,7 +41,9 @@ class SearchBatch(View):
         print 'hai';
         batch_name = request.GET.get('batch_name', '')
         print batch_name;
-
+        # batch_item = BatchItem.objects.get(id=batch_name['id'])
+        # print 'wowwww';
+        # print batch_item;
         batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen'])
         
         batch_list = []
