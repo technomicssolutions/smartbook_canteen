@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from models import Item, Product, Category, Brand, Batch, BatchItem, VatType, OpeningStock, \
-OpeningStockItem, StockValue, OpeningStockValue
+OpeningStockItem, StockValue, OpeningStockValue 
+
 
 admin.site.register(Category)
 admin.site.register(Product)

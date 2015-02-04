@@ -6,6 +6,7 @@ from django.db import models
 from dashboard.models import Canteen
 # from administration.models import BonusPoint
 from utils import calculate_actual_quantity
+from datetime import timedelta
 
 
 class Category(models.Model):
@@ -108,6 +109,7 @@ class Batch(models.Model):
     name = models.CharField('Batch name', max_length=200)
     created_date = models.DateField('Created', null=True, blank=True)
     expiry_date = models.DateField('Expiry date', null=True, blank=True)
+    closed = models.BooleanField('Batch Closed', default=False)
 
     def save(self, *args, **kwargs):
         super(Batch, self).save() # for getting pk
@@ -143,6 +145,11 @@ class Batch(models.Model):
         self.save()
         return self
 
+    def set_name(self):
+        self.created_date = datetime.datetime.now().date
+        self.expiry_date = self.created_date + timedelta('days', 7)
+        self.name = self.created_date.strftime('%d/%m/%Y') + '-' + self.expiry_date.strftime('%d/%m/%Y') 
+        self.save()
 
 UOM_STATUS_CHOICES = (
     ('used', 'used'),
@@ -169,16 +176,19 @@ class BatchItem(models.Model):
         verbose_name_plural = 'Batch Item'
 
     def get_json_data(self):
+
        
         batch_item_details = {
-            'batch_item_id': self.item.id,
+            'item_id': self.item.id,
             'item_name': self.item.name,
             'code': self.item.code,                                                                                                      
+            'id': self.id,
+            'batch_id': self.batch.id,
             'purchase_price':self.purchase_price,
             'selling_price':self.selling_price,
-            'batch_id': self.id,
             'stock': round(float(stock),2),
             'uom' :self.uom,
+
         }
         return batch_item_details
 
