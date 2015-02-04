@@ -107,7 +107,7 @@ class Item(models.Model):
 
 class Batch(models.Model):
     canteen = models.ForeignKey(Canteen, null=True, blank=True)
-    name = models.CharField('Batch name', max_length=200)
+    name = models.CharField('Batch name', max_length=200, unique=True)
     created_date = models.DateField('Created', null=True, blank=True)
     expiry_date = models.DateField('Expiry date', null=True, blank=True)
     closed = models.BooleanField('Batch Closed', default=False)
