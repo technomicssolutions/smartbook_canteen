@@ -56,12 +56,16 @@ class SearchBatch(View):
 
 class SearchBatchItem(View):
     def get(self, request, *args, **kwargs):
-        batch = request.GET.get('batch', '')
-        item_id = request.GET.get('item', '')
+        batch_id = request.GET.get('batch_id', '')
+        item_id = request.GET.get('item_id', '')
+        print (batch_id,item_id);
         type_name = ''
-        if item_id and batch:
+        if item_id and batch_id:
             item = Item.objects.get(id=item_id)
-            batch_items = BatchItem.objects.filter(item=item, batch__name__istartswith=batch)
+            batch = Batch.objects.get(id=batch_id)
+            print(item);
+            print(batch);
+            batch_items = BatchItem.objects.filter(item=item, batch=batch)
         else:
             item_name = request.GET.get('item_name', '')
             batch_id = request.GET.get('batch_id', '')
@@ -81,7 +85,7 @@ class SearchBatchItem(View):
             batch_items_list.append({
                 'batch_id': batch_item.batch.id,
                 'batch_name': batch_item.batch.name,
-                'item_name': batch_item.item.product.category.name+ ' - ' + batch_item.item.product.name + ' - ' + str(batch_item.item.name) + (str(' - ') + str(batch_item.item.size) if batch_item.item.size else ''),
+                'item_name': str(batch_item.item.name) + (str(' - ') + str(batch_item.item.size) if batch_item.item.size else ''),
                 'name': batch_item.item.name,
                 'code': batch_item.item.code,
                 'item_id': batch_item.item.id,
@@ -89,6 +93,7 @@ class SearchBatchItem(View):
                 'bonus_point': bonus_point,
                 'bonus_quantity': bonus_quantity,
                 'batch_item_id': batch_item.id,
+                'stock':batch_item.quantity_in_actual_unit,
             })
         res = {
             'result': 'ok',

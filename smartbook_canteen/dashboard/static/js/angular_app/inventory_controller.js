@@ -1351,15 +1351,20 @@ function OpeningStockController($scope, $http){
         $scope.current_item_details.batch_search = false;
     }
     $scope.get_batch = function(item){
-        $http.get('/inventory/batch_item_details/?batch_id='+item.batch+'&item_id='+item.id).success(function(data){
+        $http.get('/inventory/search_batch_item/?batch_id='+item.batch+'&item_id='+item.id).success(function(data){
             if (data.result == 'ok') {
-                item.stock = data.batch_item.quantity_in_purchase_unit;
-                if (data.batch_item.uom.length > 0)
-                    $scope.current_item_details.uom_exists = true;
-                else
-                    $scope.current_item_details.uom_exists = false;
-                item.purchase_unit = data.batch_item.uom;
-                item.purchase_price = data.batch_item.purchase_price;
+                console.log(data.batch_items)
+                $scope.batch_items=data.batch_items;
+                console.log($scope.batch_items['code']);
+                item.stock = data.batch_items['stock'];
+                console.log(item.stock);
+                console.log(data.batch_items.batch_id)
+                // if (data.batch_items.uom.length > 0)
+                //     $scope.current_item_details.uom_exists = true;
+                // else
+                //     $scope.current_item_details.uom_exists = false;
+                item.purchase_unit = data.batch_items.uom;
+                item.purchase_price = data.batch_items.purchase_price;
             } else {
                 item.stock = 0;
                 $scope.current_item_details.uom_exists = false;
