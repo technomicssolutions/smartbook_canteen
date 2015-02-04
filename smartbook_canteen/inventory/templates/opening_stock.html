@@ -82,7 +82,7 @@
 					<td>
 						<input type="text" ng-model="item.selling_price"></td>	
 					<td>
-						<span ng-show="item.uom_exists">[[item.purchase_unit]]</span>
+						<span ng-show="item.uom_exists">[[item.uom]]</span>
 						<select ng-model="item.purchase_unit" ng-options="uom.uom for uom in item.uoms" ng-hide="item.uom_exists">
 							<option value=""> Select</option>
 						</select>

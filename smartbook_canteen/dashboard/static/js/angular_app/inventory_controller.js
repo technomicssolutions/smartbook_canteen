@@ -778,6 +778,7 @@ function OpeningStockController($scope, $http){
         get_batch_search_details($scope, $http, 'opening_stock');
     }
     $scope.select_batch = function(batch) {
+        console.log(batch);
         $scope.focusIndex = 0;
         $scope.current_item_details.batch_name = batch.name;
         $scope.current_item_details.batch = batch.id;
@@ -831,7 +832,7 @@ function OpeningStockController($scope, $http){
         $scope.current_item_details.name = item.name;
         $scope.current_item_details.code = item['item_code'];
         $scope.current_item_details.id = item.id;
-        console.log(item['item_code']);
+        console.log(item['uom']);
         $scope.current_item_details.items = [];
         if ($scope.current_item_details.batch) {
             $scope.select_batch($scope.current_item_details.batch);

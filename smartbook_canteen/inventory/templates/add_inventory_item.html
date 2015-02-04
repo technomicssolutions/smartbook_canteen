@@ -31,56 +31,7 @@
 					<label>Item Name</label>
 					<input type="text" ng-model="item.name" />
 				</div>
-				<!-- <div class="control">
-					<label>Item Type</label>
-					<select name="item type" ng-model="item.type" >
-						<option value="">Select</option>
-						<option value="Stockable">Stockable</option>
-						<option value="Non Stockable">Non Stockable</option>
-						<option value="Services">Services</option>
-					</select>
-
-				</div> -->
-				<!-- <div class="control" ng-show="item.type == 'Stockable'">
-					<label>Product</label>
-					<input type="text" ng-model="product_name" ng-change="get_products()" ng-click="selected_product_flag=true;"/>
-					<div class="search_list" ng-show="selected_product_flag">
-						<div class="search_list_item" ng-click="selected_product_flag=false" ng-show="selected_product_flag" ng-hide="!selected_product_flag">
-							<span><a href="" ng-click="new_product()">Create New</a></span>
-						</div>
-						<div ng-repeat="product in products" class="search_list_item" ng-class="{'highlight': $index == focusIndex}"ng-click="select_product_details(product)">
-							<span>[[product.name]] - [[product.category_name]]</span>
-						</div>
-					</div>
-				</div>
-				<div class="control" ng-show="item.type == 'Stockable'">
-					<label>Brand</label>
-					<input type="text" ng-model="brand_name" ng-change="get_brands()" ng-click="select_brand_flag=true"/>
-					<div class="search_list" ng-show="select_brand_flag">
-						<div class="search_list_item" ng-click="select_brand_flag=false" ng-show="select_brand_flag" ng-hide="!select_brand_flag">
-							<span><a href="" ng-click="new_brand()">Create New</a></span>
-						</div>
-						<div ng-repeat="brand in brands" class="search_list_item" ng-class="{'highlight': $index == focusIndex}"ng-click="select_brand_details(brand)" >
-							<span>[[brand.name]]</span>
-						</div>
-					</div>
-				</div>
-				<div class="control" ng-show="item.type == 'Stockable'">
-					<label>Vat Type</label>
-					<input type="text" ng-model="vat_type" ng-change="get_vat_list()" ng-click="selected_vat_flag=true"/>
-					<div ng-show="selected_vat_flag" class="search_list">
-						<div class="search_list_item" ng-click="selected_vat_flag=false" ng-show="selected_vat_flag" ng-hide="!selected_vat_flag">
-							<span><a href="" ng-click="new_vat()">Create New</a></span>
-						</div>
-						<div ng-repeat="vat in vat_list" class="search_list_item" ng-class="{'highlight': $index == focusIndex}" ng-click="select_vat_details(vat)">
-							<span>[[vat.vat_name]]</span>
-						</div>
-					</div>
-				</div>
-				<div class="control" ng-show="item.type == 'Stockable'">
-					<label>Cess</label>
-					<input type="text" ng-model="item.cess"/>
-				</div> -->
+				
 				<div class="control">
 					<label>Description</label>
 					<textarea ng-model="item.description"></textarea>
@@ -92,9 +43,15 @@
 				<div >		
 					<div class="control">
 						<label>UOM</label>
-			            <select ng-model="item.uom" ng-options="uom for uom in uoms" >
-							<option value=""> Select</option>
-						</select>						
+			        <select ng-model="item.uom">	
+					    <option value=""> Select</option>
+						<option value="Kg">Kg </option>
+						<option value="gm">gm </option>
+						<option value="mg">mg </option>
+						<option value="Packet">Packet </option>
+						<option value="Box">Box </option>
+						<option value="Piece">piece </option>
+				    </select>						
 					</div>
 					<!-- <div class="follow_up_div" ng-show="item.uom == 'box'">
 						<label>1 Box = </label>
