@@ -19,7 +19,7 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import cm
 from dashboard.models import Canteen
 from inventory.models import Item, Batch, BatchItem, Category, Product, Brand, VatType, \
-OpeningStockItem, OpeningStock, StockValue, OpeningStockValue
+OpeningStockItem, OpeningStock, StockValue, OpeningStockValue, ClosingStock, ClosingStockItem
 # from accounts.models import Ledger, Transaction, LedgerEntry
 # from purchases.models import Purchase, PurchaseItem
 # from sales.models import Sale, SalesItem
@@ -1211,16 +1211,17 @@ class ClosingStockView(View):
     def get(self, request, *args, **kwargs):
 
         batch_id = request.GET.get('batch_id', '')
-        # print batch_id;
+        print batch_id;
         batch_item_details = []
         if batch_id:
-            batch = Batch.objects.get(name=batch_id)
-            # print batch;
+            batch = Batch.objects.get(id=batch_id)
+            print batch;
             batch_items = BatchItem.objects.filter(batch=batch)
-            # print batch_items;
+            print batch_items;
             for batch_item in batch_items:
 
                 batch_item_details.append(batch_item.get_json_data())
+            print batch_item_details;
 
             if request.is_ajax():
                 res = {
@@ -1230,3 +1231,55 @@ class ClosingStockView(View):
                 response = simplejson.dumps(res)
                 return HttpResponse(response, status=200, mimetype='application/json')
         return render(request, 'closing_stock.html', {})
+
+    def post(self, request, *args, **kwargs):
+        
+
+        total_stock = 0
+
+        if request.is_ajax():
+            closing_stock_details = ast.literal_eval(request.POST['closing_stock_items'])
+            print closing_stock_details;
+            if closing_stock_details:
+
+                for item_detail in closing_stock_details:
+                    
+                    # print item_detail['batch_id'];
+                    batch = Batch.objects.get(id=item_detail['batch_id']) 
+                    batch_item = BatchItem.objects.get(id=item_detail['batch_item_id'])
+                    # print 'by';
+                    # print item_detail['batch_item_id'];
+                    # print batch_item.item;
+                    if batch_item:
+                        total_stock = batch_item.stock - batch_item.consumed_quantity;
+                    Closing_stock_item = ClosingStockItem.objects.create(batch_item=batch_item)
+                    canteen=Canteen.objects.get(id=request.session['canteen']); 
+                    batch_item, batch_item_created = BatchItem.objects.get_or_create(batch_item=batch_item,batch=batch)
+                    
+                    try:
+                        closing_stock_item = ClosingStockItem.objects.get(batch_item=batch_item)
+                    except:
+                        Closing_stock_item = ClosingStockItem.objects.create(batch_item=batch_item)
+                    closing_stock_item.canteen = canteen
+                    opening_stock_item.date = datetime.now()
+                    closing_stock_item.consumed_quantity = item_detail['consumed_quantity']
+                    closing_stock_item.save()
+            # for item_detail in closing_stock_details:
+            #     # if item_detail['batch_name']:
+            #         batch_item = BatchItem.objects.get(id=item_detail['batch_item_name'])
+            # if batch_item:
+            #     for item_detail in batch_item:
+            #         total_stock = item_detail.stock - item_detail.consumed_quantity;
+                
+            #     if total_stock < 0:
+            #         batch = Batch.objects.create(created_date=datetime.now, expiry_date=(datetime.now()+7))
+            #     batch.save()
+
+                
+            res = {
+                'result': 'ok',
+                
+            }
+            response = simplejson.dumps(res)
+            return HttpResponse(response, status=200, mimetype='application/json')
+               

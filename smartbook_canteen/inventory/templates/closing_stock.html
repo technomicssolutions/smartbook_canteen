@@ -25,20 +25,15 @@
 		<input type="text" name="batch_name" ng-model="batch_name" ng-change="get_batch_list()" autocomplete="off" >
 		<div class="search_list" ng-show="batches.length > 0">
 			<div class="search_list_item" ng-repeat="batch in batches track by $index" ng-class="{'highlight': $index == focusIndex}" ng-click="select_batch(batch)">
-				<span>[[batch.name]]</span>
+				<span >[[batch.name]] </span>
 			</div>
 		</div>
 	</div>
 		<p class="error_msg">[[no_batch_msg]]</p>
 		
 	</div>
-	<div class="col-md-12 col-sm-12">
-		<div class="button_control" >
-			<!-- <p class="error_msg">[[no_batch_msg]]</p> -->
-			<input type="submit" value="submit" ng-click="generate_list()">
-		</div>
-	</div>
-</div>
+	
+	
 	<table  class="table list_table" ng-show="batch_items.length > 0">
 		<tr>
 			<th>Item Name</th>
@@ -47,21 +42,25 @@
 			<th>Consumed Quantity</th>
 			
 		</tr>
-		<tr ng-repeat="batch_item in visible_list">
+		<tr ng-repeat="batch_item in batch_items">
 			<td>[[batch_item.item_name]]</td>
 			<td>[[batch_item.code]]</td>
 			<td>[[batch_item.stock]]</td>
 			<td>
 				<div class="control">
 				
-				<input type="text" style="width:50%"/>
+				<input type="text" ng-model="batch_item.consumed_quantity" style="width:50%"/>
 			</div>
 			</td>
 			<p class="error_msg">{{msg}}</p>
 		</tr>
 	</table>
-	<div ng-show="batch_items.length > 0">
-			{% include 'pagination_div.html' %}
-	</div>
 	
+	<div class="col-md-12 col-sm-12">
+			<div class="button_control" >
+				
+				<input type="submit" value="Save" ng-click="save_closing_stock()">
+				
+			</div>
+		</div>
 {% endblock content %}

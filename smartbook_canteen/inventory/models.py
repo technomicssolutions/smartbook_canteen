@@ -380,7 +380,8 @@ class BatchItem(models.Model):
 
     batch = models.ForeignKey(Batch, null=True, blank=True)
     item = models.ForeignKey(Item, null=True, blank=True)
-
+    closing_stock = models.CharField('closing stock', max_length=200, null=True, blank=True)
+    consumed_quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
     quantity_in_actual_unit = models.FloatField('Quantity in Actual Smallest Unit', default=0, max_length=100)
     purchase_price = models.DecimalField('Purchase Price', default=0, max_digits=50, decimal_places=5)    
     cost_price = models.DecimalField('Cost Price', default=0, max_digits=50, decimal_places=5)
@@ -622,35 +623,10 @@ class BatchItem(models.Model):
             'batch_item_id': self.item.id,
             'item_name': self.item.name,
             'code': self.item.code,                                                                                                      
-            'batch_name': self.batch.name,
+            
             'batch_id': self.id,
             'stock': round(float(stock),2),
-            'quantity': '', #for getting sales quantity
-            'stock_unit': stock_unit,
-            'tax': self.item.vat_type.tax_percentage if self.item.vat_type else '',
-            'offer_quantity': self.item.offer_quantity if self.item.offer_quantity else '',
-            # 'whole_sale_price_sales': self.whole_sale_price,
-            'retail_price_sales': self.retail_price,
-            'freight_charge': self.freight_charge if self.freight_charge else 0,
-            'purchase_unit': self.uom,
-            'purchase_price': self.purchase_price,            
-            'purchase_price': self.purchase_price,
-            'cost_price': self.cost_price,
-            'uom': self.uom,
-            'wholesale_profit': self.whole_sale_profit_percentage,
-            'retail_profit': self.retail_profit_percentage,
-            'wholesale_price': self.whole_sale_price,
-            'retail_price': self.retail_price,
-            'branch_price': self.branch_price,
-            'customer_card_price': self.customer_card_price,
-            'permissible_discount': self.permissible_discount_percentage,
-            'is_cost_price_existing': 'true' if self.cost_price else 'false',
-            'is_wholesale_profit': 'true' if self.whole_sale_profit_percentage else 'false',
-            'is_retail_profit': 'true' if self.retail_profit_percentage else 'false',
-            'is_branch_price': 'true' if self.branch_price else 'false',
-            'is_customer_card_price': 'true' if self.customer_card_price else 'false',
-            'is_permissible_discount': 'true' if self.permissible_discount_percentage else 'false',
-            'uoms': uoms
+            
         }
         return batch_item_details
 
@@ -713,37 +689,3 @@ class OpeningStockValue(models.Model):
     class Meta:
         verbose_name_plural = 'Opening Stock Value'
 
-class ClosingStock(models.Model):
-
-    date = models.DateField('Date',null=True, blank=True)
-    canteen = models.ForeignKey(Canteen, null=True, blank=True)
-
-    def __unicode__(self):
-        return str(self.date)+ ' - ' + self.transaction_reference_no
-
-    class Meta:
-        verbose_name_plural = 'closing Stock'
-
-class ClosingStockItem(models.Model):
-    canteen = models.ForeignKey(Canteen, null=True, blank=True)
-    closing_stock = models.ForeignKey(ClosingStock, null=True, blank=True)
-    batch_item = models.ForeignKey(BatchItem, null=True, blank=True)
-    item = models.ForeignKey(Item, null=True, blank=True)
-    date = models.DateField('Date',null=True, blank=True)
-    consumed_quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
-    
-    
-    def __unicode__(self):
-        return str(self.closing_stock.date) 
-
-    class Meta:
-        verbose_name_plural = 'closing Stock Item'
-        
-class closingStockValue(models.Model):
-
-    stock_by_value = models.DecimalField('Balance', max_digits=20, null=True, blank=True, decimal_places=5)
-
-    def __unicode__(self):
-        return str(self.stock_by_value)
-    class Meta:
-        verbose_name_plural = 'closing Stock Value'
