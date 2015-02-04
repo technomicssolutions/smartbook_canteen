@@ -38,9 +38,10 @@ def get_category_details(request, categories):
 class SearchBatch(View):
 
     def get(self, request, *args, **kwargs):
-  
+        print 'hai';
         batch_name = request.GET.get('batch_name', '')
         print batch_name;
+
         batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen'])
         
         batch_list = []
@@ -1255,53 +1256,35 @@ class ClosingStockView(View):
         return render(request, 'closing_stock.html', {})
 
     def post(self, request, *args, **kwargs):
-        
 
-        total_stock = 0
-
+        closing_stock = 0
+        print 'hello';
         if request.is_ajax():
             closing_stock_details = ast.literal_eval(request.POST['closing_stock_items'])
             print closing_stock_details;
-            if closing_stock_details:
-
-                for item_detail in closing_stock_details:
-                    
-                    # print item_detail['batch_id'];
-                    batch = Batch.objects.get(id=item_detail['batch_id']) 
-                    batch_item = BatchItem.objects.get(id=item_detail['batch_item_id'])
-                    # print 'by';
-                    # print item_detail['batch_item_id'];
-                    # print batch_item.item;
-                    if batch_item:
-                        total_stock = batch_item.stock - batch_item.consumed_quantity;
-                    Closing_stock_item = ClosingStockItem.objects.create(batch_item=batch_item)
-                    canteen=Canteen.objects.get(id=request.session['canteen']); 
-                    batch_item, batch_item_created = BatchItem.objects.get_or_create(batch_item=batch_item,batch=batch)
-                    
-                    try:
-                        closing_stock_item = ClosingStockItem.objects.get(batch_item=batch_item)
-                    except:
-                        Closing_stock_item = ClosingStockItem.objects.create(batch_item=batch_item)
-                    closing_stock_item.canteen = canteen
-                    opening_stock_item.date = datetime.now()
-                    closing_stock_item.consumed_quantity = item_detail['consumed_quantity']
-                    closing_stock_item.save()
-            # for item_detail in closing_stock_details:
-            #     # if item_detail['batch_name']:
-            #         batch_item = BatchItem.objects.get(id=item_detail['batch_item_name'])
-            # if batch_item:
-            #     for item_detail in batch_item:
-            #         total_stock = item_detail.stock - item_detail.consumed_quantity;
+        canteen=Canteen.objects.get(id=request.session['canteen']); 
+        new_batch = Batch()
+        new_batch.canteen = canteen
+        new_batch.save()
+        new_batch.set_name()
+        if closing_stock_details:
+            for item_detail in closing_stock_details:                
+                batch_item = BatchItem.objects.get(id=item_detail['id'])
+                batch_item.consumed_quantity = item_detail['consumed_quantity']
+                batch_item.closing_stock = item_detail['closing_stock']
+                batch_item.save()
+                if batch_item.closing_stock > 0:
+                    new_batch_item = BatchItem()
+                    new_batch_item.batch = new_batch
+                    new_batch_item.item = batch_item.item
+                    new_batch_item.quantity_in_actual_unit = batch_item.closing_stock
+                    new_batch_item.save()
+        batch_item.batch.closed = True
+        batch_item.batch.save()
+        res = {
+            'result': 'ok',
                 
-            #     if total_stock < 0:
-            #         batch = Batch.objects.create(created_date=datetime.now, expiry_date=(datetime.now()+7))
-            #     batch.save()
-
-                
-            res = {
-                'result': 'ok',
-                
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
+        }
+        response = simplejson.dumps(res)
+        return HttpResponse(response, status=200, mimetype='application/json')
                

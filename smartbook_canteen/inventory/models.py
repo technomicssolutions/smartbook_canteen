@@ -107,7 +107,7 @@ class Item(models.Model):
 
 class Batch(models.Model):
     canteen = models.ForeignKey(Canteen, null=True, blank=True)
-    name = models.CharField('Batch name', max_length=200)
+    name = models.CharField('Batch name', max_length=200, unique=True)
     created_date = models.DateField('Created', null=True, blank=True)
     expiry_date = models.DateField('Expiry date', null=True, blank=True)
     closed = models.BooleanField('Batch Closed', default=False)
@@ -147,9 +147,9 @@ class Batch(models.Model):
         return self
 
     def set_name(self):
-        self.created_date = datetime.datetime.now().date
-        self.expiry_date = self.created_date + timedelta('days', 7)
-        self.name = self.created_date.strftime('%d/%m/%Y') + '-' + self.expiry_date.strftime('%d/%m/%Y') 
+        self.created_date = datetime.now().date()
+        self.expiry_date = self.created_date + timedelta(days=7)
+        self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) 
         self.save()
 
 UOM_STATUS_CHOICES = (
@@ -188,6 +188,8 @@ class BatchItem(models.Model):
             'purchase_price':self.purchase_price,
             'selling_price':self.selling_price,
             'stock': round(float(self.quantity_in_actual_unit),2),
+            'consumed_quantity':self.consumed_quantity,
+            'closing_stock':self.closing_stock,
             'uom' :self.uom,
 
         }

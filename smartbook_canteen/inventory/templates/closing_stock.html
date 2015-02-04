@@ -25,7 +25,7 @@
 		<input type="text" name="batch_name" ng-model="batch_name" ng-change="get_batch_list()" autocomplete="off" >
 		<div class="search_list" ng-show="batches.length > 0">
 			<div class="search_list_item" ng-repeat="batch in batches track by $index" ng-class="{'highlight': $index == focusIndex}" ng-click="select_batch(batch)">
-				<span >[[batch.name]] </span>
+				<span>[[batch.name]] </span>
 			</div>
 		</div>
 	</div>
@@ -41,6 +41,7 @@
 			<th>Stock</th>
 			<th>Consumed Quantity</th>
 			<th>Closing Stock</th>
+			
 		</tr>
 		<tr ng-repeat="batch_item in batch_items">
 			<td>[[batch_item.item_name]]</td>
@@ -49,7 +50,9 @@
 			<td>
 				<input type="text" ng-model="batch_item.consumed_quantity" style="width:50%" ng-change="calculate_closing_stock(batch_item)"/>
 			</td>
+
 			<td> [[batch_item.closing_stock]]</td>
+			
 			<p class="error_msg">{{msg}}</p>
 		</tr>
 	</table>
