@@ -334,7 +334,7 @@ class ItemList(View):
             for item in items:
                 item_data = item.get_json_data()                
                 items_list.append(item_data)
-                print(ite)
+                print(items_list)
             res = {
                 'result': 'ok',
                 'items': items_list,

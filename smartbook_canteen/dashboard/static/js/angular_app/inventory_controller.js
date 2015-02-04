@@ -191,17 +191,7 @@ function get_item_search_list($scope, $http, item, batch, from) {
                     $scope.current_purchase_item.items = data.items; 
                 }else if (from == 'opening_stock'){
                     $scope.current_item_details.items = data.items;
-                    console.log($scope.current_item_details.items)
-                
-                }else if(from == 'stock_search'){
-                    $scope.stock_items = data.items;
-                    $scope.no_item_msg = '';
-                }else if(from == 'estimate'){
-                    $scope.current_estimate_item.items = data.items;
-                    $scope.no_item_msg = '';
-                }else if(from == 'delivery'){
-                    $scope.current_delivery_item.items = data.items;
-                    $scope.no_item_msg = '';
+                    console.log($scope.current_item_details.items);
                 }
                 if($scope.items.length == 0)
                     $scope.no_item_msg = "No such item";
@@ -841,6 +831,7 @@ function OpeningStockController($scope, $http){
         $scope.current_item_details.name = item.name;
         $scope.current_item_details.code = item.code;
         $scope.current_item_details.id = item.id;
+        console.log(item['item_code']);
         $scope.current_item_details.items = [];
         if ($scope.current_item_details.batch) {
             $scope.select_batch($scope.current_item_details.batch);
@@ -853,12 +844,12 @@ function OpeningStockController($scope, $http){
         //get_item_uoms($scope, $http);
     }
     $scope.select_list_item = function(index) {
-        
         if ($scope.categories_list!=undefined && $scope.categories_list.length>0){
             category = $scope.categories_list[index];
             $scope.select_category_details(category);
         }
         if ($scope.current_item_details.items!=undefined && $scope.current_item_details.items.length>0){
+            
             item = $scope.current_item_details.items[index];
             $scope.select_item_details(item);
         }
@@ -1301,6 +1292,7 @@ function StockSearchController($scope, $http, stock_items) {
         get_item_search_list($scope, $http, $scope.item_name, '' , 'stock_search');
     }
     $scope.select_list_item = function(index){
+
         if ($scope.stock_items != undefined && $scope.stock_items.length > 0) {
             item = $scope.stock_items[index];
             $scope.get_item_stock_list(item)
