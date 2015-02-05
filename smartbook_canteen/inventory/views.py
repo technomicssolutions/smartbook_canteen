@@ -158,7 +158,6 @@ class AddBatch(View):
         batch = None
         if request.is_ajax():
             batch_details = ast.literal_eval(request.POST['batch_details'])
-
             batch_details['canteen'] = request.session['canteen']
             print batch_details
             if batch_details.get('id', ''):
@@ -166,7 +165,6 @@ class AddBatch(View):
                 if batches.count() == 0:
                     batch = Batch.objects.get(id=batch_details['id'])
                     batch_details['canteen'] = request.session['canteen']
-
                     batch_obj = batch.set_attributes(batch_details)
                 else:
                     res = {
@@ -187,6 +185,7 @@ class AddBatch(View):
                 except Exception as ex:
                     batch = Batch()
                     batch_details['canteen'] = request.session['canteen'];
+                    batch_details['name'] = str(batch_details['created_date']) + '-' + str(batch_details['created_date']) + '-' +str(request.session['canteen']);
                     print batch_details
                     print "hai"
                     batch_obj = batch.set_attributes(batch_details)
@@ -572,8 +571,16 @@ class OpeningStockView(View):
                             batch_item.selling_price = item_detail['selling_price']
                             batch_item.uom = purchase_unit
                             batch_item.stock = float(batch_item.stock)+float(item_detail['quantity'])
-                        total_purchase_price = float(total_purchase_price) + float(item_detail['net_amount'])
-                        batch_item.save()
+                            total_purchase_price = float(total_purchase_price) + float(item_detail['net_amount'])
+                            batch_item.save()
+                        else :
+                            print("qqqq");
+                            batch_item.purchase_price = item_detail['purchase_price']
+                            batch_item.selling_price = item_detail['selling_price']
+                            batch_item.uom = purchase_unit
+                            batch_item.stock = float(batch_item.stock)+float(item_detail['quantity'])
+                            total_purchase_price = float(total_purchase_price) + float(item_detail['net_amount'])
+                            batch_item.save()    
                 except Exception as ex:
                     res = {
                         'result': 'error',

@@ -115,7 +115,7 @@ class Batch(models.Model):
     def save(self, *args, **kwargs):
         super(Batch, self).save() # for getting pk
         if self.created_date and self.expiry_date:
-            self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) 
+            self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) + '-' +str(self.canteen.id)
         super(Batch, self).save()
 
     def __unicode__(self):
@@ -135,9 +135,12 @@ class Batch(models.Model):
         return batch_data
 
     def set_attributes(self, batch_details):
+        print("hghg");
+        print(batch_details);
         canteen_obj = Canteen.objects.get(id=batch_details['canteen'])
         self.canteen = canteen_obj;
         self.name = batch_details['name']
+        print(self.name)
         self.created_date = datetime.strptime(batch_details['created_date'], '%d/%m/%Y')
         if batch_details['expiry_date']:
             self.expiry_date = datetime.strptime(batch_details['expiry_date'], '%d/%m/%Y')
@@ -149,7 +152,7 @@ class Batch(models.Model):
     def set_name(self):
         self.created_date = datetime.now().date()
         self.expiry_date = self.created_date + timedelta(days=7)
-        self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) 
+        self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) + '-' + str(self.canteen.id) 
         self.save()
 
 UOM_STATUS_CHOICES = (
