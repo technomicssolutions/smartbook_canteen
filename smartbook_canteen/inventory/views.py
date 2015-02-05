@@ -69,7 +69,7 @@ class SearchBatchItem(View):
         if item_id and batch_id:
             item = Item.objects.get(id=item_id)
             batch = Batch.objects.get(id=batch_id)
-            print(item.uom);
+            print(item);
             print(batch);
             batch_items = BatchItem.objects.filter(item=item, batch=batch)
             print(batch_items)
@@ -84,7 +84,7 @@ class SearchBatchItem(View):
                     'selling_price':0,
                     'uom' : item.uom,
                 }   
-                print(batch_item_data); 
+                print(batch_item_data) 
         # else:
         #     item_name = request.GET.get('item_name', '')
         #     batch_id = request.GET.get('batch_id', '')
@@ -544,17 +544,6 @@ class OpeningStockView(View):
             opening_stock_items = ast.literal_eval(request.POST['opening_stock_items'])
             print(opening_stock_items);
             if opening_stock_items:
-
-                # cash_ledger = Ledger.objects.get(account_code='1005')
-                # stock_ledger = Ledger.objects.get(account_code='1006')
-                # transaction = Transaction()
-                # try:
-                #     transaction_ref = Transaction.objects.latest('id').id + 1
-                # except:
-                #     transaction_ref = '1'
-              
-                # transaction.transaction_ref = 'OPSTK' + str(transaction_ref)
-                
                 try:
                     print(request.session['canteen']);
                     # opening_stock = OpeningStock.objects.create(date=datetime.now(),canteen=request.session['canteen'] )
@@ -573,30 +562,12 @@ class OpeningStockView(View):
                         batch_item, batch_item_created = BatchItem.objects.get_or_create(item=item,batch=batch)
                         canteen=Canteen.objects.get(id=request.session['canteen']);
                         print(batch_item,batch_item_created,canteen);
-                        try:
-                            opening_stock_item = OpeningStockItem.objects.get(batch_item=batch_item)
-                        except:
-                            opening_stock_item = OpeningStockItem.objects.create(batch_item=batch_item)
-                        opening_stock_item.canteen = canteen;    
-                        opening_stock_item.quantity = item_detail['quantity']
-                        opening_stock_item.purchase_price = item_detail['purchase_price']
-                        opening_stock_item.selling_price = item_detail['selling_price']
-                        opening_stock_item.net_amount = item_detail['net_amount']
-                        opening_stock_item.date = datetime.now()
-                        opening_stock_item.uom = purchase_unit
-                        print (opening_stock_item); 
-                        opening_stock_item.save()
+                        
                         quantity = 0
                         selling_price = 0
-                        purchase_price = 0                       
-                        if item.smallest_unit == purchase_unit:
-                            quantity = item_detail['quantity']
-                        else:
-                            quantity = float(item_detail['quantity'])
-                        batch_item.set_quantity(item_detail['quantity'], purchase_unit)
-                        batch_item.cost_price = item_detail['purchase_price']
-
+                        purchase_price = 0  
                         if batch_item_created:
+                            print("vvv");
                             batch_item.purchase_price = item_detail['purchase_price']
                             batch_item.selling_price = item_detail['selling_price']
                             batch_item.uom = purchase_unit
@@ -637,21 +608,10 @@ class OpeningStockView(View):
                 else:
                     opening_stock_value.stock_by_value = float(total_purchase_price)
                 opening_stock_value.save()
-                # transaction.narration = 'By Opening Stock - '+ str(transaction.transaction_ref )
-                # transaction.debit_amount = total_purchase_price
-                # transaction.credit_amount = total_purchase_price
-                # transaction.credit_ledger = ledger_entry_cash_ledger
-                # transaction.debit_ledger = ledger_entry_stock_ledger
-                # transaction.transaction_date = datetime.now()
-                # transaction.amount = total_purchase_price
-                # cash_ledger.balance = float(cash_ledger.balance) - float(total_purchase_price)
-                # stock_ledger.balance = float(stock_ledger.balance) + float(total_purchase_price)
-                # cash_ledger.save()
-                # stock_ledger.save()
-                # transaction.save()
+                
             res = {
                 'result': 'ok',
-                'transaction_reference_no':'',
+                'transaction_reference_no':'tyryty',
             }
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')

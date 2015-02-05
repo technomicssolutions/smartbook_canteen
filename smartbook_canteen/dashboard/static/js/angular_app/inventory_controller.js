@@ -775,6 +775,7 @@ function OpeningStockController($scope, $http){
             'purchase_unit': '',
             'purchase_price': '',
             'selling_price': '',
+        
         });
     }
     $scope.hide_popup = function() {
