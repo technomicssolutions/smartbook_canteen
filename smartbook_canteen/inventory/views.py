@@ -1243,6 +1243,9 @@ class ClosingStockView(View):
                     new_batch_item.batch = new_batch
                     new_batch_item.item = batch_item.item
                     new_batch_item.stock = batch_item.closing_stock
+                    new_batch_item.purchase_price = batch_item.purchase_price
+                    new_batch_item.selling_price = batch_item.selling_price
+                    new_batch_item.uom = batch_item.uom
                     new_batch_item.save()
         batch_item.batch.closed = True
         batch_item.batch.save()
