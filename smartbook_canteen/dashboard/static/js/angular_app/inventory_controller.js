@@ -713,6 +713,9 @@ function OpeningStockController($scope, $http){
             'code': '',
             'batch': '',
             'quantity': '',
+            'purchase_unit': '',
+            'purchase_price': '',
+            'selling_price': '',
         });
     }
     $scope.current_item_details = [];

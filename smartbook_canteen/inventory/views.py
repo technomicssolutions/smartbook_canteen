@@ -41,8 +41,10 @@ class SearchBatch(View):
         print 'hai';
         batch_name = request.GET.get('batch_name', '')
         print batch_name;
-        
-        batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen']).filter(closed=False)
+        # batch_item = BatchItem.objects.get(id=batch_name['id'])
+        # print 'wowwww';
+        # print batch_item;
+        batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen'])
         
         batch_list = []
         # batches = Batch.objects.filter(canteen=request.session['canteen'])
@@ -569,6 +571,7 @@ class OpeningStockView(View):
                             batch_item.purchase_price = item_detail['purchase_price']
                             batch_item.selling_price = item_detail['selling_price']
                             batch_item.uom = purchase_unit
+                            batch_item.stock = float(batch_item.stock)+float(item_detail['quantity'])
                         total_purchase_price = float(total_purchase_price) + float(item_detail['net_amount'])
                         batch_item.save()
                 except Exception as ex:
@@ -1239,7 +1242,7 @@ class ClosingStockView(View):
                     new_batch_item = BatchItem()
                     new_batch_item.batch = new_batch
                     new_batch_item.item = batch_item.item
-                    new_batch_item.stock = batch_item.closing_stock
+                    new_batch_item.quantity_in_actual_unit = batch_item.closing_stock
                     new_batch_item.save()
         batch_item.batch.closed = True
         batch_item.batch.save()
