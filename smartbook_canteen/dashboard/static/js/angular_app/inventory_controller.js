@@ -263,7 +263,7 @@ function get_batch_search_details($scope, $http, from) {
     $scope.batches = [];
     $scope.no_batch_msg = '';
     console.log('hai');
-    if ($scope.batch_name != '' && $scope.batch_name != undefined && $scope.batch_name.length > 0) {
+    if ($scope.batch_name != '' && $scope.batch_name != undefined && $scope.batch_name.length > 0 ) {
         var batch_name = $scope.batch_name;
        
         $http.get('/inventory/search_batch/?batch_name='+batch_name).success(function(data){
