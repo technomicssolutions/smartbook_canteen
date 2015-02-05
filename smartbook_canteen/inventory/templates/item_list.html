@@ -41,7 +41,7 @@
 		<tr ng-repeat="item in visible_list">
 			<td> [[($index)+((current_page-1)*page_interval)+1]] </td>
 			<td>[[item.name]]</td>
-			<td>[[item.code]]</td>
+			<td>[[item.item_code]]</td>
 			<td><a href="" ng-click="view_item(item)">View</a></td>
 			<!-- <td><a href="" ng-click="edit_item_details(item)">Edit</a></td> -->
 			<td><a href="" ng-click="delete_item(item)" class=>Delete</a></td>

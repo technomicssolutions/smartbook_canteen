@@ -19,11 +19,14 @@
 
 			<div class="control" >
 				<label>UOM</label>
-			    <select ng-model="item.uom" ng-options="uom for uom in uoms" >
-
 			    <select ng-model="item.uom">	
 					<option value=""> Select</option>
-						<option value="">[[item.uom]] </option>
+						<option value="Kg">Kg </option>
+						<option value="gm">gm </option>
+						<option value="mg">mg </option>
+						<option value="Packet">Packet </option>
+						<option value="Box">Box </option>
+						<option value="Piece">piece </option>
 				</select>						
 			</div>
 					<!-- <div class="follow_up_div" ng-show="item.uom == 'box'">
