@@ -164,7 +164,7 @@ class BatchItem(models.Model):
     item = models.ForeignKey(Item, null=True, blank=True)
     closing_stock = models.CharField('closing stock', max_length=200, null=True, blank=True)
     consumed_quantity = models.DecimalField('Quantity', max_digits=20, decimal_places=5, default=0)
-    stock = models.FloatField('Quantity in Actual Smallest Unit', default=0, max_length=100)
+    stock = models.FloatField('Stock', default=0, max_length=100)
     purchase_price = models.DecimalField('Purchase Price', default=0, max_digits=50, decimal_places=5)    
     selling_price = models.DecimalField('Selling Price', default=0, max_digits=50, decimal_places=5)
     uom = models.CharField('UOM', max_length=200, null=True, blank=True)
