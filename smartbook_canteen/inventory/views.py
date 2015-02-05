@@ -41,10 +41,8 @@ class SearchBatch(View):
         print 'hai';
         batch_name = request.GET.get('batch_name', '')
         print batch_name;
-        # batch_item = BatchItem.objects.get(id=batch_name['id'])
-        # print 'wowwww';
-        # print batch_item;
-        batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen'])
+        
+        batches = Batch.objects.filter(name__istartswith=batch_name).filter(canteen=request.session['canteen']).filter(closed=False)
         
         batch_list = []
         # batches = Batch.objects.filter(canteen=request.session['canteen'])
@@ -1279,7 +1277,7 @@ class ClosingStockView(View):
                     new_batch_item = BatchItem()
                     new_batch_item.batch = new_batch
                     new_batch_item.item = batch_item.item
-                    new_batch_item.quantity_in_actual_unit = batch_item.closing_stock
+                    new_batch_item.stock = batch_item.closing_stock
                     new_batch_item.save()
         batch_item.batch.closed = True
         batch_item.batch.save()
