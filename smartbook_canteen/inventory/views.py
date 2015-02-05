@@ -69,7 +69,7 @@ class SearchBatchItem(View):
         if item_id and batch_id:
             item = Item.objects.get(id=item_id)
             batch = Batch.objects.get(id=batch_id)
-            print(item);
+            print(item.uom);
             print(batch);
             batch_items = BatchItem.objects.filter(item=item, batch=batch)
             print(batch_items)
@@ -82,7 +82,9 @@ class SearchBatchItem(View):
                     'stock':0,
                     'purchase_price':0,
                     'selling_price':0,
-                }    
+                    'uom' : item.uom,
+                }   
+                print(batch_item_data); 
         # else:
         #     item_name = request.GET.get('item_name', '')
         #     batch_id = request.GET.get('batch_id', '')
