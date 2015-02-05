@@ -148,7 +148,7 @@ class Batch(models.Model):
 
     def set_name(self):
         self.created_date = datetime.now().date()
-        self.expiry_date = self.created_date + timedelta(days=7)
+        self.expiry_date = self.created_date + timedelta(days=6)
         self.name = str(self.created_date.strftime('%d/%m/%Y')) + '-' + str(self.expiry_date.strftime('%d/%m/%Y')) 
         self.save()
 
