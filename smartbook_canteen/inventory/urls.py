@@ -2,7 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
 
 from inventory.views import SearchBatch, SearchBatchItem, BatchList, AddBatch, DeleteBatch, Categories, AddCategory, \
-	ItemList, AddItem, DeleteItem, SearchItem,\
+	ItemList, AddItem, DeleteItem, SearchItem,SearchBatchForReport,\
 	OpeningStockView, BatchItemDetailsView, DeleteCategory,ItemUom,\
 	EditBatch, CategorySubcategoryList, SearchItemStock, BatchItemsView, IsCategoryNameExists, StockReport, \
 	StockAgingReport, CategoryWiseStockReport, CategoryWiseStockAgingReport, CategoryWiseVendorReport, CategoryWisePurchaseReport, \
@@ -15,7 +15,7 @@ urlpatterns = patterns('',
 	url(r'^add_category/$', login_required(AddCategory.as_view(), login_url='/login/'),name='add_category'),
 	url(r'^delete_category/$', login_required(DeleteCategory.as_view(), login_url='/login/'),name='delete_category'),
 	url(r'^is_category_name_exists/$', login_required(IsCategoryNameExists.as_view(), login_url='/login/'),name='is_category_name_exists'),
-
+    url(r'^search_batch_for_report/$', login_required(SearchBatchForReport.as_view(), login_url='/login/'),name='search_batch_for_report'),
 	url(r'^search_batch/$', login_required(SearchBatch.as_view(), login_url='/login/'), name='search_batch'),
 	url(r'^search_batch_item/$', login_required(SearchBatchItem.as_view(), login_url='/login/'), name='search_batch_item'),
 
@@ -38,12 +38,6 @@ urlpatterns = patterns('',
 	url(r'^search_item_stock/$', login_required(SearchItemStock.as_view(), login_url='/login/'), name='search_item_stock'),
 
 	url(r'^stock_report/$', login_required(StockReport.as_view(), login_url='/login/'), name='stock_report'),
-	url(r'^stock_aging_report/$', login_required(StockAgingReport.as_view(), login_url='/login/'), name='stock_aging_report'),
-	url(r'^catergory_wise_stock_report/$', login_required(CategoryWiseStockReport.as_view(), login_url='/login/'), name='catergory_wise_stock_report'),
-	url(r'^category_stock_aging_report/$', login_required(CategoryWiseStockAgingReport.as_view(), login_url='/login/'), name='category_stock_aging_report'),
-	url(r'^category_purchase_report/$', login_required(CategoryWisePurchaseReport.as_view(), login_url='/login/'), name='category_purchase_report'),
-	url(r'^category_vendor_report/$', login_required(CategoryWiseVendorReport.as_view(), login_url='/login/'), name='category_vendor_report'),
-	url(r'^category_profit_report/$', login_required(CategoryWiseProfitReport.as_view(), login_url='/login/'), name='category_profit_report'),
 	url(r'^closing_stock/$', login_required(ClosingStockView.as_view(), login_url='/login/'), name='closing_stock'),
 
 )

@@ -45,6 +45,20 @@ function search_batch($scope, $http){
     });
 }
 
+function search_batch_for_report($scope, $http){
+    $scope.no_batch_msg = '';
+    $scope.batches = [];
+    $http.get('/inventory/search_batch_for_report/?batch_name='+$scope.batch_name+'&ajax=true').success(function(data){
+        $scope.batches = data.batches;
+        console.log($scope.batches)
+        if ($scope.batches.length == 0) {
+            $scope.no_batch_msg = 'No batch with this name';
+        }
+        paginate($scope.batches, $scope, 10);
+    }).error(function(data, status){
+        console.log('Request failed');
+    });
+}
 
 function get_items($scope, $http){
     $http.get('/inventory/items/?ajax=true').success(function(data){
@@ -1413,10 +1427,87 @@ function StockReportController($scope, $http) {
         $scope.csrf_token = csrf_token;
         $http.get('/inventory/stock_report/?ajax=true').success(function(data){
             $scope.stocks_report = data.stocks_report;
-            paginate($scope.stocks_report, $scope, 15);
+            //paginate($scope.stocks_report, $scope, 15);
         }).error(function(data, status){
             console.log('Request failed');
         });
+    }
+
+    $scope.current_item_details = [];
+    $scope.focusIndex = 0;
+    $scope.keys = [];
+    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
+    $scope.keys.push({ code: 38, action: function() { 
+        if($scope.focusIndex > 0){
+            $scope.focusIndex--; 
+        }
+    }});
+    $scope.keys.push({ code: 40, action: function() { 
+        if($scope.batches != undefined && $scope.batches.length > 0 && $scope.focusIndex < $scope.batches.length-1){
+            if($scope.focusIndex < $scope.batches.length-1){
+                $scope.focusIndex++; 
+            }
+        } 
+    }});
+    $scope.$on('keydown', function( msg, code ) {
+        $scope.keys.forEach(function(o) {
+          if ( o.code !== code ) { return; }
+          o.action();
+          $scope.$apply();
+        });
+    });
+    
+    $scope.hide_popup = function() {
+        hide_popup();
+    }
+    $scope.select_list_item = function(index) {
+        if ($scope.batches != undefined && $scope.batches.length > 0) {
+            batch = $scope.batches[index];
+            $scope.select_batch(batch);
+        } 
+    }
+    $scope.select_batch = function(batch) {
+        $scope.batch = batch.id;
+        $scope.batches = [];
+        $scope.batch_name = batch.name;
+        $scope.focusIndex = 0;
+        $scope.generate_list();
+    }
+    // $scope.get_batch_list = function() {
+    //     get_batch_search_details($scope, $http);
+    // }
+    $scope.get_batch_list = function(){
+        $scope.batch = '';
+        if ($scope.batch_name.length > 0)
+            search_batch_for_report($scope, $http);
+    }
+    
+    $scope.generate_list = function(){
+        $scope.no_batch_msg = '';
+        console.log ($scope.batch_name);
+        
+
+        if ($scope.batch_name == '' || $scope.batch_name == undefined) {
+            $scope.no_batch_msg = 'Please Choose batch';
+
+        } else {
+            // if (type_name == 'view') { 
+                show_loader();
+                $http.get('/inventory/stock_report/?batch_id='+$scope.batch).success(function(data){
+                    $scope.batch_items = data.batch_items;
+                    
+                    if ($scope.batch_items.length == 0)
+                        $scope.no_batch_msg = 'No items';
+                    else {
+                        paginate($scope.batch_items, $scope, 15);
+                    }
+                    hide_loader();
+                }).error(function(data, status){
+                    console.log(data);
+                });
+            // } else
+            //     document.location.href = '/inventory/closing_stock/?batch_id='+$scope.batch;
+        }
     }
     $scope.select_page = function(page){
         select_page(page, $scope.stocks_report, $scope, 15);
@@ -2265,7 +2356,7 @@ function ClosingStockController($scope, $http){
                 show_loader();
                 $http.get('/inventory/closing_stock/?batch_id='+$scope.batch).success(function(data){
                     $scope.batch_items = data.batch_items;
-                    print ($scope.batch_items);
+                    
                     if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
                     else {
