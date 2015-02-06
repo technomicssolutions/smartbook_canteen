@@ -18,8 +18,17 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import cm
 from dashboard.models import Canteen
-from inventory.models import Item, Batch, BatchItem, Category, \
-StockValue, OpeningStockValue
+from inventory.models import Item, Batch, BatchItem, Category,StockValue, OpeningStockValue
+
+style = [
+    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
+]
+sales_receipt_style = [
+    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
+]
+para_style = ParagraphStyle('fancy')
+para_style.fontSize = 14
+para_style.fontName = 'Helvetica'
 # from accounts.models import Ledger, Transaction, LedgerEntry
 # from purchases.models import Purchase, PurchaseItem
 # from sales.models import Sale, SalesItem
@@ -593,6 +602,8 @@ class OpeningStockView(View):
                             print("vvv");
                             batch_item.purchase_price = item_detail['purchase_price']
                             batch_item.selling_price = item_detail['selling_price']
+                            batch_item.consumed_quantity = 0
+                            batch_item.closing_stock = 0
                             batch_item.uom = purchase_unit
                             batch_item.stock = float(batch_item.stock)+float(item_detail['quantity'])
                             total_purchase_price = float(total_purchase_price) + float(item_detail['net_amount'])
@@ -749,29 +760,42 @@ class StockReport(View):
     def get(self, request, *args, **kwargs):
 
         batch_id = request.GET.get('batch_id', '')
-
+        flag = request.GET.get('pdf', '')
         print batch_id;
+        print flag;
         batch_item_details = []
         if batch_id:
-            print("dsds");
-            batch = Batch.objects.get(id=batch_id)
-            print batch;
-            batch_items = BatchItem.objects.filter(batch=batch)
-            print batch_items;
-            for batch_item in batch_items:
-                batch_item_details.append(batch_item.get_json_data())
-            print batch_item_details;
+            if flag == 'false':
+                print("dsds");
+                batch = Batch.objects.get(id=batch_id)
+                print batch;
+                batch_items = BatchItem.objects.filter(batch=batch)
+                print batch_items;
+                for batch_item in batch_items:
+                    batch_item_details.append(batch_item.get_json_data())
+                print batch_item_details;
 
-            if request.is_ajax():
-                res = {
-                    'result': 'ok',
-                    'batch_items': batch_item_details,
-                }
-                response = simplejson.dumps(res)
-                return HttpResponse(response, status=200, mimetype='application/json')
+                if request.is_ajax():
+                    res = {
+                        'result': 'ok',
+                        'batch_items': batch_item_details,
+                    }
+                    response = simplejson.dumps(res)
+                    return HttpResponse(response, status=200, mimetype='application/json')
+            if flag == 'true':        
 
-            elif request.GET.get('pdf', ''):
-                console.log("pdf");
+        # elif request.GET.get('pdf', ''):
+                print("oooo");
+                total_purchase_price=0;
+                total_selling_price=0;
+                batch = Batch.objects.get(id=batch_id)
+                print batch;
+                batch_items = BatchItem.objects.filter(batch=batch)
+                print batch_items;
+                for batch_item in batch_items:
+                    batch_item_details.append(batch_item.get_json_data())
+                print batch_item_details;
+                print(request.GET.get('pdf', ''));
                 current_date = datetime.now().strftime('%d-%m-%Y')
                 style = [
                     ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
@@ -782,521 +806,66 @@ class StockReport(View):
                 d = [['Stock Report'+' '+str(current_date)]]
                 t = Table(d, colWidths=(450), rowHeights=25, style=style)
                 t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                        ('FONTSIZE', (0,0), (-1,-1), 12),
-                        ])   
+                    ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                    ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+                    ('FONTSIZE', (0,0), (-1,-1), 12),
+                    ])   
                 elements.append(t)
+                data2 = []
+                blank2="";
+                data2.append([blank2])
+                
+                table2 = Table(data2, colWidths=(100), style=style)
+                table2.setStyle([
+                            ('FONTSIZE', (0,0), (-1,-1), 11),
+                            ])   
+                elements.append(table2) 
                 data = []
                 para_style = ParagraphStyle('fancy')
                 para_style.fontSize = 10
                 para_style.fontName = 'Helvetica'
                 data.append(['Item', 'Item code', 'Stock', 'Consumed Quantity', 'Closing Stock','Purchase Price','Selling price'])
-                table = Table(data, colWidths=(80, 80, 80, 80,80,80,80), style=style)
+                table = Table(data, colWidths=(80, 80, 50, 110,80,80,80), style=style)
                 table.setStyle([
-                        ('FONTSIZE', (0,0), (-1,0), 11),
-                        ])  
+                    ('FONTSIZE', (0,0), (-1,0), 11),
+                    ])  
                 elements.append(table)
                 elements.append(Spacer(1,.1*cm ))
                 data = []
-                for batch_item in batch_items:
+                for batch_item in batch_item_details:
+                    total_purchase_price = float(total_purchase_price) + (float(batch_item['stock'])*float(batch_item['purchase_price']))
+                    total_selling_price = float(total_selling_price) + (float(batch_item['consumed_quantity'])*float(batch_item['selling_price']))
                     item_name = Paragraph(batch_item['item_name'], para_style)
                     item_code = Paragraph(batch_item['code'], para_style)
-                    stock = Paragraph(batch_item['stock'], para_style)
-                    consumed_quantity = Paragraph(batch_item['consumed_quantity'], para_style)
-                    closing_stock = Paragraph(batch_item['closing_stock'], para_style)
-                    purchase_price = Paragraph(batch_item['purchase_price'], para_style)
-                    selling_price = Paragraph(batch_item['selling_price'], para_style)
+                    stock = Paragraph(str(batch_item['stock']), para_style)
+                    consumed_quantity = Paragraph(str(batch_item['consumed_quantity']), para_style)
+                    closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
+                    purchase_price = Paragraph(str(batch_item['purchase_price']), para_style)
+                    selling_price = Paragraph(str(batch_item['selling_price']), para_style)
                     data.append([item_name, item_code,stock,consumed_quantity,closing_stock,purchase_price,selling_price])
                 if len(data) > 0:
-                    table = Table(data, colWidths=(80, 80, 80, 80,80,80,80), style=style)
+                    table = Table(data, colWidths=(80, 80, 50, 110,80,80,80), style=style)
                     elements.append(table)
+                data0 = []
+                blank="";
+                data0.append([blank])
+                data0.append([blank])
+                table0 = Table(data0, colWidths=(100), style=style)
+                table0.setStyle([
+                            ('FONTSIZE', (0,0), (-1,-1), 11),
+                            ])   
+                elements.append(table0)   
+                data1 = []
+                data1.append(['Total Stock Purchase Price :', total_purchase_price])
+                data1.append(['Total Quantity Selling Price :', total_selling_price])
+                table1 = Table(data1, colWidths=(200, 110), style=style)
+                table1.setStyle([
+                            ('FONTSIZE', (0,0), (-1,-1), 11),
+                            ])   
+                elements.append(table1)    
                 p.build(elements)  
                 return response     
         return render(request, 'stock_report.html', {})
-
-
-
-
-
-        # batch_id = request.GET.get('batch_id', '')
-        # print batch_id;
-        # batch_item_details = []
-        # if batch_id:
-        #     batch = Batch.objects.get(id=batch_id)
-        #     print batch;
-        #     batch_items = BatchItem.objects.filter(batch=batch)
-        #     print batch_items;
-        #     for batch_item in batch_items:
-
-        #         batch_item_details.append(batch_item.get_json_data())
-        #     print batch_item_details;
-
-        #     if request.is_ajax():
-        #         res = {
-        #             'result': 'ok',
-        #             'batch_items': batch_item_details,
-        #         }
-        # if request.is_ajax():
-        #     res = {
-        #         'result': 'ok',
-        #         'stocks_report': item_list,
-        #     }
-        #     response = simplejson.dumps(res)
-        #     return HttpResponse(response, status=200, mimetype='application/json')
-        # elif request.GET.get('pdf', ''):
-        #     current_date = datetime.now().strftime('%d-%m-%Y')
-        #     style = [
-        #         ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
-        #     ]
-        #     response = HttpResponse(content_type='application/pdf')
-        #     p = SimpleDocTemplate(response, pagesize=A4)
-        #     elements = []
-        #     d = [['Stock Report'+' '+str(current_date)]]
-        #     t = Table(d, colWidths=(450), rowHeights=25, style=style)
-        #     t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-        #                 ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-        #                 ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-        #                 ('FONTSIZE', (0,0), (-1,-1), 12),
-        #                 ])   
-        #     elements.append(t)
-        #     data = []
-        #     para_style = ParagraphStyle('fancy')
-        #     para_style.fontSize = 10
-        #     para_style.fontName = 'Helvetica'
-        #     data.append(['Item', 'Batch', 'Stock', 'UOM'])
-        #     table = Table(data, colWidths=(150, 150, 100, 80), style=style)
-        #     table.setStyle([
-        #                 ('FONTSIZE', (0,0), (-1,0), 11),
-        #                 ])  
-        #     elements.append(table)
-        #     elements.append(Spacer(1,.1*cm ))
-        #     data = []
-        #     for item_data in item_list:
-        #         item_name = Paragraph(item_data['item_name'], para_style)
-        #         batch_name = Paragraph(item_data['batch_name'], para_style)
-        #         data.append([item_name, batch_name, round(float(item_data['stock']),2), item_data['stock_unit']])
-        #     if len(data) > 0:
-        #         table = Table(data, colWidths=(150, 150, 100, 80), style=style)
-        #         elements.append(table)
-        #     p.build(elements)  
-        #     return response 
-        # return render(request, 'stock_report.html', {})
-
-class StockAgingReport(View):
-
-    def get(self, request, *args, **kwargs):
-        if request.GET.get('batch', ''):
-            stock_items = []
-            
-            current_month = datetime.now().month
-            current_year = datetime.now().year
-            ctx_months = []
-            fields = ['Rcvd', 'Sold']
-            for i in range(1,current_month + 1):
-                ctx_months.append({
-                    'name' : calendar.month_name[i][:3],
-                    'fields': fields,
-                })
-            batch = Batch.objects.get(id=request.GET.get('batch', ''))
-            for batch_item in batch.batchitem_set.all():
-                ctx_month_details = []
-                for i in range(1,current_month + 1):
-                    month_name = calendar.month_name[i][:3]
-                    month_details = []
-                    opening_stock = OpeningStock.objects.filter(date__month=i, date__year=current_year)
-                    purchases = Purchase.objects.filter(purchase_invoice_date__month=i, purchase_invoice_date__year=current_year)
-                    sales = Sale.objects.filter(sales_invoice_date__month=i, sales_invoice_date__year=current_year)
-                    p_quantity = 0
-                    s_quantity = 0
-                    opening_stock_quantity = 0
-                    for stock in opening_stock:
-                        for o_item in stock.openingstockitem_set.filter(batch_item=batch_item):
-                            opening_stock_quantity = float(o_item.quantity) + float(opening_stock_quantity)
-                    for purchase in purchases:
-                        for p_item in purchase.purchaseitem_set.filter(batch_item=batch_item):
-                            p_quantity = float(p_item.quantity) + float(p_quantity)
-                    for sale in sales:
-                        for s_item in sale.salesitem_set.filter(batch_item=batch_item):
-                            quantity = float(s_item.quantity)
-                            s_quantity = float(quantity) + float(s_quantity)
-                    fields = [p_quantity + opening_stock_quantity, s_quantity]
-                    ctx_month_details.append({
-                        'name': month_name,
-                        'fields' : fields
-                    })
-                stock_items.append({
-                   'item_name' : batch_item.item.name,
-                   'month_details': ctx_month_details,
-                })
-                ctx_month_details = []
-            res = {
-                'stock': stock_items,
-                'months': ctx_months,
-                'result': 'ok'
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        else:
-            return render(request, 'stock_aging_report.html', {})
-
-
-class CategoryWiseStockReport(View):
-
-    def get(self, request, *args, **kwargs):
-        if request.GET.get('category_id', ''):
-            category = Category.objects.get(id=request.GET.get('category_id', ''))
-            item_list = []
-            batch_items = BatchItem.objects.filter(item__product__category=category)
-            quantity = 0
-            for batch_item in batch_items:
-                is_batch_item = True
-                #quantity = float(quantity) + float(batch_item.quantity_in_purchase_unit)
-                batch = batch_item.get_json_data()
-                #item_list.append({
-                 #   'item_name': batch_item.item.name,
-                  #  'product': batch_item.item.product.name if batch_item.item.product else '',
-                   # 'batch_name': batch_item.batch.name,
-                    #'stock': batch_item.quantity_in_purchase_unit,
-                    #'uom': batch_item.uom,
-                #})
-                item_list.append(batch)
-            if request.is_ajax():
-                res = {
-                    'result': 'ok',
-                    'stock_details': item_list
-                }
-                response = simplejson.dumps(res)
-                return HttpResponse(response, status=200, mimetype='application/json')
-            else:
-                style = [
-                    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
-                ]
-                response = HttpResponse(content_type='application/pdf')
-                p = SimpleDocTemplate(response, pagesize=A4)
-                elements = []
-                d = [['Category Wise Stock Report - '+category.name]]
-                t = Table(d, colWidths=(450), rowHeights=25, style=style)
-                t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-                            ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                            ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                            ('FONTSIZE', (0,0), (-1,-1), 12),
-                            ])   
-                elements.append(t)
-                data = []
-                
-                para_style = ParagraphStyle('fancy')
-                para_style.fontSize = 10
-                para_style.fontName = 'Helvetica'
-                data.append(['Item', 'Batch', 'Stock', 'UOM'])
-                table = Table(data, colWidths=(130, 130, 90, 80), style=style)
-                table.setStyle([
-                            ('FONTSIZE', (0,0), (-1,0), 11),
-                            ])  
-                elements.append(table)
-                elements.append(Spacer(1,.1*cm ))
-                data = []
-                for item_data in item_list:
-                    item_name = Paragraph(item_data['item_name'], para_style)
-                    batch_name = Paragraph(item_data['batch_name'], para_style)
-                    #product = Paragraph(item_data['product'], para_style)
-                    #data.append([item_name, product, batch_name, item_data['stock'], item_data['uom']])
-                    data.append([item_name,batch_name,item_data['stock'], item_data['stock_unit']])
-                if len(data) > 0:
-                    table = Table(data, colWidths=(130, 130, 90, 80), style=style)
-                    elements.append(table)
-                p.build(elements)  
-                return response 
-        return render(request, 'category_wise_stock_report.html', {})
-
-class CategoryWiseStockAgingReport(View):
-
-    def get(self, request, *args, **kwargs):
-        if request.GET.get('category_id', ''):
-            stock_items = []
-            
-            current_month = datetime.now().month
-            current_year = datetime.now().year
-            ctx_months = []
-            fields = ['Rcvd', 'Sold']
-            for i in range(1,current_month + 1):
-                ctx_months.append({
-                    'name' : calendar.month_name[i][:3],
-                    'fields': fields,
-                })
-            category = Category.objects.get(id=request.GET.get('category_id', ''))
-            batch_items = BatchItem.objects.filter(item__product__category=category)
-            for batch_item in batch_items:
-                ctx_month_details = []
-                for i in range(1,current_month + 1):
-                    month_name = calendar.month_name[i][:3]
-                    month_details = []
-                    opening_stock = OpeningStock.objects.filter(date__month=i, date__year=current_year)
-                    purchases = Purchase.objects.filter(purchase_invoice_date__month=i, purchase_invoice_date__year=current_year)
-                    sales = Sale.objects.filter(sales_invoice_date__month=i, sales_invoice_date__year=current_year)
-                    p_quantity = 0
-                    s_quantity = 0
-                    opening_stock_quantity = 0
-                    for stock in opening_stock:
-                        for o_item in stock.openingstockitem_set.filter(batch_item=batch_item):
-                            opening_stock_quantity = float(o_item.quantity) + float(opening_stock_quantity)
-                    for purchase in purchases:
-                        for p_item in purchase.purchaseitem_set.filter(batch_item=batch_item):
-                            p_quantity = float(p_item.quantity) + float(p_quantity)
-                    for sale in sales:
-                        for s_item in sale.salesitem_set.filter(batch_item=batch_item):
-                            quantity = float(s_item.quantity)
-                            s_quantity = float(quantity) + float(s_quantity)
-                    fields = [p_quantity + opening_stock_quantity, s_quantity]
-                    ctx_month_details.append({
-                        'name': month_name,
-                        'fields' : fields
-                    })
-                stock_items.append({
-                   'item_name' : batch_item.item.name,
-                   'month_details': ctx_month_details,
-                })
-                ctx_month_details = []
-            res = {
-                'stock': stock_items,
-                'months': ctx_months,
-                'result': 'ok'
-            }
-            response = simplejson.dumps(res)
-            return HttpResponse(response, status=200, mimetype='application/json')
-        else:
-            return render(request, 'category_stock_aging_report.html', {})
-
-class CategoryWisePurchaseReport(View):
-
-    def get(self, request, *args, **kwargs):
-        if request.GET.get('category_id', ''):
-            category = Category.objects.get(id=request.GET.get('category_id', ''))
-            item_list = []
-            purchase_items = PurchaseItem.objects.filter(batch_item__item__product__category=category)
-            for p_item in purchase_items:
-                is_purchase_item = True
-                item_list.append({
-                    'item_name': p_item.batch_item.item.name,
-                    'product': p_item.batch_item.item.product.name if p_item.batch_item.item.product else '',
-                    'batch_name': p_item.batch_item.batch.name,
-                    'invoice': p_item.purchase.purchase_invoice_number,
-                    'quantity': p_item.quantity,
-                    'stock': p_item.batch_item.quantity_in_purchase_unit,
-                    'uom': p_item.batch_item.uom,
-                })
-            if request.is_ajax():
-                res = {
-                    'result': 'ok',
-                    'stock_details': item_list
-                }
-                response = simplejson.dumps(res)
-                return HttpResponse(response, status=200, mimetype='application/json')
-            else:
-                style = [
-                    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
-                ]
-                response = HttpResponse(content_type='application/pdf')
-                p = SimpleDocTemplate(response, pagesize=A4)
-                elements = []
-                d = [['Category Wise Purchase Report - '+category.name]]
-                t = Table(d, colWidths=(450), rowHeights=25, style=style)
-                t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-                            ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                            ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                            ('FONTSIZE', (0,0), (-1,-1), 12),
-                            ])   
-                elements.append(t)
-                data = []
-                para_style = ParagraphStyle('fancy')
-                para_style.fontSize = 10
-                para_style.fontName = 'Helvetica'
-                data.append(['Item', 'Product', 'Invoice', 'Batch', 'Quantity Purchased', 'UOM'])
-                table = Table(data, colWidths=(100, 90, 90, 100, 100, 80), style=style)
-                table.setStyle([
-                            ('FONTSIZE', (0,0), (-1,0), 11),
-                            ])  
-                elements.append(table)
-                elements.append(Spacer(1,.1*cm ))
-                data = []
-                for item_data in item_list:
-                    item_name = Paragraph(item_data['item_name'], para_style)
-                    batch_name = Paragraph(item_data['batch_name'], para_style)
-                    product = Paragraph(item_data['product'], para_style)
-                    data.append([item_name, product, item_data['invoice'], batch_name, item_data['quantity'], item_data['uom']])
-                if len(data) > 0:
-                    table = Table(data, colWidths=(100, 90, 90, 100, 100, 80), style=style)
-                    elements.append(table)
-                p.build(elements)  
-                return response 
-        return render(request, 'category_purchase_report.html', {})
-
-class CategoryWiseVendorReport(View):
-    def get(self, request, *args, **kwargs):
-        if request.GET.get('category_id', ''):
-            category = Category.objects.get(id=request.GET.get('category_id', ''))
-            item_list = []
-            suppliers = Supplier.objects.all()
-            for supplier in suppliers:
-                purchase_items = PurchaseItem.objects.filter(batch_item__item__product__category=category, purchase__supplier=supplier)
-                for p_item in purchase_items:
-                    
-                    is_purchase_item = True
-                    item_list.append({
-                        'supplier_name':supplier.name,
-                        'item_name': p_item.batch_item.item.name,
-                        'product': p_item.batch_item.item.product.name if p_item.batch_item.item.product else '',
-                        'batch_name': p_item.batch_item.batch.name,
-                        'invoice': p_item.purchase.purchase_invoice_number,
-                        'quantity': p_item.quantity,
-                        'stock': p_item.batch_item.quantity_in_purchase_unit,
-                        'uom': p_item.batch_item.uom,
-                        })
-            if request.is_ajax():
-                res = {
-                    'result': 'ok',
-                    'stock_details': item_list
-                }
-                response = simplejson.dumps(res)
-                return HttpResponse(response, status=200, mimetype='application/json')
-            else:
-                style = [
-                    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
-                ]
-                response = HttpResponse(content_type='application/pdf')
-                p = SimpleDocTemplate(response, pagesize=A4)
-                elements = []
-                d = [['Category Wise Vendor Report - '+category.name]]
-                t = Table(d, colWidths=(450), rowHeights=25, style=style)
-                t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-                            ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                            ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                            ('FONTSIZE', (0,0), (-1,-1), 12),
-                            ])   
-                elements.append(t)
-                data = []
-                para_style = ParagraphStyle('fancy')
-                para_style.fontSize = 10
-                para_style.fontName = 'Helvetica'
-                data.append(['SupplierName', 'Item', 'Product', 'Invoice', 'Batch', 'Quantity Purchased', 'UOM'])
-                table = Table(data, colWidths=(80,50, 90, 90, 80, 100, 80), style=style)
-                table.setStyle([
-                            ('FONTSIZE', (0,0), (-1,0), 11),
-                            ])  
-                elements.append(table)
-                elements.append(Spacer(1,.1*cm ))
-                data = []
-                for item_data in item_list:
-                    supplier_name = Paragraph(item_data['supplier_name'], para_style)
-                    item_name = Paragraph(item_data['item_name'], para_style)
-                    batch_name = Paragraph(item_data['batch_name'], para_style)
-                    product = Paragraph(item_data['product'], para_style)
-                    data.append([supplier_name,item_name, product, item_data['invoice'], batch_name, item_data['quantity'], item_data['uom']])
-                if len(data) > 0:
-                    table = Table(data, colWidths=(80,50, 90, 90, 80, 100, 80), style=style)
-                    elements.append(table)
-                p.build(elements)  
-                return response 
-        return render(request, 'category_wise_vendor_report.html', {})
-
-
-
-class AddMultipleProducts(View):
-
-    def get(self, request, *args, **kwargs):
-
-        return render(request, 'add_bulk_products.html', {})
-
-    def post(self, request, *args, **kwargs):
-
-        if request.is_ajax():
-            product_data = ast.literal_eval(request.POST['products'])
-            for product_detail in product_data:
-                if product_detail['category_id']:
-                    category =Category.objects.get(id=product_detail['category_id'])
-                    product, created = Product.objects.get_or_create(name=product_detail['name'],category=category)
-            res = {
-                'result': 'ok', 
-            } 
-            response = simplejson.dumps(res) 
-            return HttpResponse(response, status=200, mimetype='application/json')
-
-class CategoryWiseProfitReport(View):
-
-    def get(self, request, *args, **kwargs):
-        category_id = request.GET.get('category_id', '')
-        profit_details = []
-        if category_id:
-            category = Category.objects.get(id=category_id)
-            batch_items = BatchItem.objects.filter(item__product__category=category)
-            for batch_item in batch_items:
-                purchase_total = 0
-                purchased_qty = 0
-                sold_qty = 0
-                sold_amt = 0
-                if batch_item.cost_price > 0:
-                    purchase_items = batch_item.purchaseitem_set.all()
-                    sales_items = batch_item.salesitem_set.all()
-                    for purchase_item in purchase_items:
-                        purchased_qty = float(purchased_qty) + float(purchase_item.quantity)
-                        purchase_total = float(purchase_total) + (float(purchase_item.quantity) * float(batch_item.cost_price))
-                    for sales_item in sales_items:
-                        sold_qty = float(sold_qty) + (float(sales_item.quantity_in_purchase_unit) * float(sales_item.quantity))
-                        sold_amt = float(sold_amt) + ((float(sales_item.quantity_in_purchase_unit) * float(sales_item.quantity)) * float(sales_item.mrp))
-                    profit = float(sold_amt) - float(purchase_total)
-                    profit_details.append({
-                        'name': batch_item.item.name,
-                        'batch': batch_item.batch.name,
-                        'purchased_qty': purchased_qty,
-                        'purchased_amt': purchase_total,
-                        'sold_qty': sold_qty,
-                        'sold_amt': sold_amt,
-                        'profit': profit,
-                    })
-        
-            if request.is_ajax():
-                res = {
-                    'profit_details': profit_details,
-                }
-                response = simplejson.dumps(res)
-                return HttpResponse(response, status=200, mimetype='application/json')
-            else:
-                style = [
-                    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
-                ]
-                response = HttpResponse(content_type='application/pdf')
-                p = SimpleDocTemplate(response, pagesize=A4)
-                elements = []
-                d = [['Category Wise Profit Report - '+category.name]]
-                t = Table(d, colWidths=(450), rowHeights=25, style=style)
-                t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-                            ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                            ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                            ('FONTSIZE', (0,0), (-1,-1), 12),
-                            ])   
-                elements.append(t)
-                data = []
-
-                para_style = ParagraphStyle('fancy')
-                para_style.fontSize = 10
-                para_style.fontName = 'Helvetica'
-                data.append(['Name', 'Qty.Purchased', 'Purchased amt.', 'Qty. Sold', 'Sold amt.', 'Profit'])
-                table = Table(data, colWidths=(120, 90, 90, 90, 80, 90), style=style)
-                table.setStyle([
-                            ('FONTSIZE', (0,0), (-1,0), 11),
-                            ])  
-                elements.append(table)
-                elements.append(Spacer(1,.1*cm ))
-                data = []
-                for item_data in profit_details:
-                    item_name = Paragraph(item_data['name']+' - '+item_data['batch'], para_style)
-                    data.append([item_name, item_data['purchased_qty'], item_data['purchased_amt'], item_data['sold_qty'], item_data['sold_amt'], item_data['profit']])
-                if len(data) > 0:
-                    table = Table(data, colWidths=(120, 90, 90, 90, 80, 90), style=style)
-                    elements.append(table)
-                p.build(elements)  
-                return response 
-        return render(request, 'category_wise_profit_report.html', {})
 
 class ClosingStockView(View):
 
@@ -1349,7 +918,10 @@ class ClosingStockView(View):
                     new_batch_item.stock = batch_item.closing_stock
                     new_batch_item.purchase_price = batch_item.purchase_price
                     new_batch_item.selling_price = batch_item.selling_price
+                    new_batch_item.closing_stock = 0
+                    new_batch_item.consumed_quantity = 0
                     new_batch_item.uom = batch_item.uom
+                    print(new_batch_item);
                     new_batch_item.save()
         batch_item.batch.closed = True
         batch_item.batch.save()

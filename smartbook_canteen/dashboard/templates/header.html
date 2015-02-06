@@ -15,14 +15,28 @@
 				<div class="col-md-7 col-sm-7">
 					<div class="col-md-12 col-sm-12 no-padding">	
 						<ul class="header_menus">
-							<li>
-								<a href="{% url 'logout' %}" class="logout"><img src="/static/images/top_lock.svg" width="25" height="25" /></a>
+
+							 <li>
+								<a href="{% url 'logout' %}" class="logout" id="user"><img src="/static/images/top_lock.svg" width="20" height="25" ></a>
+								<ul class="drop_down">
+									
+									<li><a href="{% url 'logout' %}">Logout</a></li>
+								</ul>
 							</li>
+
+
 							<li>
+								<a href="" class="help" id="help"></a>
+								<ul class="drop_down">
+									
+									<li><a href="">Help</a></li>
+								</ul>
+							</li>
+							<!-- <li>
 								<a href="" class="help" width="25" height="25"></a>
-							</li>
+							</li> -->
 							<li>
-								<a href="" class="settings" id="settings"><img src="/static/images/top_settings.svg" width="25" height="25" ></a>
+								<a href="{% url 'reset_password' %}" class="settings" id="settings"><img src="/static/images/top_settings.svg" width="25" height="25" ></a>
 								<ul class="drop_down">
 									
 									<li><a href="{% url 'reset_password' %}">Reset Password</a></li>
@@ -30,7 +44,7 @@
 							</li>
 
                             <li>
-								<a href="" class="user" id="user"><img src="/static/images/top_user.svg" width="20" height="25" ></a>
+								<a href="{% url 'canteen' %}" class="user" id="user"><img src="/static/images/top_user.svg" width="20" height="25" ></a>
 								<ul class="drop_down">
 									
 									<li><a href="{% url 'canteen' %}">User</a></li>
@@ -48,7 +62,7 @@
 						</span>
 					</div>
 					
-					{% include 'stock_search.html' %}
+					
 					
 				</div>
 			</div>

@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib.auth.decorators import login_required
-from views import Login, DashBoard, Logout, HelpView, SettingsView,\
- ResetPassword, ForgotPassword,CanteenList,AddCanteen,\
+from views import Login, DashBoard, Logout, HelpView, SettingsView,ResetPassword, ForgotPassword,CanteenList,AddCanteen,\
 EditCanteen,DeleteCanteen,SearchCanteen
 
 urlpatterns = patterns('',

@@ -5,8 +5,7 @@ from inventory.views import SearchBatch, SearchBatchItem, BatchList, AddBatch, D
 	ItemList, AddItem, DeleteItem, SearchItem,SearchBatchForReport,\
 	OpeningStockView, BatchItemDetailsView, DeleteCategory,ItemUom,\
 	EditBatch, CategorySubcategoryList, SearchItemStock, BatchItemsView, IsCategoryNameExists, StockReport, \
-	StockAgingReport, CategoryWiseStockReport, CategoryWiseStockAgingReport, CategoryWiseVendorReport, CategoryWisePurchaseReport, \
-	CategoryWiseProfitReport, ClosingStockView
+	ClosingStockView
 
 
 urlpatterns = patterns('',

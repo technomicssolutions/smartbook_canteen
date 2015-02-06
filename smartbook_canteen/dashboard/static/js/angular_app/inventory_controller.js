@@ -715,7 +715,6 @@ function ItemController($scope, $http){
         $scope.category_option = "Search Category";
     }
 }
-
 function OpeningStockController($scope, $http){
    
     //$scope.product_name = "";
@@ -1493,7 +1492,7 @@ function StockReportController($scope, $http) {
         } else {
             // if (type_name == 'view') { 
                 show_loader();
-                $http.get('/inventory/stock_report/?batch_id='+$scope.batch).success(function(data){
+                $http.get('/inventory/stock_report/?batch_id='+$scope.batch+'&pdf=false').success(function(data){
                     $scope.batch_items = data.batch_items;
                     
                     if ($scope.batch_items.length == 0)
@@ -1516,7 +1515,8 @@ function StockReportController($scope, $http) {
         return new Array(n);
     }
     $scope.generate_pdf = function(){
-        document.location.href = '/inventory/stock_report/?pdf=true';
+        console.log("pdf")
+        document.location.href = '/inventory/stock_report/?batch_id='+$scope.batch+'&pdf=true';
     }
 }
 

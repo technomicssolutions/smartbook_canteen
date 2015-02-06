@@ -69,7 +69,7 @@
 		<div ng-show="stocks_report.length > 0 ">
 			{% include 'pagination_div.html' %}
 		</div>
-		<input type="button" class="create_button" accesskey="p" ng-keypress="generate_pdf()" value="Print" ng-click="generate_pdf()"/>
+		<input type="button" class="create_button" accesskey="p" ng-keypress="generate_pdf()" value="Print" ng-click="generate_pdf(batch_item.batch.id)"/>
 	</div>
 
 {% endblock content %}
