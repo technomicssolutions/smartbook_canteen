@@ -2185,15 +2185,6 @@ function CategoryProfitReportController($scope, $http){
 }
 function ClosingStockController($scope, $http){ 
     $scope.closing_stock_items = [];
-    // for (var i=0; i<5; i++) {
-    //     $scope.closing_stock_items.push(
-    //     {
-    //         'item_name': '',
-    //         'code': '',
-    //         'stock': '',
-    //         'consumed_quantity': '',
-    //     });
-    // }
     $scope.batch_items = {
         'item_name': '',
         'code': '',
@@ -2243,9 +2234,7 @@ function ClosingStockController($scope, $http){
         $scope.focusIndex = 0;
         $scope.generate_list();
     }
-    // $scope.get_batch_list = function() {
-    //     get_batch_search_details($scope, $http);
-    // }
+    
     $scope.get_batch_list = function(){
         $scope.batch = '';
         if ($scope.batch_name.length > 0)
@@ -2256,7 +2245,6 @@ function ClosingStockController($scope, $http){
         $scope.no_batch_msg = '';
         console.log ($scope.batch_name);
         
-
         if ($scope.batch_name == '' || $scope.batch_name == undefined) {
             $scope.no_batch_msg = 'Please Choose batch';
 
@@ -2264,8 +2252,7 @@ function ClosingStockController($scope, $http){
             // if (type_name == 'view') { 
                 show_loader();
                 $http.get('/inventory/closing_stock/?batch_id='+$scope.batch).success(function(data){
-                    $scope.batch_items = data.batch_items;
-                    print ($scope.batch_items);
+                    $scope.batch_items = data.batch_items;                   
                     if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
                     else {
@@ -2274,9 +2261,7 @@ function ClosingStockController($scope, $http){
                     hide_loader();
                 }).error(function(data, status){
                     console.log(data);
-                });
-            // } else
-            //     document.location.href = '/inventory/closing_stock/?batch_id='+$scope.batch;
+                });            
         }
     }
     $scope.calculate_closing_stock = function(item){
@@ -2288,11 +2273,7 @@ function ClosingStockController($scope, $http){
         }
         else{
             item.closing_stock = 'Consumed quantity above stock level';
-        }    
-        
-        // console.log(item.closing_stock)
-       
-        
+        }                  
     }
     $scope.validate_closing_stock = function(){
         if ($scope.batch_items.length == 0) {
@@ -2332,10 +2313,10 @@ function ClosingStockController($scope, $http){
            
         }
     }
-    // $scope.select_page = function(page){
-    //     select_page(page, $scope.batch_items, $scope, 15);
-    // }
-    // $scope.range = function(n) {
-    //     return new Array(n);
-    // }
+    $scope.select_page = function(page){
+        select_page(page, $scope.batch_items, $scope, 15);
+    }
+    $scope.range = function(n) {
+        return new Array(n);
+    }
 }
