@@ -3,5 +3,5 @@
 	
 	<li ng-show="!is_staff || staff.inventory_permission"> <a href="{% url 'items' %}" class="inventory_menu">Inventory </a></li>
 	
-	<li ng-show="!is_staff || staff.reports_permission"> <a href="" class="reports_menu">Reports </a></li>
+	<li ng-show="!is_staff || staff.reports_permission"> <a href="{% url 'stock_report' %}" class="reports_menu">Reports </a></li>
 </ul>
