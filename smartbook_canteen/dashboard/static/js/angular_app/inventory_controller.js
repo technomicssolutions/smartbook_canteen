@@ -1480,6 +1480,10 @@ function StockReportController($scope, $http) {
         if ($scope.batch_name.length > 0)
             search_batch_for_report($scope, $http);
     }
+    // $scope.calculate_purchase_price = function(batch_item){
+    //     $scope.total_purchase_price = 0;
+    //     batch_item.total_purchase_price = (parseFloat(batch_item.stock)*parseFloat(batch_item.purchase_price))
+    // }
     
     $scope.generate_list = function(){
         $scope.no_batch_msg = '';
@@ -1494,11 +1498,21 @@ function StockReportController($scope, $http) {
                 show_loader();
                 $http.get('/inventory/stock_report/?batch_id='+$scope.batch+'&pdf=false').success(function(data){
                     $scope.batch_items = data.batch_items;
-                    
+                    $scope.total_purchase_price = data.total_purchase_price;
+                    $scope.total_selling_price = data.total_selling_price;
+                    console.log($scope.total_purchase_price);
                     if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
+                    // else if($scope.total_purchase_price.length==0)
+                    //     $scope.no_batch_msg = 'No items';
+
                     else {
-                        paginate($scope.batch_items, $scope, 15);
+                        
+                        paginate($scope.batch_items,$scope.total_purchase_price,$scope.total_selling_price,$scope, 15);
+                        console.log("mumyy");
+                        
+                        
+                        
                     }
                     hide_loader();
                 }).error(function(data, status){
