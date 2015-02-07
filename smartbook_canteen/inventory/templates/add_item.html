@@ -18,7 +18,13 @@
 			</div>
             <div class="control">
 				<label>Category</label>
-				<input type="text" ng-model="item.name" id="item_name_data" />
+				<input type="text" ng-model="category_name" name="category_name" ng-change="get_category_list()"/><br/>
+				<div class="search_list" ng-show="categories.length > 0">
+					<div ng-repeat="category in categories" ng-click="select_category(category)" class="search_list_item" ng-class="{'highlight': $index == focusIndex}">
+						<span>[[category.name]]</span>
+					</div>
+				</div>
+				<p class="error_msg">[[no_categories_msg]]</p>
 			</div>
 			<div class="control" >
 				<label>UOM</label>
@@ -32,10 +38,7 @@
 						<option value="Piece">piece </option>
 				</select>						
 			</div>
-			<div class="control">
-				<label>Description</label>
-				<textarea ng-model="item.description"></textarea>
-			</div>
+			
 					<!-- <div class="follow_up_div" ng-show="item.uom == 'box'">
 						<label>1 Box = </label>
 						<input type="text" ng-model="item.unit_per_box" />

@@ -391,9 +391,10 @@ function save_item($scope, $http, from){
                     $scope.get_batch($scope.current_purchase_item);
                     //get_item_uoms($scope, $http);
                 } else if(from == 'opening_stock'){
+                    console.log(data.item)
                     $scope.current_item_details.name = data.item.name;
                     $scope.current_item_details.id = data.item.id;
-                    $scope.current_item_details.code = data.item.code;
+                    $scope.current_item_details.code = data.item.item_code;
                     $scope.get_batch($scope.current_item_details);
                     //get_item_uoms($scope, $http);
                     hide_popup();
@@ -703,6 +704,12 @@ function OpeningStockController($scope, $http){
     $scope.hide_popup = function() {
         hide_popup();
     }
+    $scope.select_category = function(category) {
+        $scope.focusIndex = 0;
+        $scope.item.category_id = category.id;
+        $scope.category_name = category.name;
+        $scope.categories = [];
+    }
     $scope.search_batch = function(item) {
         item.batch_search = true;
         item.item_search = false;
@@ -763,6 +770,7 @@ function OpeningStockController($scope, $http){
         get_item_search_list($scope, $http,$scope.item_name);
     }
     $scope.select_item_details = function(item) {
+        console.log(item)
         $scope.current_item_details.name = item.name;
         $scope.current_item_details.code = item.code;
         $scope.current_item_details.id = item.id;
@@ -950,57 +958,8 @@ function OpeningStockController($scope, $http){
         $scope.vat_type = vat.vat_name;
         $scope.vat_list = [];
     }
-    $scope.show_per_box = function(item){
-        item.unit_per_box = '';
-        item.piece_per_packet = '';
-        $scope.piece_per_packet = '';
-        item.unit_per_piece = '';
-        $scope.unit_per_piece = '';
-        $scope.unit_per_box = '';
-        if(item.uom == 'box' || item.uom == 'packet' || item.uom =='piece'){
-            if(item.uom == 'piece'){
-                index = $scope.uom_boxes.indexOf('packet');
-                $scope.uom_boxes.splice(index,1);
-                index = $scope.uom_boxes.indexOf('box');
-                $scope.uom_boxes.splice(index,1);
-            }
-            $scope.per_box = true;
-            $scope.per_packet = false;
-            $scope.per_piece = false;
-        } else{
-            $scope.per_packet = false;
-            $scope.per_piece = false;
-            $scope.per_box = false;
-        }
-    }
-    $scope.show_per_packet = function(item){
-        item.piece_per_packet = '';
-        $scope.piece_per_packet = '';
-        item.unit_per_piece = '';
-        $scope.unit_per_piece = '';      
-        if($scope.unit_per_box == 'packet'){
-            $scope.per_packet = true;
-            $scope.per_piece = false;
-        }
-        else if($scope.unit_per_box == 'piece'){
-            index = $scope.uom_pieces.indexOf('packet');
-            $scope.uom_pieces.splice(index,1);
-            index = $scope.uom_pieces.indexOf('box');
-            $scope.uom_pieces.splice(index,1);
-            $scope.per_piece = true;
-            $scope.per_packet = false;
-        } else{
-            $scope.per_packet = false;
-            $scope.per_piece = false;
-        }
-    }
-    $scope.show_per_piece = function(item){
-        if($scope.piece_per_packet == 'piece'){
-            $scope.per_piece = true;
-        } else{
-            $scope.per_piece = false;
-        }
-    }
+    
+
     $scope.new_batch = function(item) {
         $scope.validate_batch_error_msg = '';
         $scope.batch = {

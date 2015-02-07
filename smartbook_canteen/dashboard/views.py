@@ -51,7 +51,7 @@ class Login(View):
         return render(request, 'login.html', res)
 
     def post(self, request, *args, **kwargs):
-
+        
         user = authenticate(username=request.POST['username'], password=request.POST['password'])
         request.session['canteen'] = request.POST['canteen']
         print request.session['canteen']
@@ -59,9 +59,17 @@ class Login(View):
             login(request, user)
             return HttpResponseRedirect(reverse('dashboard'))
         else:
+            canteen_list = []
+            canteens = Canteen.objects.all()
+            print (canteens);
+            print("sss")
+            for canteen in canteens:
+                print (canteen);
+                canteen_list.append(canteen.get_json_data())
             context = {
                 'message' : 'Username or password is incorrect',
-                'username': request.POST['username']
+                'username': request.POST['username'],
+                'canteens': canteen_list,
             }
             return render(request, 'login.html', context)
 

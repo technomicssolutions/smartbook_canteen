@@ -117,37 +117,6 @@ class SearchBatchItem(View):
                     'selling_price':0,
                     'uom' : item.uom,
                 }   
-                print(batch_item_data) 
-        # else:
-        #     item_name = request.GET.get('item_name', '')
-        #     batch_id = request.GET.get('batch_id', '')
-        #     type_name = request.GET.get('type_name', '')
-        #     batch_items = BatchItem.objects.filter(item__name__istartswith=item_name, batch__id=batch_id)
-        # batch_items_list = []
-        # for batch_item in batch_items:
-        #     bonus_point = ''
-        #     bonus_quantity = ''
-        #     if type_name:
-        #         if type_name == 'Customer':
-        #             bonus_point = batch_item.customer_bonus_points.id if batch_item.customer_bonus_points else ''
-        #             bonus_quantity = batch_item.customer_bonus_quantity
-        #         else:
-        #             bonus_point = batch_item.salesman_bonus_points.id if batch_item.salesman_bonus_points else ''
-        #             bonus_quantity = batch_item.salesman_bonus_quantity
-        #     batch_items_list.append({
-        #         'batch_id': batch_item.batch.id,
-        #         'batch_name': batch_item.batch.name,
-        #         'item_name': str(batch_item.item.name) + (str(' - ') + str(batch_item.item.size) if batch_item.item.size else ''),
-        #         'name': batch_item.item.name,
-        #         'code': batch_item.item.code,
-        #         'item_id': batch_item.item.id,
-        #         'uom': batch_item.item.uom,
-        #         'bonus_point': bonus_point,
-        #         'bonus_quantity': bonus_quantity,
-        #         'batch_item_id': batch_item.id,
-        #         'stock':batch_item.quantity_in_actual_unit,
-        #     })
-
         res = {
             'result': 'ok',
             'batch_items': batch_item_data,
