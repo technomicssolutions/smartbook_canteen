@@ -134,6 +134,7 @@ class Batch(models.Model):
             'name': self.name,
             'created_date': self.created_date.strftime('%d/%m/%Y') if self.created_date else '',
             'expiry_date': self.expiry_date.strftime('%d/%m/%Y') if self.expiry_date else '',
+            'closed_flag':self.closed,
         }
         return batch_data
 
