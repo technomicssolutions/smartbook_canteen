@@ -380,12 +380,19 @@ class ItemList(View):
 class AddItem(View):
 
     def get(self, request, *args, **kwargs):
-
-        return render(request, 'add_inventory_item.html', {})
+        
+        category_list=[];
+        categories=Category.objects.filter(canteen=request.session['canteen'])
+        for category in categories:
+            category_data = category.get_json_data()
+            category_list.append(category_data)
+            print(category_list)
+        return render(request, 'add_inventory_item.html', {'categories':category_list})
 
     def post(self, request, *args, **kwargs):
-
+        print("232");
         item_details = ast.literal_eval(request.POST['item'])
+        print(item_details);
         if item_details.get('id', ''):
          
             item = Item.objects.get(id=item_details['id'])
@@ -901,7 +908,8 @@ class ClosingStockView(View):
             closing_stock_details = ast.literal_eval(request.POST['closing_stock_items'])
             print closing_stock_details;
         canteen=Canteen.objects.get(id=request.session['canteen']); 
-        new_batch = Batch()
+        new_batch,batch_created = Batch.objects.get_or_create(created_date=datetime.now().date())
+        print(new_batch,batch_created)
         new_batch.canteen = canteen
         new_batch.save()
         new_batch.set_name()
@@ -912,9 +920,8 @@ class ClosingStockView(View):
                 batch_item.closing_stock = item_detail['closing_stock']
                 batch_item.save()
                 if batch_item.closing_stock > 0:
-                    new_batch_item = BatchItem()
-                    new_batch_item.batch = new_batch
-                    new_batch_item.item = batch_item.item
+
+                    new_batch_item, created = BatchItem.objects.get_or_create(item=batch_item.item, batch=new_batch)
                     new_batch_item.stock = batch_item.closing_stock
                     new_batch_item.purchase_price = batch_item.purchase_price
                     new_batch_item.selling_price = batch_item.selling_price
@@ -925,6 +932,8 @@ class ClosingStockView(View):
                     new_batch_item.save()
         batch_item.batch.closed = True
         batch_item.batch.save()
+        new_batch.closed = False
+        new_batch.save()
         res = {
             'result': 'ok',
                 

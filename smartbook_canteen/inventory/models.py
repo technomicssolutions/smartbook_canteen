@@ -87,7 +87,7 @@ class Item(models.Model):
             'description': self.description,
             'uom':self.uom,
             'canteen_name': self.canteen.name if self.canteen else '',
-            'category_name':self.category.name if self.canteen else '',
+            'category_name':self.category.name if self.category else '',
             'batch_item_exists': batch_item_exists
         }
         return item_data        
@@ -97,7 +97,7 @@ class Item(models.Model):
         print item_details['canteen'];
         canteen_obj = Canteen.objects.get(id=item_details['canteen'])
         self.canteen = canteen_obj;
-        category_obj = Category.objects.get(id=item_details['category'])
+        category_obj = Category.objects.get(id=item_details['category_id'])
         self.category = category_obj;
         self.name = item_details['name']
         self.description = item_details['description'] 
