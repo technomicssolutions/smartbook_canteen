@@ -770,6 +770,8 @@ class StockReport(View):
         flag = request.GET.get('pdf', '')
         print batch_id;
         print flag;
+        total_purchase_price=0;
+        total_selling_price=0;
         batch_item_details = []
         if batch_id:
             if flag == 'false':
@@ -780,12 +782,19 @@ class StockReport(View):
                 print batch_items;
                 for batch_item in batch_items:
                     batch_item_details.append(batch_item.get_json_data())
+                    
                 print batch_item_details;
-
+                for batch_total in batch_item_details:
+                    total_purchase_price = float(total_purchase_price) + (float(batch_total['stock'])*float(batch_total['purchase_price']))
+                    total_selling_price = float(total_selling_price) + (float(batch_total['consumed_quantity'])*float(batch_total['selling_price']))
+                print 'jingaaaa';
+                print total_purchase_price;
                 if request.is_ajax():
                     res = {
                         'result': 'ok',
                         'batch_items': batch_item_details,
+                        'total_purchase_price':total_purchase_price,
+                        'total_selling_price':total_selling_price,
                     }
                     response = simplejson.dumps(res)
                     return HttpResponse(response, status=200, mimetype='application/json')
