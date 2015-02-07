@@ -51,7 +51,7 @@ class Category(models.Model):
 class Item(models.Model):
 
     canteen = models.ForeignKey(Canteen, null=True, blank=True)
-    
+    category = models.ForeignKey(Category, null = True, blank =True)
     name = models.CharField('Name', max_length=200, null=True, blank=True)
     code = models.CharField('Code', max_length=200, unique=True, blank=True)
     description = models.TextField('Description', null=True, blank=True)
@@ -87,6 +87,7 @@ class Item(models.Model):
             'description': self.description,
             'uom':self.uom,
             'canteen_name': self.canteen.name if self.canteen else '',
+            'category_name':self.category.name if self.canteen else '',
             'batch_item_exists': batch_item_exists
         }
         return item_data        
@@ -96,6 +97,8 @@ class Item(models.Model):
         print item_details['canteen'];
         canteen_obj = Canteen.objects.get(id=item_details['canteen'])
         self.canteen = canteen_obj;
+        category_obj = Category.objects.get(id=item_details['category'])
+        self.category = category_obj;
         self.name = item_details['name']
         self.description = item_details['description'] 
         if item_details['new_item'] == 'true':
