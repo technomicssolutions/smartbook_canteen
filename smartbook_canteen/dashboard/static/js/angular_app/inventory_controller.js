@@ -1499,6 +1499,7 @@ function ClosingStockController($scope, $http){
     });
     $scope.init = function(csrf_token) {
         $scope.csrf_token = csrf_token;
+        $scope.total_selling_price=0;
     }
     $scope.hide_popup = function() {
         hide_popup();
@@ -1535,7 +1536,7 @@ function ClosingStockController($scope, $http){
                 show_loader();
                 $http.get('/inventory/closing_stock/?batch_id='+$scope.batch).success(function(data){
                     $scope.batch_items = data.batch_items;
-
+                    $scope.total_amount_recieved=data.total_amount_recieved;
                     if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
                     else {
@@ -1550,9 +1551,12 @@ function ClosingStockController($scope, $http){
     $scope.calculate_consumed_quantity = function(item){
         console.log(item)
         console.log("cal")
+
         var consumed_quantity = 0;
         if (parseFloat(item.stock) >= parseFloat(item.closing_stock)){
             item.consumed_quantity = (parseFloat(item.stock) - parseFloat(item.closing_stock));
+            $scope.total_selling_price = (parseFloat($scope.total_selling_price)+(parseFloat(item.consumed_quantity) * parseFloat(item.selling_price)));
+            console.log($scope.total_selling_price);
         }
         else{
             item.consumed_quantity = 'Closing Stock above stock level';
