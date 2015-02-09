@@ -894,8 +894,8 @@ class ClosingStockView(View):
         if closing_stock_details:
             for item_detail in closing_stock_details:                
                 batch_item = BatchItem.objects.get(id=item_detail['id'])
-                batch_item.consumed_quantity = item_detail['consumed_quantity']
                 batch_item.closing_stock = item_detail['closing_stock']
+                batch_item.consumed_quantity = item_detail['consumed_quantity']
                 batch_item.save()
                 if batch_item.closing_stock > 0:
 
