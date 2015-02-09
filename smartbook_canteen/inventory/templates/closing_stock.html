@@ -10,7 +10,7 @@
 		<li> <a href="{% url 'batches' %}"> Batches </a></li>
 		<li> <a href="{% url 'opening_stock' %}"> Opening Stock </a></li>
 		<li> <a href="{% url 'closing_stock' %}"> Closing Stock </a></li>
-		<!-- <li> <a href=""> Cash Entry </a></li> -->
+		<li> <a href="{% url 'cash_entry' %}"> Cash Entry </a></li>
 	</ul>
 {% endblock %}
 {% block dialogue_popup %}
@@ -57,6 +57,9 @@
 			
 			<p class="error_msg">{{msg}}</p>
 		</tr>
+		<tr><td></td></tr>
+		<tr><td>Total Amount Recieved:</td><td>[[total_amount_recieved]]</td></tr>
+		<tr><td>Total Selling Price:</td><td>[[total_selling_price]]</td></tr>
 	</table>
 	
 	<div class="col-md-12 col-sm-12">
