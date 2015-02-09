@@ -38,5 +38,7 @@ urlpatterns = patterns('',
 
 	url(r'^stock_report/$', login_required(StockReport.as_view(), login_url='/login/'), name='stock_report'),
 	url(r'^closing_stock/$', login_required(ClosingStockView.as_view(), login_url='/login/'), name='closing_stock'),
+
     url(r'^cash_entry/$', login_required(cash_Entry.as_view(), login_url='/login/'), name='cash_entry'),
+
 )
