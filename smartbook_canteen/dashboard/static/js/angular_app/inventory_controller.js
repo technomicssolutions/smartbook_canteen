@@ -624,7 +624,6 @@ function ItemController($scope, $http){
 }
 function OpeningStockController($scope, $http){
    
-    //$scope.product_name = "";
     $scope.opening_stock_items = [];
     for (var i=0; i<5; i++) {
         $scope.opening_stock_items.push(
@@ -745,9 +744,7 @@ function OpeningStockController($scope, $http){
         // $scope.current_item_details.batches = [];
         // $scope.current_item_details.batch_search = false;
     }
-        
-   
-    
+          
     $scope.get_batch_list = function(){
         $scope.batch = '';
         if ($scope.batch_name.length > 0)
@@ -832,7 +829,7 @@ function OpeningStockController($scope, $http){
                 $scope.current_item_details.selling_price = data.batch_items.selling_price;
                 $scope.current_item_details.uom = data.batch_items.uom;
             } else {
-                console.log("34344");
+                
                 $scope.current_item_details.stock = 0;
                 $scope.current_item_details.uom_exists = false;
                 $scope.current_item_details.purchase_unit = '';
