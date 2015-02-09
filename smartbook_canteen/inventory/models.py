@@ -134,6 +134,7 @@ class Batch(models.Model):
             'name': self.name,
             'created_date': self.created_date.strftime('%d/%m/%Y') if self.created_date else '',
             'expiry_date': self.expiry_date.strftime('%d/%m/%Y') if self.expiry_date else '',
+            'closed_flag':self.closed,
         }
         return batch_data
 
@@ -232,4 +233,15 @@ class OpeningStockValue(models.Model):
         return str(self.stock_by_value)
     class Meta:
         verbose_name_plural = 'Opening Stock Value'
+
+
+class cashEntry(models.Model):
+    
+    batch = models.ForeignKey(Batch, null= True, blank=True)
+    date = models.DateField('Date', null="True", blank =True)
+    cash = models.DecimalField('Cash', max_digits=20, null=True, blank=True, decimal_places=5)
+    def __unicode__(self):
+        return str(self.batch.name)
+    class Meta:
+        verbose_name_plural = 'cash enrty'        
 

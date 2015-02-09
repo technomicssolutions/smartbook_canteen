@@ -1292,6 +1292,7 @@ function StockReportController($scope, $http) {
         $scope.csrf_token = csrf_token;
         $http.get('/inventory/stock_report/?ajax=true').success(function(data){
             $scope.stocks_report = data.stocks_report;
+            $scope.batch = data.batch;
             //paginate($scope.stocks_report, $scope, 15);
         }).error(function(data, status){
             console.log('Request failed');
@@ -1364,6 +1365,20 @@ function StockReportController($scope, $http) {
                 show_loader();
                 $http.get('/inventory/stock_report/?batch_id='+$scope.batch+'&pdf=false').success(function(data){
                     $scope.batch_items = data.batch_items;
+                    $scope.batch = data.batch;
+                    console.log(data.batch)
+                    console.log(data.batch[0].closed_flag)
+                    if(data.batch[0].closed_flag==true){
+                        console.log('baskjsk')
+                        $scope.closed_flag=true;
+                    }
+                        
+                    else
+                        $scope.closed_flag = false;
+                    $scope.batch_id=data.batch[0].id;
+                    console.log($scope.batch_id)
+                    console.log($scope.batch_items)
+                    console.log($scope.batch)
                     $scope.total_purchase_price = data.total_purchase_price;
                     $scope.total_selling_price = data.total_selling_price;
                     console.log($scope.total_purchase_price);
@@ -1373,11 +1388,10 @@ function StockReportController($scope, $http) {
                     //     $scope.no_batch_msg = 'No items';
 
                     else {
-                        
-                        paginate($scope.batch_items,$scope.total_purchase_price,$scope.total_selling_price,$scope, 15);
-                        console.log("mumyy");
-                        
-                        
+                        console.log($scope.batch_items)
+                        console.log($scope.batch)
+                        paginate($scope.batch_items,$scope.batch,$scope.total_purchase_price,$scope.total_selling_price,$scope, 15);
+                        console.log("mumyy");   
                         
                     }
                     hide_loader();
@@ -1396,7 +1410,7 @@ function StockReportController($scope, $http) {
     }
     $scope.generate_pdf = function(){
         console.log("pdf")
-        document.location.href = '/inventory/stock_report/?batch_id='+$scope.batch+'&pdf=true';
+        document.location.href = '/inventory/stock_report/?batch_id='+$scope.batch_id+'&pdf=true';
     }
 }
 

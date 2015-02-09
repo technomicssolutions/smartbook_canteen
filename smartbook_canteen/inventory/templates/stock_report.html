@@ -12,25 +12,7 @@
 {% block content %}
 	<h2>Stock Report </h2>
 	<div class="report_form row">
-		<!-- <div class="control">
-			<table class="table table-striped" ng-show="stocks_report.length > 0">
-				<tr>
-					<th>#</th>
-					<th>Name</th>
-					<th>Batch</th>
-					<th>Stock</th>
-					<th>UOM</th>
-				</tr>
-
-				<tr ng-repeat="stock in visible_list">
-					<td>[[($index)+((current_page-1)*page_interval)+1]]</td>
-					<td>[[stock.item_name]]</td>
-					<td>[[stock.batch_name]]</td>
-					<td>[[stock.stock]]</td>
-					<td>[[stock.stock_unit]]</td>
-				</tr>
-			</table>
-		</div> -->
+		
 		<div class="col-md-8 col-sm-8">
 		<div class="search">
 		<label>Search Batch</label>
@@ -44,13 +26,14 @@
 		<p class="error_msg">[[no_batch_msg]]</p>
 		
 	</div>
+    
 	<table  class="table list_table" ng-show="batch_items.length > 0" >
 		<tr>
 			<th>Item Name</th>
 			<th>Item Code</th>
 			<th>Stock</th>
 			<th>Consumed Quantity</th>
-			<th>Closing Stock</th>
+			<th ng-show = "closed_flag">Closing Stock</th>
 			<th>Purchase Price</th>
 			<th>Selling price</th>
 			
@@ -60,7 +43,7 @@
 			<td>[[batch_item.code]]</td>
 			<td>[[batch_item.stock]]</td>
 			<td>[[batch_item.consumed_quantity]]</td>
-			<td>[[batch_item.closing_stock]]</td>
+			<td ng-show="closed_flag">[[batch_item.closing_stock]]</td>
 			<td>[[batch_item.purchase_price]]</td>
 			<td>[[batch_item.selling_price]]</td>
 			<p class="error_msg">{{msg}}</p>
@@ -68,11 +51,11 @@
 		<tr>
 		</tr>
 		<tr >
-			<td colspan=5><label>Total Purchase Price :</label>[[total_purchase_price]]
+			<td colspan=7><label>Total Purchase Price :</label>[[total_purchase_price]]
 			</td>
 		</tr>
-			<tr>
-			<td colspan=5><label>Total Selling Price :</label>[[total_selling_price]]
+			<tr ng-show ="closed_flag">
+			<td colspan=7 ><label>Total Consumed Quantity Price :</label>[[total_selling_price]]
 			</td>
 		</tr>
 
@@ -80,7 +63,8 @@
 		<div ng-show="stocks_report.length > 0 ">
 			{% include 'pagination_div.html' %}
 		</div>
-		<input type="button" class="create_button" accesskey="p" ng-keypress="generate_pdf()" value="Print" ng-click="generate_pdf(batch_item.batch.id)"/>
+		
+		<input type="button" class="create_button" accesskey="p" ng-keypress="generate_pdf()" value="Print" ng-click="generate_pdf(batch_id)"/>
 	</div>
 
 {% endblock content %}
