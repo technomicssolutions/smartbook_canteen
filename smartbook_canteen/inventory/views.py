@@ -918,4 +918,50 @@ class ClosingStockView(View):
         }
         response = simplejson.dumps(res)
         return HttpResponse(response, status=200, mimetype='application/json')
+
+
+class cash_Entry(View):
+
+    def get(self, request, *args, **kwargs):
+
+        batch_id = request.GET.get('batch_id', '')
+        print batch_id;
+        batch_item_details = []
+        if batch_id:
+            batch = Batch.objects.get(id=batch_id)
+            print batch;
+            batch_items = BatchItem.objects.filter(batch=batch)
+            print batch_items;
+            for batch_item in batch_items:
+
+                batch_item_details.append(batch_item.get_json_data())
+            print batch_item_details;
+
+            if request.is_ajax():
+                res = {
+                    'result': 'ok',
+                    'batch_items': batch_item_details,
+                }
+                response = simplejson.dumps(res)
+                return HttpResponse(response, status=200, mimetype='application/json')
+
+        return render(request, 'cash_entry.html', {})
+
+    def post(self, request, *args, **kwargs):   
+
+        if request.is_ajax():
+            print(request.POST['cash_entry_details'])
+            cash_entries = ast.literal_eval(request.POST['cash_entry_details'])
+            cash_entry = cashEntry()
+            print(cash_entry)
+            cash_entry.set_attributes(cash_entries)
+            res={
+                'result': 'ok',
+                'message': 'ok',
+                'cash_entry': cash_entry.get_json_data()
+            }
+            response = simplejson.dumps(res)
+            return HttpResponse(response, status=200, mimetype='application/json')
+
+
                

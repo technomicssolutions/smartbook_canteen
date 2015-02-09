@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block body_id %}inventory{% endblock %}
+{% block title %} Batches {% endblock title%}
+{% block controller %} ng-controller="CashEntryController" ng-init="init('{{csrf_token}}')"{% endblock controller %}
+{% block horizontal_menu %}
+	<ul>
+		<li> <a href="{% url 'categories' %}"> Categories </a></li>
+		<li> <a href="{% url 'items' %}"> Items </a></li>
+		<li > <a href="{% url 'batches' %}"> Batches </a></li>
+		<li> <a href="{% url 'opening_stock' %}"> Opening Stock </a></li>
+		<li> <a href="{% url 'closing_stock' %}"> Closing Stock </a></li>
+		<li class="horizontal_menu_active"> <a href="{% url 'cash_entry' %}"> Cash Entry </a></li>
+	</ul>
+{% endblock %}
+{% block extrahead %}
+	<script>
+		$(function() {
+		$( "#date" ).datepicker({ dateFormat: "yy-mm-dd" });
+		});
+	</script>
+{% endblock %}
+{% block content %}
+	<h2>Cash Entry</h2>
+	
+	<div class="col-md-8 col-sm-8">
+	<div class="search">
+		<label>Search Batch</label>
+		<input type="text" name="batch_name" ng-model="batch_name" ng-change="get_batch_list()" autocomplete="off" >
+		<div class="search_list" ng-show="batches.length > 0">
+			<div class="search_list_item" ng-repeat="batch in batches track by $index" ng-class="{'highlight': $index == focusIndex}" ng-click="select_batch(batch)">
+				<span>[[batch.name]] </span>
+			</div>
+		</div>
+	</div>
+		<p class="error_msg">[[no_batch_msg]]</p>
+		
+	</div>
+	<div class="control">
+	</div>
+<div class="control" id="cash_entry">
+	<form >
+			<div class="col-md-6 col-sm-6">
+			<!-- <div class="control">
+				<label>Batch Name</label>
+				<input type="text" ng-model="batch.name"/>
+			</div> -->
+			<div class="control">
+				<label>Date</label>
+				<input type="text" id="date"ng-model="cash_entry.date"/>
+			</div>
+			<div class="control">
+				<label>Amount</label>
+				<input type="text" id="amount" ng-model="cash_entry.amount"/>
+			</div>
+			<div >
+				<p class="error_msg">[[validate_cash_entry_error_msg]]</p>
+				<input class="create_button" type="submit" value="Save" ng-click="save_cash_entry()">
+			</div>
+		</div>
+	</form>
+</div>	
+
+
+
+{% endblock content %}
