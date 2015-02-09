@@ -18,7 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import cm
 from dashboard.models import Canteen
-from inventory.models import Item, Batch, BatchItem, Category,StockValue, OpeningStockValue,cashEntry
+from inventory.models import Item, Batch, BatchItem, Category,StockValue, OpeningStockValue
 
 style = [
     ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
@@ -880,7 +880,7 @@ class ClosingStockView(View):
 
     def post(self, request, *args, **kwargs):
 
-        closing_stock = 0
+        consumed_quantity = 0
         print 'hello';
         if request.is_ajax():
             closing_stock_details = ast.literal_eval(request.POST['closing_stock_items'])
@@ -894,10 +894,10 @@ class ClosingStockView(View):
         if closing_stock_details:
             for item_detail in closing_stock_details:                
                 batch_item = BatchItem.objects.get(id=item_detail['id'])
-                batch_item.consumed_quantity = item_detail['consumed_quantity']
                 batch_item.closing_stock = item_detail['closing_stock']
+                batch_item.consumed_quantity = item_detail['consumed_quantity']
                 batch_item.save()
-                if batch_item.closing_stock > 0:
+                if batch_item.consumed_quantity > 0:
 
                     new_batch_item, created = BatchItem.objects.get_or_create(item=batch_item.item, batch=new_batch)
                     new_batch_item.stock = batch_item.closing_stock
@@ -918,11 +918,4 @@ class ClosingStockView(View):
         }
         response = simplejson.dumps(res)
         return HttpResponse(response, status=200, mimetype='application/json')
-
-class cashEntry(View):
-
-    def get(self, request, *args, **kwargs):
-
-        return render(request, 'cash_entry.html', {})
-
                

@@ -2236,15 +2236,15 @@ function ClosingStockController($scope, $http){
                 });            
         }
     }
-    $scope.calculate_closing_stock = function(item){
+    $scope.calculate_consumed_quantity = function(item){
         console.log(item)
         console.log("cal")
-        var closing_stock = 0;
-        if (parseFloat(item.stock) >= parseFloat(item.consumed_quantity)){
-            item.closing_stock = (parseFloat(item.stock) - parseFloat(item.consumed_quantity));
+        var consumed_quantity = 0;
+        if (parseFloat(item.stock) >= parseFloat(item.closing_stock)){
+            item.consumed_quantity = (parseFloat(item.stock) - parseFloat(item.closing_stock));
         }
         else{
-            item.closing_stock = 'Consumed quantity above stock level';
+            item.consumed_quantity = 'Closing Stock above stock level';
         }                  
     }
     $scope.validate_closing_stock = function(){
