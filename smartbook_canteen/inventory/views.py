@@ -564,7 +564,7 @@ class OpeningStockView(View):
                         except:
                             purchase_unit = item_detail['purchase_unit']
                         item = Item.objects.get(id=item_detail['id'])
-                        batch = Batch.objects.get(id=item_detail['batch'])
+                        batch = Batch.objects.get(name=item_detail['batch'])
                         print(purchase_unit);
                         print(item,batch);
                         batch_item, batch_item_created = BatchItem.objects.get_or_create(item=item,batch=batch)

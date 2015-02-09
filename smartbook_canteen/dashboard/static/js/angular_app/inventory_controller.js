@@ -631,7 +631,7 @@ function OpeningStockController($scope, $http){
         {
             'item_name': '',
             'code': '',
-            // 'batch': '',
+            'batch': '',
             'quantity': '',
             'purchase_unit': '',
             'purchase_price': '',
@@ -683,7 +683,7 @@ function OpeningStockController($scope, $http){
             {
                 'item_name': '',
                 'code': '',
-                // 'batch': '',
+                'batch': '',
                 'quantity': '',
             });
         }
@@ -693,7 +693,7 @@ function OpeningStockController($scope, $http){
         {
             'item_name': '',
             'code': '',
-            // 'batch': '',
+            'batch': '',
             'quantity': '',
             'purchase_unit': '',
             'purchase_price': '',
@@ -734,6 +734,7 @@ function OpeningStockController($scope, $http){
         $scope.batches = [];
         $scope.batch_name = batch.name;
         $scope.focusIndex = 0;
+        
         // $scope.get_batch(item);
         // $scope.current_item_details.batch_name = batch.name;
         // $scope.current_item_details.batch = batch.id;
@@ -776,6 +777,7 @@ function OpeningStockController($scope, $http){
                 item.purchase_unit = '';
                 item.purchase_price = 0.00;
                 item.selling_price =0.00;
+
             }
         }).error(function(data, status) {
             console.log('Request failed' || data);
@@ -801,6 +803,7 @@ function OpeningStockController($scope, $http){
         $scope.current_item_details.code = item.code;
         $scope.current_item_details.id = item.id;
         $scope.current_item_details.code=item['item_code']
+
         console.log(item['uom']);
 
         $scope.current_item_details.items = [];
@@ -819,7 +822,7 @@ function OpeningStockController($scope, $http){
                 // item.stock = data.batch_items['stock'];
                 $scope.current_item_details.stock=data.batch_items['stock'];
                 console.log(item.stock);
-                
+                $scope.current_item_details.batch=data.batch_items['batch_id'];
                 // if (data.batch_items.uom.length > 0)
                 //     $scope.current_item_details.uom_exists = true;
                 // else
@@ -829,11 +832,13 @@ function OpeningStockController($scope, $http){
                 $scope.current_item_details.selling_price = data.batch_items.selling_price;
                 $scope.current_item_details.uom = data.batch_items.uom;
             } else {
+                console.log("34344");
                 $scope.current_item_details.stock = 0;
                 $scope.current_item_details.uom_exists = false;
                 $scope.current_item_details.purchase_unit = '';
                 $scope.current_item_details.purchase_price = 0.00;
                 $scope.current_item_details.selling_price =0.00;
+                $scope.current_item_details.batch=$scope.batch;
             }
         }).error(function(data, status) {
             console.log('Request failed' || data);
@@ -911,6 +916,7 @@ function OpeningStockController($scope, $http){
         document.location.href = '/inventory/opening_stock/';
     }
     $scope.save_opening_stock = function(){
+       
         for (var i=0; i<$scope.opening_stock_items.length; i++) {
             if ($scope.opening_stock_items[i].uom_exists == true) {
                 $scope.opening_stock_items[i].uom_exists = 'true';
@@ -926,9 +932,14 @@ function OpeningStockController($scope, $http){
                 $scope.opening_stock_items[i].batch_search = 'true';
             } else {
                 $scope.opening_stock_items[i].batch_search = 'false';
+                $scope.opening_stock_items[i].batch=$scope.batch_name;
             }
         }
         if ($scope.validate_opening_stock()) {
+            
+            $scope.opening_stock_items.batch=$scope.batch_name;
+            console.log($scope.opening_stock_items.batch)
+            console.log($scope.opening_stock_items)
             params = {
                 'opening_stock_items': angular.toJson($scope.opening_stock_items),
                 'csrfmiddlewaretoken': $scope.csrf_token,
