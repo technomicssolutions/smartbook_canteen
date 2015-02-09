@@ -1414,760 +1414,6 @@ function StockReportController($scope, $http) {
     }
 }
 
-function StockAgingReportController($scope, $http) {
-    $scope.batch_id =  '';
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if($scope.batches != undefined && $scope.batches.length > 0 && $scope.focusIndex < $scope.batches.length-1){
-            if($scope.focusIndex < $scope.batches.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.init = function(csrf_token) {
-        $scope.stock_view_visible = false;
-        $scope.csrf_token = csrf_token;
-    }
-    $scope.select_list_item = function(index){
-        if ($scope.batches != undefined && $scope.batches.length > 0) {
-            batch = $scope.batches[index];
-            $scope.select_batch_details(batch)
-        }
-    }
-    $scope.init = function(csrf_token) {
-        $scope.csrf_token = csrf_token;
-    }
-    $scope.get_batches = function() {
-        get_batch_search_details($scope, $http);
-    }
-    $scope.select_batch_details = function(batch) {
-        $scope.batch_id = batch.id;
-        $scope.batch_name = batch.name;
-        $scope.batches = [];
-        $scope.get_stock_report();
-    }
-    $scope.get_stock_report = function() {
-        $scope.validate_error_msg = '';
-        if ($scope.batch_id == '' || $scope.batch_id == undefined || $scope.batch_id.length == 0) {
-            $scope.validate_error_msg = 'Please choose the batch';
-        } else {
-            $http.get('/inventory/stock_aging_report/?batch='+$scope.batch_id).success(function(data) {
-                $scope.item_stock = data.stock;
-                $scope.months = data.months;
-                paginate($scope.item_stock, $scope, 15);
-            });
-        }
-    }  
-    $scope.select_page = function(page){
-        select_page(page, $scope.item_stock, $scope, 15);
-    }
-    $scope.range = function(n) {
-        return new Array(n);
-    }
-}
-
-function CategoryStockReportController($scope, $http){
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if($scope.categories != undefined && $scope.categories.length > 0 && $scope.focusIndex < $scope.categories.length-1){
-            if($scope.focusIndex < $scope.categories.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-    }
-    $scope.get_category_list = function(){
-        $scope.stock_details = []
-        if ($scope.category_name.length>0)
-            search_category($scope, $http, $scope.category_name);
-    }
-    $scope.select_list_item = function(index){
-        if ($scope.categories != undefined && $scope.categories.length > 0) {
-            category = $scope.categories[index];
-            $scope.select_category_details(category);
-        }
-    }
-    $scope.select_category_details = function(category){
-        $scope.categories = [];
-        $scope.category_name = category.name;
-        $scope.category_id = category.id;
-        $scope.get_stock_details('view');
-    }
-    $scope.get_stock_details = function(view_type){
-        $scope.category_error = '';
-        if (view_type == 'view'){
-            $http.get('/inventory/catergory_wise_stock_report/?category_id='+$scope.category_id).success(function(data){
-                $scope.stock_details = data.stock_details;
-                paginate($scope.stock_details, $scope, 15);
-                if ($scope.stock_details.length == 0)
-                    $scope.category_error = 'No Items '
-            });
-        } else {
-            if ($scope.category_id == undefined || $scope.category_id == ''){
-                $scope.category_error = 'Please choose the category';
-            } else {
-                document.location.href = '/inventory/catergory_wise_stock_report/?category_id='+$scope.category_id;
-            }
-        }
-    }
-    $scope.select_page = function(page){
-        select_page(page, $scope.stock_details, $scope, 15);
-    }
-    $scope.range = function(n) {
-        return new Array(n);
-    }
-    $scope.generate_pdf = function(){
-
-    }
-}
-
-function CategoryStockAgingReportController($scope, $http){
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if($scope.categories != undefined && $scope.categories.length > 0 && $scope.focusIndex < $scope.categories.length-1){
-            if($scope.focusIndex < $scope.categories.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-    }
-    $scope.get_category_list = function(){
-        $scope.stock_details = []
-        if ($scope.category_name.length>0)
-            search_category($scope, $http, $scope.category_name);
-    }
-    $scope.select_list_item = function(index){
-        if ($scope.categories != undefined && $scope.categories.length > 0) {
-            category = $scope.categories[index];
-            $scope.select_category_details(category);
-        }
-    }
-    $scope.select_category_details = function(category){
-        $scope.categories = [];
-        $scope.category_name = category.name;
-        $scope.category_id = category.id;
-        $scope.get_stock_details('view');
-    }
-    $scope.get_stock_details = function(view_type){
-        $scope.category_error = '';
-        if (view_type == 'view'){
-            if ($scope.category_id == undefined || $scope.category_id == ''){
-                $scope.category_error = 'Please choose the category';
-            } else {
-                $http.get('/inventory/category_stock_aging_report/?category_id='+$scope.category_id).success(function(data){
-                    $scope.item_stock = data.stock;
-                    $scope.months = data.months;
-                    paginate($scope.item_stock, $scope, 15);
-                    if ($scope.item_stock.length == 0)
-                        $scope.category_error = 'No Items '
-                });
-            }
-        } 
-    }
-    $scope.select_page = function(page){
-        select_page(page, $scope.item_stock, $scope, 15);
-    }
-    $scope.range = function(n) {
-        return new Array(n);
-    }
-}
-
-function CategoryPurchaseReportController($scope, $http){
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if($scope.categories != undefined && $scope.categories.length > 0 && $scope.focusIndex < $scope.categories.length-1){
-            if($scope.focusIndex < $scope.categories.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-    }
-    $scope.get_category_list = function(){
-        $scope.stock_details = []
-        if ($scope.category_name.length>0)
-            search_category($scope, $http, $scope.category_name);
-    }
-    $scope.select_list_item = function(index){
-        if ($scope.categories != undefined && $scope.categories.length > 0) {
-            category = $scope.categories[index];
-            $scope.select_category_details(category);
-        }
-    }
-    $scope.select_category_details = function(category){
-        $scope.categories = [];
-        $scope.category_name = category.name;
-        $scope.category_id = category.id;
-        $scope.get_stock_details('view');
-    }
-    $scope.get_stock_details = function(view_type){
-        $scope.category_error = '';
-        if ($scope.category_id == undefined || $scope.category_id == ''){
-            $scope.category_error = 'Please choose the category';
-        } else {
-            if (view_type == 'view'){
-               $http.get('/inventory/category_purchase_report/?category_id='+$scope.category_id).success(function(data){
-                    $scope.stock_details = data.stock_details;
-                    paginate($scope.stock_details, $scope, 15);
-                    if ($scope.stock_details.length == 0)
-                        $scope.category_error = 'No Items '
-                });
-            } else {
-                document.location.href = '/inventory/category_purchase_report/?category_id='+$scope.category_id;
-            }
-        }
-    }
-    $scope.select_page = function(page){
-        select_page(page, $scope.stock_details, $scope, 15);
-    }
-    $scope.range = function(n) {
-        return new Array(n);
-    }
-}
-function CategoryVendorReportController($scope, $http) {
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if($scope.categories != undefined && $scope.categories.length > 0 && $scope.focusIndex < $scope.categories.length-1){
-            if($scope.focusIndex < $scope.categories.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-    }
-    $scope.get_category_list = function(){
-        $scope.stock_details = []
-        if ($scope.category_name.length>0)
-            search_category($scope, $http, $scope.category_name);
-    }
-    $scope.select_list_item = function(index){
-        if ($scope.categories != undefined && $scope.categories.length > 0) {
-            category = $scope.categories[index];
-            $scope.select_category_details(category);
-        }
-    }
-    $scope.select_category_details = function(category){
-        $scope.categories = [];
-        $scope.category_name = category.name;
-        $scope.category_id = category.id;
-        $scope.get_stock_details('view');
-    }
-    
-    $scope.get_stock_details = function(view_type){
-        $scope.category_error = '';
-        if ($scope.category_id == undefined || $scope.category_id == ''){
-            $scope.category_error = 'Please choose the category';
-        } else {
-            if (view_type == 'view'){
-               $http.get('/inventory/category_vendor_report/?category_id='+$scope.category_id).success(function(data){
-                    $scope.stock_details = data.stock_details;
-                    paginate($scope.stock_details, $scope, 15);
-                    if ($scope.stock_details.length == 0)
-                        $scope.category_error = 'No Items '
-                });
-            } else {
-                document.location.href = '/inventory/category_vendor_report/?category_id='+$scope.category_id;
-            }
-        }
-    }
-    $scope.select_page = function(page){
-        select_page(page, $scope.stock_details, $scope, 15);
-    }
-    $scope.range = function(n) {
-        return new Array(n);
-    }
-}
-
-function AddBulkProductsController($scope, $http) {
-    
-    $scope.products_list = [];
-    $scope.init = function(csrf_token){
-
-        $scope.csrf_token = csrf_token;
-        for (var i=0; i<5; i++){
-            $scope.products_list.push(
-                {
-                    'name': '',
-                    'category_id': ''
-                }   
-            )
-        }
-    }
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if ($scope.current_item_categories != undefined && $scope.current_item_categories.length > 0) {
-            if($scope.focusIndex < $scope.current_item_categories.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.select_list_item = function(index) {
-        if ($scope.current_item_categories != undefined && $scope.current_item_categories.length > 0) {
-            category = $scope.current_item_categories[index];
-            $scope.select_category(category);
-        } 
-    }
-    $scope.get_category_list = function() {
-        $scope.product.category_id = '';
-        if ($scope.category_name.length > 0){
-            search_category($scope, $http, $scope.category_name);
-        }
-    }
-    $scope.select_category = function(category) {
-        $scope.focusIndex = 0;
-        $scope.product.category_id = category.id;
-        $scope.category_name = category.name;
-        $scope.categories = [];
-    }
-    $scope.save_product = function(){
-        save_product($scope, $http);
-    }
-}
-
-function AddMultipleBrandController($scope, $http){
-    
-    $scope.brand_list = [];
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-        for (var i=0; i<5; i++){
-            $scope.brand_list.push(
-                {
-                    'name': '',
-                }   
-            )
-        }
-    }
-    $scope.add_bulk_brands = function(type){
-        if  (type == 'single') {
-            $scope.brand_list.push(
-                {
-                    'name': '',
-                }   
-            )
-        } else {
-            for (var i=0; i<5; i++){
-                $scope.brand_list.push(
-                    {
-                        'name': '',
-                    }   
-                )
-            }
-        }
-    }
-    $scope.validate_multiple_brand = function() {
-        if ($scope.brand_list.length == 0) {
-            $scope.validate_brand_error_msg = "Please add brand";
-            return false;
-        } else {
-            for (var i=0; i<$scope.brand_list.length; i++){
-                if ($scope.brand_list[i].name == '' || $scope.brand_list[i].name == undefined){
-                    $scope.validate_brand_error_msg = "Please enter brand name in row "+(i+1);
-                    return false;
-                } return true
-            }
-        }
-    }
-    $scope.save_brand = function(){
-        if ($scope.validate_multiple_brand()) {
-            params = {
-                'brands': angular.toJson($scope.brand_list),
-                'csrfmiddlewaretoken': $scope.csrf_token,
-            }
-            show_loader();
-            $http({
-                method: 'post',
-                url: '/inventory/add_multiple_brand/',
-                data : $.param(params),
-                headers : {
-                    'Content-Type' : 'application/x-www-form-urlencoded'
-                }
-            }).success(function(data){
-                hide_loader();
-                $scope.validate_brand_error_msg = '';
-                if (data.result == 'error') {
-                    $scope.validate_brand_error_msg = data.message;
-                } else {
-                    document.location.href = '/inventory/brands/';
-                }
-            }).error(function(data, status) {   
-                console.log('Request failed' || data);
-            });
-        }
-    }
-    $scope.remove_brand = function(brand){
-        index = $scope.brand_list.indexOf(brand);
-        $scope.brand_list.splice(index, 1);
-    }
-}
-function AddMultipleProductController($scope, $http){
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if ($scope.current_product.categories != undefined && $scope.current_product.categories.length > 0) {
-            if($scope.focusIndex < $scope.current_product.categories.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.select_list_item = function(index) {
-        if ($scope.current_product.categories != undefined && $scope.current_product.categories.length > 0) {
-            category = $scope.current_product.categories[index];
-            $scope.select_category(category);
-        } 
-    }
-    $scope.current_category = [];
-    $scope.product_list = [];
-
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-        for (var i=0; i<5; i++){
-            $scope.product_list.push(
-                {
-                    'category_id': '',
-                    'category_name': '',
-                    'name' : '',
-                }   
-            )
-        }
-    }
-    $scope.get_category_list = function(product) {
-        $scope.current_product = product;
-        if ($scope.current_product.category_name.length > 0){
-            search_category($scope, $http, $scope.current_product.category_name, 'multiple_product');
-        }
-    }
-    $scope.select_category = function(category) {
-        $scope.focusIndex = 0;
-        $scope.current_product.category_id = category.id;
-        $scope.current_product.category_name = category.name;
-        
-        $scope.current_product.categories = [];
-    }
-    $scope.add_bulk_products = function(type){
-        if  (type == 'single') {
-            $scope.product_list.push(
-                {
-                    'category': [{
-                        'category_id': '',
-                        'category_name': '',
-                    }],
-                    'name' : '',
-                }   
-            )
-        } else {
-            for (var i=0; i<5; i++){
-                $scope.product_list.push(
-                    {
-                        'category': [{
-                            'category_id': '',
-                            'category_name': '',
-                        }],
-                        'name' : '',
-                    }   
-                )
-            }
-        }
-    }
-    $scope.validate_multiple_product = function() {
-        if ($scope.product_list.length == 0) {
-            $scope.validate_product_error_msg = "Please add brand";
-            return false;
-        } else {
-            for (var i=0; i<$scope.product_list.length; i++){
-                if($scope.product_list[i].category_id == '' || $scope.product_list[i].category_id == undefined){
-                    $scope.validate_product_error_msg = "Please enter category in row "+(i+1);
-                    return false;
-                } else if ($scope.product_list[i].name == '' || $scope.product_list[i].name == undefined){
-                    $scope.validate_product_error_msg = "Please enter product name in row "+(i+1);
-                    return false;
-                } return true
-            }
-        }
-    }
-    $scope.save_product = function(){
-        if ($scope.validate_multiple_product()) {
-            params = {
-                'products': angular.toJson($scope.product_list),
-                'csrfmiddlewaretoken': $scope.csrf_token,
-            }
-            show_loader();
-            $http({
-                method: 'post',
-                url: '/inventory/add_multiple_product/',
-                data : $.param(params),
-                headers : {
-                    'Content-Type' : 'application/x-www-form-urlencoded'
-                }
-            }).success(function(data){
-                hide_loader();
-                $scope.validate_product_error_msg = '';
-                if (data.result == 'error') {
-                    $scope.validate_product_error_msg = data.message;
-                } else {
-                    document.location.href = '/inventory/products/';
-                }
-            }).error(function(data, status) {   
-                console.log('Request failed' || data);
-            });
-        }
-    }
-    $scope.remove_product = function(product){
-        index = $scope.product_list.indexOf(product);
-        $scope.product_list.splice(index, 1);
-    }
-}
-function AddMultipleVatController($scope, $http){
-    
-    $scope.vat_list = [];
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-        for (var i=0; i<5; i++){
-            $scope.vat_list.push(
-                {
-                    'vat_type': '',
-                    'tax_percentage': 0,
-                }   
-            )
-        }
-    }
-    $scope.add_bulk_vats = function(type){
-        if  (type == 'single') {
-            $scope.vat_list.push(
-                {
-                    'vat_type': '',
-                    'tax_percentage': 0,
-                }   
-            )
-        } else {
-            for (var i=0; i<5; i++){
-                $scope.vat_list.push(
-                    {
-                        'vat_type': '',
-                        'tax_percentage': 0,
-                    }   
-                )
-            }
-        }
-    }
-    $scope.validate_multiple_vat = function() {
-        if ($scope.vat_list.length == 0) {
-            $scope.validate_vat_error_msg = "Please add vat type";
-            return false;
-        } else {
-            for (var i=0; i<$scope.vat_list.length; i++){
-                if ($scope.vat_list[i].vat_type == '' || $scope.vat_list[i].vat_type == undefined){
-                    $scope.validate_vat_error_msg = "Please enter vat type in row "+(i+1);
-                    return false;
-                } else if($scope.vat_list[i].tax_percentage != 0 && ($scope.vat_list[i].tax_percentage == '' || $scope.vat_list[i].tax_percentage == undefined)){
-                    $scope.validate_vat_error_msg = 'Please enter the percentage';
-                    return false;
-                } else if(isNaN($scope.vat_list[i].tax_percentage)){
-                    $scope.validate_vat_error_msg = 'Please enter valid percentage';
-                    return false;
-                }
-                return true
-            }
-        }
-    }
-    $scope.save_vat = function(){
-        if ($scope.validate_multiple_vat()) {
-            params = {
-                'vats': angular.toJson($scope.vat_list),
-                'csrfmiddlewaretoken': $scope.csrf_token,
-            }
-            show_loader();
-            $http({
-                method: 'post',
-                url: '/inventory/add_multiple_vat/',
-                data : $.param(params),
-                headers : {
-                    'Content-Type' : 'application/x-www-form-urlencoded'
-                }
-            }).success(function(data){
-                hide_loader();
-                $scope.validate_brand_error_msg = '';
-                if (data.result == 'error') {
-                    $scope.validate_brand_error_msg = data.message;
-                } else {
-                    document.location.href = '/inventory/vat/';
-                }
-            }).error(function(data, status) {   
-                console.log('Request failed' || data);
-            });
-        }
-    }
-    $scope.remove_vat = function(vat){
-        index = $scope.vat_list.indexOf(vat);
-        $scope.vat_list.splice(index, 1);
-    }
-}
-
-function CategoryProfitReportController($scope, $http){
-    $scope.focusIndex = 0;
-    $scope.keys = [];
-    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
-    $scope.keys.push({ code: 38, action: function() { 
-        if($scope.focusIndex > 0){
-            $scope.focusIndex--; 
-        }
-    }});
-    $scope.keys.push({ code: 40, action: function() { 
-        if($scope.categories != undefined && $scope.categories.length > 0 && $scope.focusIndex < $scope.categories.length-1){
-            if($scope.focusIndex < $scope.categories.length-1){
-                $scope.focusIndex++; 
-            }
-        } 
-    }});
-    $scope.$on('keydown', function( msg, code ) {
-        $scope.keys.forEach(function(o) {
-          if ( o.code !== code ) { return; }
-          o.action();
-          $scope.$apply();
-        });
-    });
-    $scope.init = function(csrf_token){
-        $scope.csrf_token = csrf_token;
-    }
-    $scope.get_category_list = function(){
-        $scope.category_error = '';
-        $scope.stock_details = []
-        if ($scope.category_name.length>0)
-            search_category($scope, $http, $scope.category_name);
-    }
-    $scope.select_list_item = function(index){
-        if ($scope.categories != undefined && $scope.categories.length > 0) {
-            category = $scope.categories[index];
-            $scope.select_category_details(category);
-        }
-    }
-    $scope.select_category_details = function(category){
-        $scope.categories = [];
-        $scope.category_name = category.name;
-        $scope.category_id = category.id;
-        $scope.no_categories_msg = '';
-        $scope.get_profit_details('view');
-    }
-    $scope.get_profit_details = function(view_type){
-        $scope.category_error = '';
-        if ($scope.category_id == undefined || $scope.category_id == ''){
-            $scope.category_error = 'Please choose the category';
-        } else {
-            if (view_type == 'view'){
-               $http.get('/inventory/category_profit_report/?category_id='+$scope.category_id).success(function(data){
-                    $scope.profit_details = data.profit_details;
-                    paginate($scope.profit_details, $scope, 15);
-                    if ($scope.profit_details.length == 0)
-                        $scope.category_error = 'No Items '
-                });
-            } else {
-                document.location.href = '/inventory/category_profit_report/?category_id='+$scope.category_id;
-            }
-        }
-    }
-}
 function ClosingStockController($scope, $http){ 
     $scope.closing_stock_items = [];
     $scope.batch_items = {
@@ -2305,4 +1551,109 @@ function ClosingStockController($scope, $http){
     $scope.range = function(n) {
         return new Array(n);
     }
+}
+
+
+function CashEntryController($scope, $http){
+    $scope.cash_entry ={
+        'id':'',
+        'date':'',
+        'amount':'',
+        'batch':'',
+    }
+    
+    $scope.current_item_details = [];
+    $scope.focusIndex = 0;
+    $scope.keys = [];
+    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
+    $scope.keys.push({ code: 38, action: function() { 
+        if($scope.focusIndex > 0){
+            $scope.focusIndex--; 
+        }
+    }});
+    $scope.keys.push({ code: 40, action: function() { 
+        if($scope.batches != undefined && $scope.batches.length > 0 && $scope.focusIndex < $scope.batches.length-1){
+            if($scope.focusIndex < $scope.batches.length-1){
+                $scope.focusIndex++; 
+            }
+        } 
+    }});
+    $scope.$on('keydown', function( msg, code ) {
+        $scope.keys.forEach(function(o) {
+          if ( o.code !== code ) { return; }
+          o.action();
+          $scope.$apply();
+        });
+    });
+    $scope.init = function(csrf_token) {
+        $scope.csrf_token = csrf_token;
+    }
+    $scope.hide_popup = function() {
+        hide_popup();
+    }
+    $scope.select_list_item = function(index) {
+        if ($scope.batches != undefined && $scope.batches.length > 0) {
+            batch = $scope.batches[index];
+            $scope.select_batch(batch);
+        } 
+    }
+    $scope.select_batch = function(batch) {
+        $scope.batch = batch.id;
+        $scope.batches = [];
+        $scope.batch_name = batch.name;
+        $scope.focusIndex = 0;
+        $scope.cash_entry.batch=batch.id;
+        //$scope.generate_list();
+    }
+    
+    $scope.get_batch_list = function(){
+        $scope.batch = '';
+        if ($scope.batch_name.length > 0)
+            search_batch($scope, $http);
+    }
+
+    $scope.validate_cash_entry = function(){
+        if ($scope.cash_entry.date == '' || $scope.cash_entry.date == undefined) {
+            $scope.validate_cash_entry_error_msg = 'Please enter the date';
+            return false;
+        }else if($scope.cash_entry.amount == '' || $scope.cash_entry.amount == undefined){
+            $scope.validate_cash_entry_error_msg = 'Please enter the Amount';
+            return false;
+        }
+        return true;
+
+    }
+
+    $scope.save_cash_entry = function(){
+
+        if ($scope.validate_cash_entry()) {
+        console.log($scope.cash_entry)
+        params = {
+            'cash_entry_details': angular.toJson($scope.cash_entry),
+            'csrfmiddlewaretoken': $scope.csrf_token,
+        }
+        $http({
+            method:'post',
+            url: '/inventory/cash_entry/',
+            data : $.param(params),
+            headers : {
+                'Content-Type' : 'application/x-www-form-urlencoded'
+            }
+        }).success(function(data){
+            if (data.result == 'error'){
+                    
+                    $scope.validate_cash_entry_error_msg = data.message;
+                }else{
+                    document.location.href = '/inventory/cash_entry/';
+
+                }
+                hide_loader();    
+                
+            }).error(function(data, status) {   
+                console.log('Request failed' || data);
+            });
+    }
+
+    }
+    
 }

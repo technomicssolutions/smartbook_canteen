@@ -239,9 +239,31 @@ class cashEntry(models.Model):
     
     batch = models.ForeignKey(Batch, null= True, blank=True)
     date = models.DateField('Date', null="True", blank =True)
-    cash = models.DecimalField('Cash', max_digits=20, null=True, blank=True, decimal_places=5)
+    amount = models.DecimalField('Amount', max_digits=20, null=True, blank=True, decimal_places=5)
     def __unicode__(self):
-        return str(self.batch.name)
+        return str(self.id)
     class Meta:
-        verbose_name_plural = 'cash enrty'        
+        verbose_name_plural = 'cash enrty'
+
+    def set_attributes(self, cash_entries):
+        
+        self.date = cash_entries['date']
+        self.amount = cash_entries['amount']
+        batch_obj = Batch.objects.get(id=cash_entries['batch'])
+        self.batch = batch_obj
+        self.save()
+        return self 
+
+    def get_json_data(self):
+         
+        cash_entry_details={
+        'id':self.id,
+        'batch':self.batch.name,
+        'date':self.date,
+        'amount':self.amount,
+        }  
+        return cash_entry_details
+
+
+
 
