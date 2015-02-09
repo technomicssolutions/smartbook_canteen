@@ -4,11 +4,12 @@
 {% block controller %} ng-controller="CategoryTreeController" ng-init="init('{{csrf_token}}')"{% endblock controller %}
 {% block horizontal_menu %}
 	<ul>
-		<li> <a href="{% url 'categories' %}"> Categories </a></li>
-		<li class="horizontal_menu_active"> <a href="{% url 'items' %}"> Items </a></li>
+		<li  class="horizontal_menu_active"> <a href="{% url 'categories' %}"> Categories </a></li>
+		<li> <a href="{% url 'items' %}"> Items </a></li>
 		<li> <a href="{% url 'batches' %}"> Batches </a></li>
 		<li> <a href="{% url 'opening_stock' %}"> Opening Stock </a></li>
 		<li> <a href="{% url 'closing_stock' %}"> Closing Stock </a></li>
+		<li> <a href="{% url 'cash_entry' %}"> Cash Entry </a></li>
 	</ul>
 {% endblock %}
 {% block submenu_container%}

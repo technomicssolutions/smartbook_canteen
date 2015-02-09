@@ -18,7 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import cm
 from dashboard.models import Canteen
-from inventory.models import Item, Batch, BatchItem, Category,StockValue, OpeningStockValue
+from inventory.models import Item, Batch, BatchItem, Category,StockValue, OpeningStockValue,cashEntry
 
 style = [
     ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
@@ -1001,4 +1001,11 @@ class ClosingStockView(View):
         }
         response = simplejson.dumps(res)
         return HttpResponse(response, status=200, mimetype='application/json')
+
+class cashEntry(View):
+
+    def get(self, request, *args, **kwargs):
+
+        return render(request, 'cash_entry.html', {})
+
                
