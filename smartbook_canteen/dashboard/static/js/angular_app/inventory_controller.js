@@ -631,7 +631,7 @@ function OpeningStockController($scope, $http){
         {
             'item_name': '',
             'code': '',
-            'batch': '',
+            // 'batch': '',
             'quantity': '',
             'purchase_unit': '',
             'purchase_price': '',
@@ -683,7 +683,7 @@ function OpeningStockController($scope, $http){
             {
                 'item_name': '',
                 'code': '',
-                'batch': '',
+                // 'batch': '',
                 'quantity': '',
             });
         }
@@ -693,7 +693,7 @@ function OpeningStockController($scope, $http){
         {
             'item_name': '',
             'code': '',
-            'batch': '',
+            // 'batch': '',
             'quantity': '',
             'purchase_unit': '',
             'purchase_price': '',
@@ -710,24 +710,48 @@ function OpeningStockController($scope, $http){
         $scope.category_name = category.name;
         $scope.categories = [];
     }
-    $scope.search_batch = function(item) {
-        item.batch_search = true;
-        item.item_search = false;
-        $scope.current_item_details = item;
-        $scope.batch_name = item.batch_name;
-        get_batch_search_details($scope, $http, 'opening_stock');
-    }
+    // $scope.search_batch = function(item) {
+    //     item.batch_search = true;
+    //     item.item_search = false;
+    //     $scope.current_item_details = item;
+    //     $scope.batch_name = item.batch_name;
+    //     get_batch_search_details($scope, $http, 'opening_stock');
+    // }
+    // $scope.select_batch = function(batch) {
+    //     console.log(batch);
+    //     $scope.focusIndex = 0;
+    //     $scope.current_item_details.batch_name = batch.name;
+    //     $scope.current_item_details.batch = batch.id;
+    //     $scope.current_item_details.stock = batch.quantity_in_purchase_unit;
+    //     if ($scope.current_item_details.id) {
+    //         $scope.get_batch($scope.current_item_details);
+    //     } 
+    //     $scope.current_item_details.batches = [];
+    //     $scope.current_item_details.batch_search = false;
+    // }
     $scope.select_batch = function(batch) {
-        console.log(batch);
+        $scope.batch = batch.id;
+        $scope.batches = [];
+        $scope.batch_name = batch.name;
         $scope.focusIndex = 0;
-        $scope.current_item_details.batch_name = batch.name;
-        $scope.current_item_details.batch = batch.id;
-        $scope.current_item_details.stock = batch.quantity_in_purchase_unit;
-        if ($scope.current_item_details.id) {
-            $scope.get_batch($scope.current_item_details);
-        } 
-        $scope.current_item_details.batches = [];
-        $scope.current_item_details.batch_search = false;
+        // $scope.get_batch(item);
+        // $scope.current_item_details.batch_name = batch.name;
+        // $scope.current_item_details.batch = batch.id;
+        // $scope.current_item_details.stock = batch.quantity_in_purchase_unit;
+        // if ($scope.current_item_details.id) {
+        //     $scope.get_batch($scope.current_item_details);
+        // } 
+        // $scope.current_item_details.batches = [];
+        // $scope.current_item_details.batch_search = false;
+    }
+        
+   
+    
+    $scope.get_batch_list = function(){
+        $scope.batch = '';
+        if ($scope.batch_name.length > 0)
+            search_batch($scope, $http);
+        
     }
     $scope.get_batch = function(item){
         $http.get('/inventory/search_batch_item/?batch_id='+item.batch+'&item_id='+item.id).success(function(data){
@@ -771,6 +795,8 @@ function OpeningStockController($scope, $http){
     }
     $scope.select_item_details = function(item) {
         console.log(item)
+        console.log('byyyy')
+        console.log($scope.batch)
         $scope.current_item_details.name = item.name;
         $scope.current_item_details.code = item.code;
         $scope.current_item_details.id = item.id;
@@ -782,7 +808,37 @@ function OpeningStockController($scope, $http){
             $scope.select_batch($scope.current_item_details.batch);
         }
         $scope.current_item_details.item_search = false;    
-        $scope.current_item_details.batch_search = false;        
+        $scope.current_item_details.batch_search = false;   
+        $http.get('/inventory/search_batch_item/?batch_id='+$scope.batch+'&item_id='+item.id).success(function(data){
+        console.log("haiii")
+        console.log(data.result)
+            if (data.result == 'ok') {
+                console.log(data.batch_items)
+                $scope.batch_items=data.batch_items;
+                console.log($scope.batch_items);
+                // item.stock = data.batch_items['stock'];
+                $scope.current_item_details.stock=data.batch_items['stock'];
+                console.log(item.stock);
+                
+                // if (data.batch_items.uom.length > 0)
+                //     $scope.current_item_details.uom_exists = true;
+                // else
+                //     $scope.current_item_details.uom_exists = false;
+                $scope.current_item_details.purchase_unit = data.batch_items.uom;
+                $scope.current_item_details.purchase_price = data.batch_items.purchase_price;
+                $scope.current_item_details.selling_price = data.batch_items.selling_price;
+                $scope.current_item_details.uom = data.batch_items.uom;
+            } else {
+                $scope.current_item_details.stock = 0;
+                $scope.current_item_details.uom_exists = false;
+                $scope.current_item_details.purchase_unit = '';
+                $scope.current_item_details.purchase_price = 0.00;
+                $scope.current_item_details.selling_price =0.00;
+            }
+        }).error(function(data, status) {
+            console.log('Request failed' || data);
+        });
+             
         hide_popup();
         $scope.items = [];
         $scope.focusIndex = 0;
@@ -828,9 +884,9 @@ function OpeningStockController($scope, $http){
                 if ($scope.opening_stock_items[i].code == '') {
                     $scope.validate_opening_stock_msg = 'Item  cannot be null in row'+ (i+1);
                     return false;
-                } else if ($scope.opening_stock_items[i].batch == '') {
-                    $scope.validate_opening_stock_msg = 'Please choose batch in row '+ (i+1);
-                    return false;
+                // } else if ($scope.opening_stock_items[i].batch == '') {
+                //     $scope.validate_opening_stock_msg = 'Please choose batch in row '+ (i+1);
+                //     return false;
                 } else if ($scope.opening_stock_items[i].quantity == '' || !Number($scope.opening_stock_items[i].quantity ) || $scope.opening_stock_items[i].quantity == 0){
                     $scope.validate_opening_stock_msg = 'Please enter quantity in row '+ (i+1);
                     return false;
@@ -887,6 +943,7 @@ function OpeningStockController($scope, $http){
                 }
             }).success(function(data){
                 hide_loader();
+                console.log(data.result)
                 if (data.result == 'ok') {
                     hide_opening_stock_popup_divs()
                     $scope.transaction_reference_no = data.transaction_reference_no;
@@ -908,15 +965,15 @@ function OpeningStockController($scope, $http){
             item.item_search = true;
         }
     }
-    $scope.hide_batch = function(item){
-        $scope.focusIndex = 0;
-        item.item_search = false;
-        if (item.batch_search == true){
-            item.batch_search = false;
-        } else {
-            item.batch_search = true;
-        }
-    }
+    // $scope.hide_batch = function(){
+    //     $scope.focusIndex = 0;
+    //     $scope.item_search = false;
+    //     if ($scope.batch_search == true){
+    //         $scope.batch_search = false;
+    //     } else {
+    //         $scope.batch_search = true;
+    //     }
+    // }
     $scope.add_new_item = function(item) {
         $scope.current_item_details = item;
         initialize_item($scope);

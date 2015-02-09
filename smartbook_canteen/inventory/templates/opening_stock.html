@@ -23,14 +23,26 @@
 		<li> <a href="{% url 'batches' %}"> Batches </a></li>
 		<li class="horizontal_menu_active"> <a href="{% url 'opening_stock' %}"> Opening Stock </a></li>
 		<li> <a href="{% url 'closing_stock' %}"> Closing Stock </a></li>
-		<li> <a href="{% url 'cash_entry' %}"> Cash Entry </a></li>
+		<!-- <li> <a href=""> Cash Entry </a></li> -->
 	</ul>
 {% endblock %}
 {% block submenu_container%}
 {% endblock submenu_container%}
 {% block content %}
 	<h2> Opening Stock </h2>
-	<div>
+	<div class="col-md-8 col-sm-8">
+	<div class="search">
+		<label>Search Batch</label>
+		<input type="text" name="batch_name" ng-model="batch_name" ng-change="get_batch_list()" autocomplete="off" >
+		<div class="search_list" ng-show="batches.length > 0">
+			<div class="search_list_item" ng-repeat="batch in batches track by $index" ng-class="{'highlight': $index == focusIndex}" ng-click="select_batch(batch)">
+				<span>[[batch.name]] </span>
+			</div>
+		</div>
+	</div>
+		<p class="error_msg">[[no_batch_msg]]</p>
+		
+	</div>
 		<form name="opening_stock">
 			
 			<table class="table list_table table-striped rules" ng-show="opening_stock_items.length > 0">
@@ -38,7 +50,7 @@
 					<th> # </th>
 					<th> Item Name </th>
 					<th> Code </th>
-					<th> Batch </th>
+					<!-- <th> Batch </th> -->
 					<th> Stock </th>
 					<th> Quantity </th>
 					<th> Purchase Price </th>
@@ -64,7 +76,7 @@
 						</div>
 					</td>
 					<td>[[item.code]]</td>
-					<td>
+					<!-- <td>
 						<input type="text" ng-change="search_batch(item)" ng-click="hide_batch(item)" ng-model="item.batch_name">	
 						<div class="search_list_container">
 							<div ng-show="item.batch_search" ng-hide="batch_selected || !batch_search" class="search_list">
@@ -76,7 +88,7 @@
 								</div>
 							</div>
 						</div>
-					</td>
+					</td> -->
 					<td>[[item.stock]]</td>
 					<td><input type="text" ng-model="item.quantity" ng-change="calculate_net_amount(item)"></td>
 					<td>
