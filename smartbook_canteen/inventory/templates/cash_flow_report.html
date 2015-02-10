@@ -32,21 +32,13 @@
 		<tr>
 			<th>Date</th>
 			<th>Amount</th>
-			<!-- <th>Stock</th>
-			<th>Consumed Quantity</th>
-			<th ng-show = "closed_flag">Closing Stock</th>
-			<th>Purchase Price</th>
-			<th>Selling price</th> -->
+			
 			
 		</tr>
 		<tr ng-repeat="cash_entry in cash_entries">
 			<td>[[cash_entry.date]]</td>
 			<td>[[cash_entry.amount]]</td>
-			<!-- <td>[[batch_item.stock]]</td>
-			<td>[[batch_item.consumed_quantity]]</td>
-			<td ng-show="closed_flag">[[batch_item.closing_stock]]</td>
-			<td>[[batch_item.purchase_price]]</td>
-			<td>[[batch_item.selling_price]]</td> -->
+			
 			<p class="error_msg">{{msg}}</p>
 		</tr>
 		<tr>
