@@ -29,10 +29,7 @@ sales_receipt_style = [
 para_style = ParagraphStyle('fancy')
 para_style.fontSize = 14
 para_style.fontName = 'Helvetica'
-# from accounts.models import Ledger, Transaction, LedgerEntry
-# from purchases.models import Purchase, PurchaseItem
-# from sales.models import Sale, SalesItem
-# from suppliers.models import Supplier
+
 
 def get_category_details(request, categories):
     
@@ -279,6 +276,7 @@ class AddCategory(View):
                     return HttpResponse(response, status=200, mimetype='application/json')
             else:
                 try:
+                    print(request.session['canteen'])
                     if category_details['parent_id'] != '': 
                         parent = Category.objects.get(id=category_details['parent_id'])
                         category = Category.objects.get(name=category_details['name'], parent=parent,canteen=request.session['canteen'])
@@ -292,7 +290,7 @@ class AddCategory(View):
                     
                     category = Category()
                     category_details['canteen']=request.session['canteen'];
-                    # print (category_details);
+                    
                     category_obj = category.set_attributes(category_details)
                     res = {
                         'result': 'ok',
@@ -745,7 +743,7 @@ class StockReport(View):
         if batch_id:
             if flag == 'false':
                 print("dsds");
-                batch = Batch.objects.get(id=batch_id)
+                batch = Batch.objects.get(id=batch_id,canteen=request.session['canteen'])
                 print batch;
                 batch_items = BatchItem.objects.filter(batch=batch)
                 print batch_items;
@@ -774,83 +772,161 @@ class StockReport(View):
                 print("oooo");
                 total_purchase_price=0;
                 total_selling_price=0;
-                batch = Batch.objects.get(id=batch_id)
-                print batch;
-                batch_items = BatchItem.objects.filter(batch=batch)
-                print batch_items;
-                for batch_item in batch_items:
-                    batch_item_details.append(batch_item.get_json_data())
-                print batch_item_details;
-                print(request.GET.get('pdf', ''));
-                current_date = datetime.now().strftime('%d-%m-%Y')
-                style = [
-                    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
-                ]
-                response = HttpResponse(content_type='application/pdf')
-                p = SimpleDocTemplate(response, pagesize=A4)
-                elements = []
-                d = [['Stock Report'+' '+str(current_date)]]
-                t = Table(d, colWidths=(450), rowHeights=25, style=style)
-                t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
-                    ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                    ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
-                    ('FONTSIZE', (0,0), (-1,-1), 12),
-                    ])   
-                elements.append(t)
-                data2 = []
-                blank2="";
-                data2.append([blank2])
-                
-                table2 = Table(data2, colWidths=(100), style=style)
-                table2.setStyle([
-                            ('FONTSIZE', (0,0), (-1,-1), 11),
-                            ])   
-                elements.append(table2) 
-                data = []
-                para_style = ParagraphStyle('fancy')
-                para_style.fontSize = 10
-                para_style.fontName = 'Helvetica'
-                data.append(['Item', 'Item code', 'Stock', 'Consumed Quantity', 'Closing Stock','Purchase Price','Selling price'])
-                table = Table(data, colWidths=(80, 80, 50, 110,80,80,80), style=style)
-                table.setStyle([
-                    ('FONTSIZE', (0,0), (-1,0), 11),
-                    ])  
-                elements.append(table)
-                elements.append(Spacer(1,.1*cm ))
-                data = []
-                for batch_item in batch_item_details:
-                    total_purchase_price = float(total_purchase_price) + (float(batch_item['stock'])*float(batch_item['purchase_price']))
-                    total_selling_price = float(total_selling_price) + (float(batch_item['consumed_quantity'])*float(batch_item['selling_price']))
-                    item_name = Paragraph(batch_item['item_name'], para_style)
-                    item_code = Paragraph(batch_item['code'], para_style)
-                    stock = Paragraph(str(batch_item['stock']), para_style)
-                    consumed_quantity = Paragraph(str(batch_item['consumed_quantity']), para_style)
-                    closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
-                    purchase_price = Paragraph(str(batch_item['purchase_price']), para_style)
-                    selling_price = Paragraph(str(batch_item['selling_price']), para_style)
-                    data.append([item_name, item_code,stock,consumed_quantity,closing_stock,purchase_price,selling_price])
-                if len(data) > 0:
+                batch = Batch.objects.get(id=batch_id,canteen=request.session['canteen'])
+                if batch.closed==True:
+                    print batch;
+                    batch_items = BatchItem.objects.filter(batch=batch)
+                    print batch_items;
+                    for batch_item in batch_items:
+                        batch_item_details.append(batch_item.get_json_data())
+                    print batch_item_details;
+                    print(request.GET.get('pdf', ''));
+                    current_date = datetime.now().strftime('%d-%m-%Y')
+                    style = [
+                        ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
+                    ]
+                    response = HttpResponse(content_type='application/pdf')
+                    p = SimpleDocTemplate(response, pagesize=A4)
+                    elements = []
+                    d = [['Stock Report'+' '+str(current_date)]]
+                    t = Table(d, colWidths=(450), rowHeights=25, style=style)
+                    t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+                        ('FONTSIZE', (0,0), (-1,-1), 12),
+                        ])   
+                    elements.append(t)
+                    data2 = []
+                    blank2="";
+                    data2.append([blank2])
+                    
+                    table2 = Table(data2, colWidths=(100), style=style)
+                    table2.setStyle([
+                                ('FONTSIZE', (0,0), (-1,-1), 11),
+                                ])   
+                    elements.append(table2) 
+                    data = []
+                    para_style = ParagraphStyle('fancy')
+                    para_style.fontSize = 10
+                    para_style.fontName = 'Helvetica'
+                    data.append(['Item', 'Item code', 'Stock', 'Consumed Quantity', 'Closing Stock','Purchase Price','Selling price'])
                     table = Table(data, colWidths=(80, 80, 50, 110,80,80,80), style=style)
+                    table.setStyle([
+                        ('FONTSIZE', (0,0), (-1,0), 11),
+                        ])  
                     elements.append(table)
-                data0 = []
-                blank="";
-                data0.append([blank])
-                data0.append([blank])
-                table0 = Table(data0, colWidths=(100), style=style)
-                table0.setStyle([
-                            ('FONTSIZE', (0,0), (-1,-1), 11),
-                            ])   
-                elements.append(table0)   
-                data1 = []
-                data1.append(['Total Stock Purchase Price :', total_purchase_price])
-                data1.append(['Total Quantity Selling Price :', total_selling_price])
-                table1 = Table(data1, colWidths=(200, 110), style=style)
-                table1.setStyle([
-                            ('FONTSIZE', (0,0), (-1,-1), 11),
-                            ])   
-                elements.append(table1)    
-                p.build(elements)  
-                return response     
+                    elements.append(Spacer(1,.1*cm ))
+                    data = []
+                    for batch_item in batch_item_details:
+                        total_purchase_price = float(total_purchase_price) + (float(batch_item['stock'])*float(batch_item['purchase_price']))
+                        total_selling_price = float(total_selling_price) + (float(batch_item['consumed_quantity'])*float(batch_item['selling_price']))
+                        item_name = Paragraph(batch_item['item_name'], para_style)
+                        item_code = Paragraph(batch_item['code'], para_style)
+                        stock = Paragraph(str(batch_item['stock']), para_style)
+                        consumed_quantity = Paragraph(str(batch_item['consumed_quantity']), para_style)
+                        closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
+                        purchase_price = Paragraph(str(batch_item['purchase_price']), para_style)
+                        selling_price = Paragraph(str(batch_item['selling_price']), para_style)
+                        data.append([item_name, item_code,stock,consumed_quantity,closing_stock,purchase_price,selling_price])
+                    if len(data) > 0:
+                        table = Table(data, colWidths=(80, 80, 50, 110,80,80,80), style=style)
+                        elements.append(table)
+                    data0 = []
+                    blank="";
+                    data0.append([blank])
+                    data0.append([blank])
+                    table0 = Table(data0, colWidths=(100), style=style)
+                    table0.setStyle([
+                                ('FONTSIZE', (0,0), (-1,-1), 11),
+                                ])   
+                    elements.append(table0)   
+                    data1 = []
+                    data1.append(['Total Stock Purchase Price :', total_purchase_price])
+                    data1.append(['Total Consumed Quantity Price :', total_selling_price])
+                    table1 = Table(data1, colWidths=(200, 110), style=style)
+                    table1.setStyle([
+                                ('FONTSIZE', (0,0), (-1,-1), 11),
+                                ])   
+                    elements.append(table1)    
+                    p.build(elements)  
+                    return response 
+                else:
+                    print batch;
+                    batch_items = BatchItem.objects.filter(batch=batch)
+                    print batch_items;
+                    for batch_item in batch_items:
+                        batch_item_details.append(batch_item.get_json_data())
+                    print batch_item_details;
+                    print(request.GET.get('pdf', ''));
+                    current_date = datetime.now().strftime('%d-%m-%Y')
+                    style = [
+                        ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
+                    ]
+                    response = HttpResponse(content_type='application/pdf')
+                    p = SimpleDocTemplate(response, pagesize=A4)
+                    elements = []
+                    d = [['Stock Report'+' '+str(current_date)]]
+                    t = Table(d, colWidths=(450), rowHeights=25, style=style)
+                    t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+                        ('FONTSIZE', (0,0), (-1,-1), 12),
+                        ])   
+                    elements.append(t)
+                    data2 = []
+                    blank2="";
+                    data2.append([blank2])
+                    
+                    table2 = Table(data2, colWidths=(100), style=style)
+                    table2.setStyle([
+                                ('FONTSIZE', (0,0), (-1,-1), 11),
+                                ])   
+                    elements.append(table2) 
+                    data = []
+                    para_style = ParagraphStyle('fancy')
+                    para_style.fontSize = 10
+                    para_style.fontName = 'Helvetica'
+                    data.append(['Item', 'Item code', 'Stock', 'Consumed Quantity','Purchase Price','Selling price'])
+                    table = Table(data, colWidths=(80, 80, 50, 110,80,80), style=style)
+                    table.setStyle([
+                        ('FONTSIZE', (0,0), (-1,0), 11),
+                        ])  
+                    elements.append(table)
+                    elements.append(Spacer(1,.1*cm ))
+                    data = []
+                    for batch_item in batch_item_details:
+                        total_purchase_price = float(total_purchase_price) + (float(batch_item['stock'])*float(batch_item['purchase_price']))
+                        total_selling_price = float(total_selling_price) + (float(batch_item['consumed_quantity'])*float(batch_item['selling_price']))
+                        item_name = Paragraph(batch_item['item_name'], para_style)
+                        item_code = Paragraph(batch_item['code'], para_style)
+                        stock = Paragraph(str(batch_item['stock']), para_style)
+                        consumed_quantity = Paragraph(str(batch_item['consumed_quantity']), para_style)
+                        # closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
+                        purchase_price = Paragraph(str(batch_item['purchase_price']), para_style)
+                        selling_price = Paragraph(str(batch_item['selling_price']), para_style)
+                        data.append([item_name, item_code,stock,consumed_quantity,purchase_price,selling_price])
+                    if len(data) > 0:
+                        table = Table(data, colWidths=(80, 80, 50, 110,80,80), style=style)
+                        elements.append(table)
+                    data0 = []
+                    blank="";
+                    data0.append([blank])
+                    data0.append([blank])
+                    table0 = Table(data0, colWidths=(100), style=style)
+                    table0.setStyle([
+                                ('FONTSIZE', (0,0), (-1,-1), 11),
+                                ])   
+                    elements.append(table0)   
+                    data1 = []
+                    data1.append(['Total Stock Purchase Price :', total_purchase_price])
+                    data1.append(['Total Consumed Quantity Price :', total_selling_price])
+                    table1 = Table(data1, colWidths=(200, 110), style=style)
+                    table1.setStyle([
+                                ('FONTSIZE', (0,0), (-1,-1), 11),
+                                ])   
+                    elements.append(table1)    
+                    p.build(elements)  
+                    return response        
         return render(request, 'stock_report.html', {})
 
 class ClosingStockView(View):
@@ -863,7 +939,7 @@ class ClosingStockView(View):
         cash_entry_details = []
         total_amount_recieved=0
         if batch_id:
-            batch = Batch.objects.get(id=batch_id)
+            batch = Batch.objects.get(id=batch_id,canteen=request.session['canteen'])
             print batch;
             batch_items = BatchItem.objects.filter(batch=batch)
             print batch_items;
@@ -943,7 +1019,7 @@ class cash_Entry(View):
         print batch_id;
         batch_item_details = []
         if batch_id:
-            batch = Batch.objects.get(id=batch_id)
+            batch = Batch.objects.get(id=batch_id,canteen=request.session['canteen'])
             print batch;
             batch_items = BatchItem.objects.filter(batch=batch)
             print batch_items;
@@ -991,7 +1067,7 @@ class CashFlowReport(View):
         if batch_id:
             if flag == 'false':
                 print("dsds");
-                batch = Batch.objects.get(id=batch_id)
+                batch = Batch.objects.get(id=batch_id,canteen=request.session['canteen'])
                 print batch.closed;
                 batch_items = BatchItem.objects.filter(batch=batch)
                 cash_entries = cashEntry.objects.filter(batch=batch)
@@ -1032,7 +1108,7 @@ class CashFlowReport(View):
                 total_cash_to_be_collected=0
                 total_selling_price=0;
                 batch_item_details=[]
-                batch = Batch.objects.get(id=batch_id)
+                batch = Batch.objects.get(id=batch_id,canteen=request.session['canteen'])
                 print batch;
                 batch_items = BatchItem.objects.filter(batch=batch)
                 print batch_items;
