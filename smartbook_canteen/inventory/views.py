@@ -18,7 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.lib.units import cm
 from dashboard.models import Canteen
-from inventory.models import Item, Batch, BatchItem, Category,StockValue, OpeningStockValue
+from inventory.models import Item, Batch, BatchItem, Category,StockValue, OpeningStockValue,cashEntry
 
 style = [
     ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
@@ -758,6 +758,7 @@ class StockReport(View):
                     total_selling_price = float(total_selling_price) + (float(batch_total['consumed_quantity'])*float(batch_total['selling_price']))
                 print 'jingaaaa';
                 print total_purchase_price;
+                print total_selling_price;
                 if request.is_ajax():
                     res = {
                         'result': 'ok',
@@ -857,8 +858,10 @@ class ClosingStockView(View):
     def get(self, request, *args, **kwargs):
 
         batch_id = request.GET.get('batch_id', '')
-        print batch_id;
+        print ("nnnnnn");
         batch_item_details = []
+        cash_entry_details = []
+        total_amount_recieved=0
         if batch_id:
             batch = Batch.objects.get(id=batch_id)
             print batch;
@@ -869,10 +872,22 @@ class ClosingStockView(View):
                 batch_item_details.append(batch_item.get_json_data())
             print batch_item_details;
 
+            cash_entries = cashEntry.objects.filter(batch=batch)
+            print(cash_entries)
+            for cash_entry in cash_entries:
+                print ("ZZZZZ");
+                print(cash_entry.amount)
+                total_amount_recieved=float(total_amount_recieved)+float(cash_entry.amount)
+                cash_entry_details.append(cash_entry.get_json_data())
+
+            print cash_entry_details;
+            print total_amount_recieved;
+            # print cash_entry;
             if request.is_ajax():
                 res = {
                     'result': 'ok',
                     'batch_items': batch_item_details,
+                    'total_amount_recieved':total_amount_recieved,
                 }
                 response = simplejson.dumps(res)
                 return HttpResponse(response, status=200, mimetype='application/json')
@@ -958,10 +973,164 @@ class cash_Entry(View):
             res={
                 'result': 'ok',
                 'message': 'ok',
-                'cash_entry': cash_entry.get_json_data()
+                # 'cash_entry': cash_entry.get_json_data()
             }
             response = simplejson.dumps(res)
             return HttpResponse(response, status=200, mimetype='application/json')
+
+class CashFlowReport(View):
+
+    def get(self, request, *args, **kwargs):
+        batch_id = request.GET.get('batch_id', '')
+        flag = request.GET.get('pdf', '')
+        print batch_id;
+        print flag;
+        total_amount_recieved=0;
+        total_selling_price=0;
+        cash_entry_details = []
+        if batch_id:
+            if flag == 'false':
+                print("dsds");
+                batch = Batch.objects.get(id=batch_id)
+                print batch.closed;
+                batch_items = BatchItem.objects.filter(batch=batch)
+                cash_entries = cashEntry.objects.filter(batch=batch)
+                print cash_entries;
+                for cash_entry in cash_entries:
+                    print cash_entry
+                    cash_entry_details.append(cash_entry.get_json_data())
+                    total_amount_recieved = float(total_amount_recieved)+float(cash_entry.amount)
+
+                print cash_entry_details;
+                print total_amount_recieved
+                if  batch.closed == True:
+                    for batch_item in batch_items:
+                        total_selling_price = float(total_selling_price) + (float(batch_item.consumed_quantity)*float(batch_item.selling_price))
+                # for batch_total in cash_entry_details:
+                #     total_purchase_price = float(total_purchase_price) + (float(batch_total['stock'])*float(batch_total['purchase_price']))
+                #     total_selling_price = float(total_selling_price) + (float(batch_total['consumed_quantity'])*float(batch_total['selling_price']))
+                # print 'jingaaaa';
+                # print total_purchase_price;
+                else :
+                    total_selling_price = 0
+                print total_selling_price;
+                if request.is_ajax():
+                    res = {
+                        'result': 'ok',
+                        'cash_entries': cash_entry_details,
+                        'total_amount_recieved':total_amount_recieved,
+                        # 'total_purchase_price':total_purchase_price,
+                        'total_selling_price':total_selling_price,
+                    }
+                    response = simplejson.dumps(res)
+                    return HttpResponse(response, status=200, mimetype='application/json')
+            if flag == 'true':        
+
+        
+                print("oooo");
+                total_amount_recieved=0;
+                total_cash_to_be_collected=0
+                total_selling_price=0;
+                batch_item_details=[]
+                batch = Batch.objects.get(id=batch_id)
+                print batch;
+                batch_items = BatchItem.objects.filter(batch=batch)
+                print batch_items;
+                for batch_item in batch_items:
+                    batch_item_details.append(batch_item.get_json_data())
+                    if batch.closed==True:
+                        total_selling_price = float(total_selling_price) + (float(batch_item.consumed_quantity)*float(batch_item.selling_price))
+                    else :
+                        total_selling_price=0;
+                print batch_item_details;
+                cash_entries = cashEntry.objects.filter(batch=batch)
+                print cash_entries;
+                for cash_entry in cash_entries:
+                    print cash_entry
+                    cash_entry_details.append(cash_entry.get_json_data())
+                    print batch.closed
+                    total_amount_recieved = float(total_amount_recieved)+float(cash_entry.amount)
+
+                print cash_entry_details;
+                print total_amount_recieved
+                print(request.GET.get('pdf', ''));
+                current_date = datetime.now().strftime('%d-%m-%Y')
+                style = [
+                    ('FONTNAME',(0,0),(-1,-1),'Helvetica') 
+                ]
+                response = HttpResponse(content_type='application/pdf')
+                p = SimpleDocTemplate(response, pagesize=A4)
+                elements = []
+                d = [['Cash Flow Report'+' '+str(current_date)]]
+                t = Table(d, colWidths=(450), rowHeights=25, style=style)
+                t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
+                    ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                    ('VALIGN',(0,0),(-1,-1),'MIDDLE'),
+                    ('FONTSIZE', (0,0), (-1,-1), 12),
+                    ])   
+                elements.append(t)
+                data2 = []
+                blank2="";
+                data2.append([blank2])
+                
+                table2 = Table(data2, colWidths=(100), style=style)
+                table2.setStyle([
+                            ('FONTSIZE', (0,0), (-1,-1), 11),
+                            ])   
+                elements.append(table2) 
+                data = []
+                para_style = ParagraphStyle('fancy')
+                para_style.fontSize = 10
+                para_style.fontName = 'Helvetica'
+                data.append(['Date', 'Amount'])
+                table = Table(data, colWidths=(150,150), style=style)
+                table.setStyle([
+                    ('FONTSIZE', (0,0), (-1,0), 11),
+                    ])  
+                elements.append(table)
+                elements.append(Spacer(1,.1*cm ))
+                data = []
+                for cash_entry in cash_entry_details:
+                    # total_purchase_price = float(total_purchase_price) + (float(batch_item['stock'])*float(batch_item['purchase_price']))
+                    # total_selling_price = float(total_selling_price) + (float(batch_item['consumed_quantity'])*float(batch_item['selling_price']))
+                    date = Paragraph(cash_entry['date'], para_style)
+                    amount = Paragraph(str(cash_entry['amount']), para_style)
+                    # stock = Paragraph(str(batch_item['stock']), para_style)
+                    # consumed_quantity = Paragraph(str(batch_item['consumed_quantity']), para_style)
+                    # closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
+                    # purchase_price = Paragraph(str(batch_item['purchase_price']), para_style)
+                    # selling_price = Paragraph(str(batch_item['selling_price']), para_style)
+                    data.append([date, amount])
+                if len(data) > 0:
+                    table = Table(data, colWidths=(150,150), style=style)
+                    elements.append(table)
+                data0 = []
+                blank="";
+                data0.append([blank])
+                data0.append([blank])
+                table0 = Table(data0, colWidths=(100), style=style)
+                table0.setStyle([
+                            ('FONTSIZE', (0,0), (-1,-1), 11),
+                            ])   
+                elements.append(table0)
+                if total_selling_price != 0:
+                    total_cash_to_be_collected = total_selling_price - total_amount_recieved
+                else :
+                    total_cash_to_be_collected =0
+                data1 = []
+                data1.append(['Total Amount Recieved :', total_amount_recieved])
+                data1.append(['Total Consumed Quantity Price :', total_selling_price])
+                data1.append(['Total Cash To Be Collected :',total_cash_to_be_collected])
+                table1 = Table(data1, colWidths=(200, 110), style=style)
+                table1.setStyle([
+                            ('FONTSIZE', (0,0), (-1,-1), 11),
+                            ])   
+                elements.append(table1)    
+                p.build(elements)  
+                return response     
+        return render(request, 'cash_flow_report.html', {})
+
+
 
 
                

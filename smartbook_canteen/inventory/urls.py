@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 
 from inventory.views import SearchBatch, SearchBatchItem, BatchList, AddBatch, DeleteBatch, Categories, AddCategory, \
 	ItemList, AddItem, DeleteItem, SearchItem,SearchBatchForReport,\
-	OpeningStockView, BatchItemDetailsView, DeleteCategory,ItemUom,cash_Entry,\
+	OpeningStockView, BatchItemDetailsView, DeleteCategory,ItemUom,cash_Entry,CashFlowReport,\
 	EditBatch, CategorySubcategoryList, SearchItemStock, BatchItemsView, IsCategoryNameExists, StockReport, \
 	ClosingStockView
 
@@ -40,5 +40,6 @@ urlpatterns = patterns('',
 	url(r'^closing_stock/$', login_required(ClosingStockView.as_view(), login_url='/login/'), name='closing_stock'),
 
     url(r'^cash_entry/$', login_required(cash_Entry.as_view(), login_url='/login/'), name='cash_entry'),
+    url(r'^cash_flow_report/$', login_required(CashFlowReport.as_view(), login_url='/login/'), name='cash_flow_report'),
 
 )

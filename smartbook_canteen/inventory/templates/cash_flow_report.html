@@ -1,17 +1,17 @@
 {% extends 'base.html' %}
 {% block body_id %}reports{% endblock %}
 {% block title %} Stock Report {% endblock title%}
-{% block controller %} ng-controller="StockReportController" ng-init="init('{{csrf_token}}')"{% endblock controller %}
+{% block controller %} ng-controller="CashFlowReportController" ng-init="init('{{csrf_token}}')"{% endblock controller %}
 {% block horizontal_menu %}
 	<ul>
 	
-		<li class="horizontal_menu_active"><a href="{% url 'stock_report' %}"> Stock Report </a></li>
-		<li ><a href="{% url 'cash_flow_report' %}"> Cash Flow Report </a></li>
+		<li ><a href="{% url 'stock_report' %}"> Stock Report </a></li>
+		<li class="horizontal_menu_active"><a href="{% url 'cash_flow_report' %}"> Cash Flow Report </a></li>
 	</ul>
 {% endblock horizontal_menu %}
 
 {% block content %}
-	<h2>Stock Report </h2>
+	<h2>Cash Flow Report </h2>
 	<div class="report_form row">
 		
 		<div class="col-md-8 col-sm-8">
@@ -28,35 +28,39 @@
 		
 	</div>
     
-	<table  class="table list_table" ng-show="batch_items.length > 0" >
+	<table  class="table list_table" ng-show="cash_entries.length > 0" >
 		<tr>
-			<th>Item Name</th>
-			<th>Item Code</th>
-			<th>Stock</th>
+			<th>Date</th>
+			<th>Amount</th>
+			<!-- <th>Stock</th>
 			<th>Consumed Quantity</th>
 			<th ng-show = "closed_flag">Closing Stock</th>
 			<th>Purchase Price</th>
-			<th>Selling price</th>
+			<th>Selling price</th> -->
 			
 		</tr>
-		<tr ng-repeat="batch_item in batch_items">
-			<td>[[batch_item.item_name]]</td>
-			<td>[[batch_item.code]]</td>
-			<td>[[batch_item.stock]]</td>
+		<tr ng-repeat="cash_entry in cash_entries">
+			<td>[[cash_entry.date]]</td>
+			<td>[[cash_entry.amount]]</td>
+			<!-- <td>[[batch_item.stock]]</td>
 			<td>[[batch_item.consumed_quantity]]</td>
 			<td ng-show="closed_flag">[[batch_item.closing_stock]]</td>
 			<td>[[batch_item.purchase_price]]</td>
-			<td>[[batch_item.selling_price]]</td>
+			<td>[[batch_item.selling_price]]</td> -->
 			<p class="error_msg">{{msg}}</p>
 		</tr>
 		<tr>
 		</tr>
 		<tr >
-			<td colspan=7><label>Total Purchase Price :</label>[[total_purchase_price]]
+			<td colspan=7><label>Total Amount Recieved :</label>[[total_amount_recieved]]
 			</td>
 		</tr>
-			<tr ng-show ="closed_flag">
+			<tr>
 			<td colspan=7 ><label>Total Consumed Quantity Price :</label>[[total_selling_price]]
+			</td>
+		</tr>
+		<tr>
+			<td colspan=7 ><label>Total Cash to be Collected :</label>[[total_cash_to_be_collected]]
 			</td>
 		</tr>
 

@@ -1397,6 +1397,7 @@ function StockReportController($scope, $http) {
         } 
     }
     $scope.select_batch = function(batch) {
+        $scope.closed_flag=batch.closed_flag
         $scope.batch = batch.id;
         $scope.batches = [];
         $scope.batch_name = batch.name;
@@ -1432,6 +1433,7 @@ function StockReportController($scope, $http) {
                     $scope.total_purchase_price = data.total_purchase_price;
                     $scope.total_selling_price = data.total_selling_price;
                     console.log($scope.total_purchase_price);
+                    console.log($scope.total_selling_price);
                     if ($scope.batch_items.length == 0)
                         $scope.no_batch_msg = 'No items';
                     // else if($scope.total_purchase_price.length==0)
@@ -1677,7 +1679,7 @@ function CashEntryController($scope, $http){
     $scope.get_batch_list = function(){
         $scope.batch = '';
         if ($scope.batch_name.length > 0)
-            search_batch($scope, $http);
+            search_batch_for_report($scope, $http);
     }
 
     $scope.validate_cash_entry = function(){
@@ -1724,4 +1726,127 @@ function CashEntryController($scope, $http){
 
     }
     
+}
+
+function CashFlowReportController($scope,$http){
+
+    $scope.init = function(csrf_token){
+        $scope.csrf_token = csrf_token;
+        $http.get('/inventory/cash_flow_report/?ajax=true').success(function(data){
+            $scope.cash_flow_report = data.cash_entries;
+            //paginate($scope.stocks_report, $scope, 15);
+        }).error(function(data, status){
+            console.log('Request failed');
+        });
+    }
+
+    $scope.current_item_details = [];
+    $scope.focusIndex = 0;
+    $scope.keys = [];
+    $scope.keys.push({ code: 13, action: function() { $scope.select_list_item( $scope.focusIndex ); }});
+    $scope.keys.push({ code: 38, action: function() { 
+        if($scope.focusIndex > 0){
+            $scope.focusIndex--; 
+        }
+    }});
+    $scope.keys.push({ code: 40, action: function() { 
+        if($scope.batches != undefined && $scope.batches.length > 0 && $scope.focusIndex < $scope.batches.length-1){
+            if($scope.focusIndex < $scope.batches.length-1){
+                $scope.focusIndex++; 
+            }
+        } 
+    }});
+    $scope.$on('keydown', function( msg, code ) {
+        $scope.keys.forEach(function(o) {
+          if ( o.code !== code ) { return; }
+          o.action();
+          $scope.$apply();
+        });
+    });
+    
+    $scope.hide_popup = function() {
+        hide_popup();
+    }
+    $scope.select_list_item = function(index) {
+        if ($scope.batches != undefined && $scope.batches.length > 0) {
+            batch = $scope.batches[index];
+            $scope.select_batch(batch);
+        } 
+    }
+    $scope.select_batch = function(batch) {
+        $scope.closed_flag=batch.closed_flag
+        $scope.batch = batch.id;
+        $scope.batches = [];
+        $scope.batch_name = batch.name;
+        $scope.focusIndex = 0;
+        $scope.generate_list();
+    }
+    // $scope.get_batch_list = function() {
+    //     get_batch_search_details($scope, $http);
+    // }
+    $scope.get_batch_list = function(){
+        $scope.batch = '';
+        if ($scope.batch_name.length > 0)
+            search_batch_for_report($scope, $http);
+    }
+    // $scope.calculate_purchase_price = function(batch_item){
+    //     $scope.total_purchase_price = 0;
+    //     batch_item.total_purchase_price = (parseFloat(batch_item.stock)*parseFloat(batch_item.purchase_price))
+    // }
+    
+    $scope.generate_list = function(){
+        $scope.no_batch_msg = '';
+        console.log ($scope.batch_name);
+        
+
+        if ($scope.batch_name == '' || $scope.batch_name == undefined) {
+            $scope.no_batch_msg = 'Please Choose batch';
+
+        } else {
+            // if (type_name == 'view') { 
+                show_loader();
+                $http.get('/inventory/cash_flow_report/?batch_id='+$scope.batch+'&pdf=false').success(function(data){
+                    $scope.cash_entries = data.cash_entries;
+                    $scope.total_amount_recieved = data.total_amount_recieved;
+                    $scope.total_selling_price = data.total_selling_price;
+                    if ($scope.total_selling_price != 0){
+                        $scope.total_cash_to_be_collected = $scope.total_selling_price - $scope.total_amount_recieved; 
+                    }
+                    else {
+                        $scope.total_cash_to_be_collected=0
+                    }
+                    console.log($scope.cash_entries);
+                    
+                    if ($scope.cash_entries.length == 0)
+                        $scope.no_batch_msg = 'No Cash entries for this Batch';
+                    // else if($scope.total_purchase_price.length==0)
+                    //     $scope.no_batch_msg = 'No items';
+
+                    else {
+                        
+                        paginate($scope.cash_entries,$scope, 15);
+                        console.log("ololol");
+                        
+                        
+                        
+                    }
+                    hide_loader();
+                }).error(function(data, status){
+                    console.log(data);
+                });
+            // } else
+            //     document.location.href = '/inventory/closing_stock/?batch_id='+$scope.batch;
+        }
+    }
+    $scope.select_page = function(page){
+        select_page(page, $scope.stocks_report, $scope, 15);
+    }
+    $scope.range = function(n) {
+        return new Array(n);
+    }
+    $scope.generate_pdf = function(){
+        console.log("pdf")
+        document.location.href = '/inventory/cash_flow_report/?batch_id='+$scope.batch+'&pdf=true';
+    }
+
 }

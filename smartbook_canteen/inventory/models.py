@@ -259,7 +259,7 @@ class cashEntry(models.Model):
         cash_entry_details={
         'id':self.id,
         'batch':self.batch.name,
-        'date':self.date,
+        'date':self.date.strftime('%d/%m/%Y'),
         'amount':self.amount,
         }  
         return cash_entry_details
