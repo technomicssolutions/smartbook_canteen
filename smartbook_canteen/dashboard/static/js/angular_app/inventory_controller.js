@@ -359,7 +359,8 @@ function initialize_item($scope){
 
 }
 function save_item($scope, $http, from){
-    
+    console.log("fdgdfg")
+    console.log($scope.batch)
     $scope.item.category = $scope.category_name;
     console.log($scope.item.category);
     if ($scope.item.description == null) {
@@ -380,6 +381,8 @@ function save_item($scope, $http, from){
             }
         }).success(function(data){
             if (data.result == 'ok') {
+                console.log("pppp")
+                console.log($scope.batch)
                 $scope.no_item_msg = '';
                 if (from == 'purchase') {
 
@@ -387,6 +390,7 @@ function save_item($scope, $http, from){
                     $scope.current_purchase_item.id = data.item.id;
                     $scope.current_purchase_item.code = data.item.code;
                     $scope.current_purchase_item.tax = data.item.tax;
+                    $scope.current_purchase_item.uom = data.item.uom;
                     hide_popup();
                     $scope.get_batch($scope.current_purchase_item);
                     //get_item_uoms($scope, $http);
@@ -395,7 +399,12 @@ function save_item($scope, $http, from){
                     $scope.current_item_details.name = data.item.name;
                     $scope.current_item_details.id = data.item.id;
                     $scope.current_item_details.code = data.item.item_code;
+                    // $scope.current_item_details.uom = data.item.uom;
+                    // $scope.current_item_details.stock = 0
+                    // $scope.current_item_details.purchase_price = 0
+                    // $scope.current_item_details.selling_price = 0
                     $scope.get_batch($scope.current_item_details);
+
                     //get_item_uoms($scope, $http);
                     hide_popup();
                 
@@ -733,7 +742,8 @@ function OpeningStockController($scope, $http){
         $scope.batches = [];
         $scope.batch_name = batch.name;
         $scope.focusIndex = 0;
-        
+        console.log("bbbbb")
+        console.log($scope.batch)
         // $scope.get_batch(item);
         // $scope.current_item_details.batch_name = batch.name;
         // $scope.current_item_details.batch = batch.id;
@@ -752,12 +762,15 @@ function OpeningStockController($scope, $http){
         
     }
     $scope.get_batch = function(item){
-        $http.get('/inventory/search_batch_item/?batch_id='+item.batch+'&item_id='+item.id).success(function(data){
+        console.log("aaaa")
+        $http.get('/inventory/search_batch_item/?batch_id='+$scope.batch+'&item_id='+item.id).success(function(data){
             if (data.result == 'ok') {
                 console.log(data.batch_items)
+
                 $scope.batch_items=data.batch_items;
-                console.log($scope.batch_items['code']);
-                item.stock = data.batch_items['stock'];
+                $scope.batch_id=data.batch_items['id']
+                console.log($scope.batch_items.code);
+                item.stock = data.batch_items.stock;
                 console.log(item.stock);
                 console.log(data.batch_items.batch_id)
                 // if (data.batch_items.uom.length > 0)
@@ -985,7 +998,8 @@ function OpeningStockController($scope, $http){
     $scope.add_new_item = function(item) {
         $scope.current_item_details = item;
         initialize_item($scope);
-       
+        console.log("232")
+        console.log($scope.batch)
         hide_opening_stock_popup_divs();        
         $('#add_item').css('display', 'block');
         $scope.no_product_msg = '';

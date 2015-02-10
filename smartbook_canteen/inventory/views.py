@@ -281,9 +281,9 @@ class AddCategory(View):
                 try:
                     if category_details['parent_id'] != '': 
                         parent = Category.objects.get(id=category_details['parent_id'])
-                        category = Category.objects.get(name=category_details['name'], parent=parent)
+                        category = Category.objects.get(name=category_details['name'], parent=parent,canteen=request.session['canteen'])
                     else:
-                        category = Category.objects.get(name=category_details['name'])
+                        category = Category.objects.get(name=category_details['name'],canteen=request.session['canteen'])
                     res = {
                         'result': 'error',
                         'message': 'Category name already exists',
