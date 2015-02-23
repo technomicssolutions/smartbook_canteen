@@ -1,6 +1,6 @@
 'use strict';
 
-var app = angular.module('smartbook_erp', ['smartbook_erp.services', 'smartbook_erp.directives', 'ngRoute']);
+var app = angular.module('smartbook_canteen', ['smartbook_canteen.services', 'smartbook_canteen.directives', 'ngRoute']);
 
 app.config(function($interpolateProvider)
 {

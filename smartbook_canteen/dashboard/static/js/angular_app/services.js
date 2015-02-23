@@ -4,7 +4,7 @@
 
 // Demonstrate how to register services
 // In this case it is a simple value service.
-var stock_serv = angular.module('smartbook_erp.services', ['ngResource']);
+var stock_serv = angular.module('smartbook_canteen.services', ['ngResource']);
 
 stock_serv.value('version', '0.1');
 

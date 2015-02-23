@@ -2,7 +2,7 @@
 
 /* Directives */
 
-var directives = angular.module('smartbook_erp.directives', []);
+var directives = angular.module('smartbook_canteen.directives', []);
 
 directives.directive('appVersion', [ 'version', function(version)
 {
