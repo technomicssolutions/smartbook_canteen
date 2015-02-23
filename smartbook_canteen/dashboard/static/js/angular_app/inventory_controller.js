@@ -361,6 +361,7 @@ function initialize_item($scope){
 function save_item($scope, $http, from){
     console.log("fdgdfg")
     console.log($scope.batch)
+    console.log(from)
     $scope.item.category = $scope.category_name;
     console.log($scope.item.category);
     if ($scope.item.description == null) {
@@ -841,6 +842,7 @@ function OpeningStockController($scope, $http){
                 $scope.current_item_details.purchase_price = data.batch_items.purchase_price;
                 $scope.current_item_details.selling_price = data.batch_items.selling_price;
                 $scope.current_item_details.uom = data.batch_items.uom;
+                $scope.current_item_details.stock = data.batch_items.stock
             } else {
                 
                 $scope.current_item_details.stock = 0;
