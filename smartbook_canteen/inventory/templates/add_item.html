@@ -39,33 +39,9 @@
 				</select>						
 			</div>
 			
-					<!-- <div class="follow_up_div" ng-show="item.uom == 'box'">
-						<label>1 Box = </label>
-						<input type="text" ng-model="item.unit_per_box" />
-						<select ng-model="item.box_uom" ng-options="uom for uom in uoms | filter:'!box'" >
-							<option value=""> Select</option>
-						</select>						
-					</div>
-					<div class="follow_up_div" ng-show="item.uom == 'packet' || item.box_uom == 'packet'">
-						<label>1 Packet = </label>
-						<input type="text" ng-model="item.unit_per_packet" />
-						<select ng-model="item.packet_uom" ng-options="uom for uom in uoms | filter:'!packet' |filter:'!box'" >
-							<option value=""> Select</option>
-						</select>						
-					</div>
-					<div class="follow_up_div" ng-show="item.uom == 'piece' || item.box_uom == 'piece' || item.packet_uom == 'piece'">
-						<label>1 Piece = </label>
-						<input type="text" ng-model="item.unit_per_piece" />
-						<select ng-model="item.piece_uom" ng-options="uom for uom in uoms | filter:'!piece'| filter:'!packet' |filter:'!box'">
-							<option value=""> Select</option>
-						</select>						
-					</div> -->
-				<!-- </div>
-			</div> -->
+					
 			<div class="control">
-				<p class="error_msg">[[no_product_msg]]</p>
-				<p class="error_msg">[[no_brand_msg]]</p>
-				<p class="error_msg">[[no_vat_msg]]</p>
+				
 				<p class="error_msg">[[validate_item_error_msg]]</p>
 				<input type="button" value="Save" ng-click="save_item()" />
 				<input type="button" value="Cancel" ng-click="hide_popup()" />

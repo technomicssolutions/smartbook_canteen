@@ -321,6 +321,7 @@ function get_batch_search_details($scope, $http, from) {
     }
 }
 function validate_item($scope) {
+    
     if ($scope.item.name == '' || $scope.item.name == undefined) {
         $scope.validate_item_error_msg = 'Please enter the name';
         return false;
@@ -334,12 +335,12 @@ function validate_item($scope) {
     //     if($scope.item.brand == '' || $scope.item.brand == undefined){
     //         $scope.validate_item_error_msg = 'Please choose a brand';
     //         return false;
-    //     } else if ($scope.item.cess && ($scope.item.cess != Number($scope.item.cess))) {
-    //         $scope.validate_item_error_msg = 'Please enter valid cess';
-    //         return false;
-    //     } else if($scope.item.uom == '' || $scope.item.uom == undefined){
-    //         $scope.validate_item_error_msg = 'Please enter a uom';
-    //         return false;
+        } else if ($scope.item.category == '' || $scope.item.category == undefined) {
+            $scope.validate_item_error_msg = 'Please select the Category';
+            return false;
+        } else if($scope.item.uom == '' || $scope.item.uom == undefined){
+            $scope.validate_item_error_msg = 'Please enter a uom';
+            return false;
     //     }
     }return true;
 }
@@ -360,7 +361,7 @@ function initialize_item($scope){
 }
 function save_item($scope, $http, from){
     console.log("fdgdfg")
-    console.log($scope.batch)
+    // console.log($scope.batch)
     console.log(from)
     $scope.item.category = $scope.category_name;
     console.log($scope.item.category);
@@ -373,6 +374,7 @@ function save_item($scope, $http, from){
         'csrfmiddlewaretoken': $scope.csrf_token,
     }
     if(validate_item($scope)){
+        console.log($scope.validate_item_error_msg)
         $http({
             method: 'post',
             url: '/inventory/add_item/',

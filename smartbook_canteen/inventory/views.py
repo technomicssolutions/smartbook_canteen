@@ -155,12 +155,17 @@ class AddBatch(View):
     def post(self, request, *args, **kwargs):
         
         batch = None
+
         if request.is_ajax():
+            print("ooo")
             batch_details = ast.literal_eval(request.POST['batch_details'])
+            print(batch_details['id'])
             batch_details['canteen'] = request.session['canteen']
+            
             print batch_details
             if batch_details.get('id', ''):
                 batches = Batch.objects.filter(name=batch_details['name']).exclude(id=batch_details['id'])
+                print(batches)
                 if batches.count() == 0:
                     batch = Batch.objects.get(id=batch_details['id'])
                     batch_details['canteen'] = request.session['canteen']
@@ -202,8 +207,10 @@ class EditBatch(View):
 
     def get(self, request, *args, **kwargs):
         batch_id = request.GET.get('batch_id', '')
+        print(batch_id)
         if request.is_ajax() and request.GET.get('batch_id', ''):
             batch = Batch.objects.get(id=batch_id)
+            print(batch)
             res = {
                 'result': 'ok',
                 'batch': batch.get_json_data(),
@@ -532,8 +539,8 @@ class DeleteCategory(View):
 
         category_id = request.GET.get('category_id', '')
         category = Category.objects.get(id=category_id)
-        if category.product_set.all().count() == 0:
-            category.delete()
+        if category.item_set.all().count() == 0:
+            category.delete()        
         return HttpResponseRedirect(reverse('categories'))
 
 
