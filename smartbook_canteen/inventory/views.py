@@ -911,7 +911,7 @@ class StockReport(View):
                         # closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
                         purchase_price = Paragraph(str(batch_item['purchase_price']), para_style)
                         selling_price = Paragraph(str(batch_item['selling_price']), para_style)
-                        data.append([item_name, item_code,stock,round(consumed_quantity,2),purchase_price,selling_price])
+                        data.append([item_name, item_code,stock,consumed_quantity,purchase_price,selling_price])
                     if len(data) > 0:
                         table = Table(data, colWidths=(80, 80, 50, 110,80,80), style=style)
                         elements.append(table)
@@ -925,8 +925,8 @@ class StockReport(View):
                                 ])   
                     elements.append(table0)   
                     data1 = []
-                    data1.append(['Total Stock Purchase Price :', round(total_purchase_price,2)])
-                    data1.append(['Total Consumed Quantity Price :', round(total_selling_price,2)])
+                    data1.append(['Total Stock Purchase Price :', total_purchase_price])
+                    data1.append(['Total Consumed Quantity Price :', total_selling_price])
                     table1 = Table(data1, colWidths=(200, 110), style=style)
                     table1.setStyle([
                                 ('FONTSIZE', (0,0), (-1,-1), 11),
@@ -1116,6 +1116,7 @@ class CashFlowReport(View):
                 total_selling_price=0;
                 batch_item_details=[]
                 batch = Batch.objects.get(id=batch_id,canteen=request.session['canteen'])
+                batch_name=batch.name;
                 print batch;
                 batch_items = BatchItem.objects.filter(batch=batch)
                 print batch_items;
@@ -1144,7 +1145,7 @@ class CashFlowReport(View):
                 response = HttpResponse(content_type='application/pdf')
                 p = SimpleDocTemplate(response, pagesize=A4)
                 elements = []
-                d = [['Cash Flow Report'+' '+str(current_date)]]
+                d = [['Cash Flow Report'+' '+str(current_date)+' '+ '- Batch '+str(batch_name)]]
                 t = Table(d, colWidths=(450), rowHeights=25, style=style)
                 t.setStyle([('ALIGN',(0,0),(-1,-1),'CENTER'),
                     ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
@@ -1169,6 +1170,7 @@ class CashFlowReport(View):
                 table = Table(data, colWidths=(150,150), style=style)
                 table.setStyle([
                     ('FONTSIZE', (0,0), (-1,0), 11),
+
                     ])  
                 elements.append(table)
                 elements.append(Spacer(1,.1*cm ))
@@ -1176,8 +1178,9 @@ class CashFlowReport(View):
                 for cash_entry in cash_entry_details:
                     # total_purchase_price = float(total_purchase_price) + (float(batch_item['stock'])*float(batch_item['purchase_price']))
                     # total_selling_price = float(total_selling_price) + (float(batch_item['consumed_quantity'])*float(batch_item['selling_price']))
+                    amount_in_float = round(float(cash_entry['amount']),3)
                     date = Paragraph(cash_entry['date'], para_style)
-                    amount = Paragraph(str(cash_entry['amount']), para_style)
+                    amount = Paragraph(str(amount_in_float), para_style)
                     # stock = Paragraph(str(batch_item['stock']), para_style)
                     # consumed_quantity = Paragraph(str(batch_item['consumed_quantity']), para_style)
                     # closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
@@ -1191,7 +1194,7 @@ class CashFlowReport(View):
                 blank="";
                 data0.append([blank])
                 data0.append([blank])
-                table0 = Table(data0, colWidths=(100), style=style)
+                table0 = Table(data0, colWidths=(250), style=style)
                 table0.setStyle([
                             ('FONTSIZE', (0,0), (-1,-1), 11),
                             ])   
