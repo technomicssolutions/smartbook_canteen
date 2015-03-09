@@ -911,7 +911,7 @@ class StockReport(View):
                         # closing_stock = Paragraph(str(batch_item['closing_stock']), para_style)
                         purchase_price = Paragraph(str(batch_item['purchase_price']), para_style)
                         selling_price = Paragraph(str(batch_item['selling_price']), para_style)
-                        data.append([item_name, item_code,stock,consumed_quantity,purchase_price,selling_price])
+                        data.append([item_name, item_code,stock,round(consumed_quantity,2),purchase_price,selling_price])
                     if len(data) > 0:
                         table = Table(data, colWidths=(80, 80, 50, 110,80,80), style=style)
                         elements.append(table)
@@ -925,8 +925,8 @@ class StockReport(View):
                                 ])   
                     elements.append(table0)   
                     data1 = []
-                    data1.append(['Total Stock Purchase Price :', total_purchase_price])
-                    data1.append(['Total Consumed Quantity Price :', total_selling_price])
+                    data1.append(['Total Stock Purchase Price :', round(total_purchase_price,2)])
+                    data1.append(['Total Consumed Quantity Price :', round(total_selling_price,2)])
                     table1 = Table(data1, colWidths=(200, 110), style=style)
                     table1.setStyle([
                                 ('FONTSIZE', (0,0), (-1,-1), 11),
